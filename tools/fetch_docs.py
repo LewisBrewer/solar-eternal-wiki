@@ -20,7 +20,11 @@ def slug(t):
 
 
 def main():
-    info = json.loads(os.environ['GOOGLE_SERVICE_ACCOUNT_JSON'])
+    raw = os.environ.get('GOOGLE_SERVICE_ACCOUNT_JSON', '').strip()
+    if not raw:
+        sys.exit('GOOGLE_SERVICE_ACCOUNT_JSON is empty. Add the service account key as a repository secret '
+                 '(Settings > Secrets and variables > Actions); see the README.')
+    info = json.loads(raw)
     creds = service_account.Credentials.from_service_account_info(info, scopes=['https://www.googleapis.com/auth/drive.readonly'])
     drive = build('drive', 'v3', credentials=creds, cache_discovery=False)
     q = "'%s' in parents and mimeType = 'application/vnd.google-apps.document' and trashed = false" % FOLDER
