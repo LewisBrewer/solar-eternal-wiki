@@ -590,14 +590,19 @@ exedor-faenov faenov-wuae wuae-cheleb faenov-hydrobius faenov-zom exedor-ximpok 
 ximpok-aethos ximpok-roschon roschon-batraq batraq-swur swur-media media-uthan uthan-hhabban hhabban-feonus
 feonus-achernar achernar-omaggus omaggus-batraq omaggus-banagho banagho-aethos aethos-ksora aethos-nithascal
 aethos-ceyecarro saolea-taggalion taggalion-veyer veyer-hhabban ksora-umik umik-beta-aquilae umik-ijaagin""".split()
-for lane in LANES:
-    a_, b_ = None, None
-    for cut in range(1, lane.count('-') + 1):          # split "a-b" where both halves are system ids
-        parts = lane.split('-')
+def pair(lane):
+    parts = lane.split('-')
+    for cut in range(1, len(parts)):                    # split "a-b" where both halves are system ids
         a_, b_ = '-'.join(parts[:cut]), '-'.join(parts[cut:])
-        if a_ in ix and b_ in ix: break
-    assert a_ in ix and b_ in ix, lane
-    link(ix[a_], ix[b_])
+        if a_ in ix and b_ in ix: return ix[a_], ix[b_]
+    raise AssertionError(lane)
+# Lewis's hand edits to the network: lanes he wants and lanes he does not.
+EXTRA_LANES = "lytirim-grumium".split()
+NO_LANES = "emim-maasym lytirim-dastamon".split()
+for lane in NO_LANES:
+    i_, j_ = pair(lane); seen.add((min(i_, j_), max(i_, j_)))
+for lane in LANES + EXTRA_LANES:
+    link(*pair(lane))
 # The Iron Gulf map's own area follows its lanes only; elsewhere the network is a relative
 # neighbourhood graph (two stars are linked when no third star lies closer to both), which
 # gives the same sparse, lane-like structure across the rest of the map.
