@@ -388,9 +388,11 @@ class Site:
         out = ['<aside class="infobox" aria-label="Summary"><div class="ib-head"><small>%s</small><b>%s</b></div>' %
                (html.escape(head_small), html.escape(art['title']))]
         # a flag or emblem drawn for the article, kept in static/flags/<slug>.svg
-        if os.path.exists(os.path.join(STATIC, 'flags', art['slug'] + '.svg')):
-            out.append('<figure class="ib-flag"><img src="%sassets/flags/%s.svg" alt="Flag of the %s"></figure>' %
-                       (self.root_for_infobox, art['slug'], html.escape(art['title'])))
+        for ext in ('svg', 'png'):
+            if os.path.exists(os.path.join(STATIC, 'flags', '%s.%s' % (art['slug'], ext))):
+                out.append('<figure class="ib-flag"><img src="%sassets/flags/%s.%s" alt="Flag of the %s"></figure>' %
+                           (self.root_for_infobox, art['slug'], ext, html.escape(art['title'])))
+                break
         used = set(['type'])
         if art['part_of']:
             used.add('part of')
