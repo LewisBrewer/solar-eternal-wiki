@@ -70,7 +70,7 @@ controls.maxDistance = 420;
 controls.maxPolarAngle = Math.PI * 0.47;
 
 const W3 = (s) => new THREE.Vector3(s.x, s.z, -s.y); // map plane (x, y) -> three (x, -z); height is three's y
-const EXT = { x0: -160, x1: 45, y0: -115, y1: 90 };   // 205 x 205 ly on a 2048 texture
+const EXT = { x0: -160, x1: 75, y0: -115, y1: 90 };   // 235 x 205 ly, 10 px to the light year
 const HOME = { target: new THREE.Vector3(-64, 0, 18), pos: new THREE.Vector3(-64, 160, 140) };
 camera.position.copy(HOME.pos); controls.target.copy(HOME.target);
 
@@ -97,7 +97,7 @@ scene.add(grid);
 // territory canvas texture on the plane
 const TPX = 2048 / 205;
 const terrCanvas = document.createElement('canvas');
-terrCanvas.width = 2048;
+terrCanvas.width = Math.round((EXT.x1 - EXT.x0) * TPX);
 terrCanvas.height = 2048;
 const terrTex = new THREE.CanvasTexture(terrCanvas);
 terrTex.colorSpace = THREE.SRGBColorSpace;

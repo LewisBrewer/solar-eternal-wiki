@@ -87,6 +87,11 @@ EXTRA = {
     'rubin': [('Kessavar', 22, 31), ('Oru Tenna', 31, 18), ('Halvek', 30, 3), ('Imrith', 16, -5),
               ('Selund', 36, -14), ('Aqqar', 34, -24), ('Morrow\'s Light', 41, 9), ('Teshun', 11, -18),
               ('Vane', 18, -25)],
+    # The Mardak Cluster, on the far side of the Rubin Void: the ancients' eleven ruined worlds
+    # and the star the Gagarin's road comes in by. Names are the Office's charts'.
+    'mardak': [('Ithren', 50, 14), ('Varrow', 57, 18), ("Calder's Reach", 63, 10), ('Ommen', 52, 4),
+               ('Teluvar', 60, 1), ('Saskel', 66, -5), ('Nadir', 49, -6), ('Halloran', 56, -10),
+               ('Wend', 63, -17), ('Isolde', 51, -19), ('Peregrine', 58, -24), ('Lastlight', 66, -26)],
 }
 for region, lst in EXTRA.items():
     if region == 'rubin':
@@ -151,9 +156,9 @@ for sid, sec in SHEET_SECTOR.items():
          'z': round(prng.uniform(-3.5, 3.5), 2), 'stars': 1, 'region2235': 'usr', 'invented': True, 'sheet': True}
     systems.append(s); by[sid] = s; placed.append(sid)
 # Lewis's moves: Cygni sits between Ijax and Bashpit.
-MOVED = {'cygni': (-30.7, -10.4, -2.5)}
+MOVED = {'cygni': (-30.7, -10.4, -2.5), 'daranma': (17.5, 6.5, None)}   # Daranma sits at the Rubin Void's edge
 for sid, (x, y, z) in MOVED.items():
-    by[sid].update(x=x, y=y, z=z)
+    by[sid].update(x=x, y=y, z=by[sid]['z'] if z is None else z)
 # catalogue names from the sheet's designations (Teegarden for Targon and so on)
 CATALOGUE = {}
 for r in sheet:
@@ -597,8 +602,8 @@ data = {
         {'name': 'Zadanis Void', 'near': ['lishval', 'okul', 'gorim', 'targon']},
         {'name': 'Shadow Nebula', 'near': ['asmore', 'sorcimax', 'uldor', 'quannaga']},
         {'name': 'Nythran Void', 'near': ['ponnell', 'brallix', 'ellamir', 'galurum']},
-        # beyond the Rubin Void's northern reach, past Torrom and Uzun (book 7.2 and 15.9)
-        {'name': 'Mardak Cluster', 'at': (31, 42), 'stack': True},
+        # on the far side of the Rubin Void (book 7.2 and 15.9)
+        {'name': 'Mardak Cluster', 'near': [slug(n) for n, *_ in EXTRA['mardak']], 'stack': True},
         {'name': 'Rubin Void', 'near': ['halvek', 'imrith', 'oru-tenna', 'selund']},
     ],
     # The Republic's administrative sectors, from the colony sheet
@@ -682,13 +687,22 @@ for i in range(N):
         if np.any(np.maximum(D[i], D[j]) < D[i, j] - 1e-9): continue
         link(i, j)
 # 2. Whatever is still cut off joins by its shortest link, so every star can be reached.
-pairs = sorted((D[i, j], i, j) for i in range(N) for j in range(i + 1, N) if outside(i) and outside(j))
+#    The Mardak Cluster lies across the void and is joined only by the void's own routes below.
+MARDAK = {slug(n) for n, *_ in EXTRA['mardak']}
+same_side = lambda i, j: (systems[i]['id'] in MARDAK) == (systems[j]['id'] in MARDAK)
+pairs = sorted((D[i, j], i, j) for i in range(N) for j in range(i + 1, N) if outside(i) and outside(j) and same_side(i, j))
 for d_, i, j in pairs:
     if find(i) != find(j): link(i, j)
 # 3. The Rubin Void: the charted routes, then hazards for the rest.
 def nearest_outside(sid):
     return min((k for k in range(N) if outside(k)), key=lambda k: D[k, ix[sid]])
-link(nearest_outside('imrith'), ix['imrith'], 'charted')
+link(ix['luhman'], ix['imrith'], 'charted')
+# The Gagarin's road (2310), from the ancients' own lattice: Daranma, Halvek, Morrow's Light
+# and on into the Cluster. Daranma also reaches Imrith.
+link(ix['daranma'], ix['imrith'], 'charted')
+link(ix['daranma'], ix['halvek'], 'charted')
+link(ix['halvek'], ix['morrows-light'], 'charted')
+link(ix['morrows-light'], min((ix[m] for m in MARDAK), key=lambda k: D[k, ix['morrows-light']]), 'charted')
 link(nearest_outside('teshun'), ix['teshun'], 'charted')
 link(ix['teshun'], ix['vane'], 'charted')
 for d_, i, j in sorted((D[i, j], i, j) for i in range(N) for j in range(i + 1, N)):
