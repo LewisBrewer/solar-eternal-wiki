@@ -29,7 +29,7 @@ POLITIES = {
     'voor':     {'name': 'Voor Confederacy', 'color': '#3FB3A6', 'slug': 'voor-confederacy'},
     'maweer':   {'name': 'Maweer Caretakers', 'color': '#62BF6E', 'slug': 'maweer'},
     'freehold': {'name': 'Northern Fevarian Freeholds', 'color': '#A57BD6'},
-    'fevclans': {'name': 'Fevarian clans of the Veil', 'color': '#8E5E78'},
+    'fevclans': {'name': 'Southern Fevarian Freeholds', 'color': '#8E5E78'},
     'khanate':  {'name': 'Red Khanate', 'color': '#D2493E', 'slug': 'red-khanate'},
     'eight':    {'name': 'Council of the Eight Khans', 'color': '#E2733C'},
     'remnant':  {'name': 'Khanate remnants', 'color': '#A44F48'},
@@ -82,9 +82,9 @@ EXTRA = {
               ('Dhur Ka', -115, -101), ('Sarrek', -106, -104), ('Imbal', -120, -107)],
     'dsethen': [('Sethen\'s March', -112, -58)],
     # The Rubin Void, east of the Republic, named for the astronomer Vera Rubin. Low density.
-    'rubin': [('Kessavar', 22, 31), ('Oru Tenna', 31, 18), ('Halvek', 25, 4), ('Imrith', 38, -6),
-              ('Selund', 20, -14), ('Aqqar', 33, -24), ('Morrow\'s Light', 41, 9), ('Teshun', 27, -36),
-              ('Vane', 43, -30)],
+    'rubin': [('Kessavar', 22, 31), ('Oru Tenna', 31, 18), ('Halvek', 30, 3), ('Imrith', 16, -5),
+              ('Selund', 36, -14), ('Aqqar', 34, -24), ('Morrow\'s Light', 41, 9), ('Teshun', 11, -18),
+              ('Vane', 18, -25)],
 }
 for region, lst in EXTRA.items():
     for name, x, y in lst:
@@ -118,6 +118,8 @@ for r in sheet:
 for sid in ('ladiom', 'swur'):
     SHEET_SECTOR.pop(sid, None); SHEET_CLAIM.pop(sid, None)
 SHEET_SECTOR['derellis'] = 'Geronth Sector'
+SHEET_SECTOR['brink'] = 'Sol Sector'      # so the sectors do not overlap
+SHEET_SECTOR['yildun'] = 'Saolea Sector'
 
 # Systems on the sheet but not on the 2235 map get invented positions inside their sector,
 # at the emptiest spot among its other members.
@@ -127,14 +129,17 @@ for sid, sec in SHEET_SECTOR.items():
     mem = [by[m] for m, s in SHEET_SECTOR.items() if s == sec and m in by]
     xs, ys = [m['x'] for m in mem], [m['y'] for m in mem]
     best, bscore = None, -1
+    prng = random.Random(sid)                                   # stable per system
+    rubin = [s for s in systems if s['region2235'] == 'rubin']
     for _ in range(4000):
-        x, y = rng.uniform(min(xs) - 3, max(xs) + 3), rng.uniform(min(ys) - 3, max(ys) + 3)
+        x, y = prng.uniform(min(xs) - 3, max(xs) + 3), prng.uniform(min(ys) - 3, max(ys) + 3)
         dmem = min(math.hypot(x - m['x'], y - m['y']) for m in mem)
-        if dmem > 9: continue                                   # stay near the sector
+        if dmem > 7: continue                                   # stay near the sector
+        if any(math.hypot(x - r['x'], y - r['y']) < 10 for r in rubin): continue   # not in the void
         score = min(math.hypot(x - s['x'], y - s['y']) for s in systems)
         if score > bscore: best, bscore = (x, y), score
     s = {'id': sid, 'name': SHEET_SYSNAME[sid], 'x': round(best[0], 2), 'y': round(best[1], 2),
-         'z': round(rng.uniform(-3.5, 3.5), 2), 'stars': 1, 'region2235': 'usr', 'invented': True, 'sheet': True}
+         'z': round(prng.uniform(-3.5, 3.5), 2), 'stars': 1, 'region2235': 'usr', 'invented': True, 'sheet': True}
     systems.append(s); by[sid] = s; placed.append(sid)
 # catalogue names from the sheet's designations (Teegarden for Targon and so on)
 CATALOGUE = {}
@@ -375,6 +380,7 @@ for r in sheet:
     d['biome'] = biome_label(r[5])
     later = biome_label(r[6])
     if later and later != d['biome']: d['becomes'] = later
+    if name == 'Mars': d['becomes'] = 'Continental world'
     if r[10].strip() and r[10].strip() != '-': d['capital'] = r[10].strip()
     if r[9].strip() and r[9].strip() != '-': d['ship'] = r[9].strip()
     if r[0].strip(): d['by'] = r[0].strip()
@@ -392,8 +398,25 @@ for sid, w, y, sl, pl in [
     if w == 'Indata Mog': d['biome'] = 'Steppe world'
     if w == 'Nomotar': d['biome'] = 'Barren world'
     worlds.append(d)
+# Terraforming. A world keeps its found biome until its remaking is complete. The book dates
+# Mars (the Marineris Tent lifted, 14 April 2182); the rest are estimated: worlds that were
+# already living take about 60 years, the Second Wave's century plans about 100, the Third
+# Wave's and later worlds about 120, and the Jovian moons are taken as complete by 2290.
+LIVING = {'Mangrove world', 'Mesa world', 'Savana world', 'Tropical world', 'Atoll world', 'Tepui world', 'Continental world', 'Verdant world', 'Steppe world', 'Alpine world'}
 for w in worlds:
     assert w['sys'] in by, w
+    if not w.get('becomes'): continue
+    if w['name'] == 'Mars':
+        w['terraformed'] = ym(2182, 4, 14); w['biome'] = 'Barren world'; continue
+    if w['name'] in ('Io', 'Europa', 'Ganymede', 'Callisto'):
+        w['terraformed'] = 2290.0
+    elif w['biome'] in LIVING:
+        w['terraformed'] = round(w['settled'] + 60, 1)
+    elif w['settled'] < 2349:
+        w['terraformed'] = round(w['settled'] + 100, 1)
+    else:
+        w['terraformed'] = round(w['settled'] + 120, 1)
+    w['terraformedEstimated'] = True
 # Names of planets that are not settled worlds themselves
 PLANET_NAMES = {'saolea': {2: 'Okeanos'}, 'cirban': {3: 'Marigot', 5: 'Grand Anse'}, 'procyon': {2: 'Phoenicia'}}
 BURNED = [('procyon', 'Landfall', ym(2441, 11, 26)), ('yildun', 'Dauntless', ym(2444, 12, 3)),
@@ -534,23 +557,38 @@ for r in data['regions']:
     del r['near']
 
 # Jump routes: every pair within a Pillai drive's 8 ly, then the shortest links that join
-# what is left, so that every star can be reached from every other.
+# what is left, so that every star can be reached from every other. The Rubin Void is
+# different: its gravity moves the Pillai radius, so only the routes charted in the
+# Expansion Era count as routes (Imrith; Teshun and on to Vane), and they stay hazardous.
+# Every other approach into the void is drawn as an uncharted hazard.
+RUBIN = {slug(n) for n, *_ in EXTRA['rubin']}
+for sid in RUBIN:
+    by[sid]['hazard'] = 'Dark-matter masses move the Pillai radius. Jumps are unreliable.'
 N = len(systems)
 parent = list(range(N))
 def find(i):
     while parent[i] != i:
         parent[i] = parent[parent[i]]; i = parent[i]
     return i
+ix = {s['id']: i for i, s in enumerate(systems)}
 pairs = sorted((dist(systems[i], systems[j]), i, j) for i in range(N) for j in range(i + 1, N))
 routes = []
+def link(i, j, kind):
+    routes.append([systems[i]['id'], systems[j]['id'], round(dist(systems[i], systems[j]), 1)] + ([kind] if kind else []))
+    parent[find(i)] = find(j)
+outside = lambda i: systems[i]['id'] not in RUBIN
 for d, i, j in pairs:
-    if d <= 8:
-        routes.append([systems[i]['id'], systems[j]['id'], round(d, 1)])
-        parent[find(i)] = find(j)
+    if d <= 8 and outside(i) and outside(j): link(i, j, None)
 for d, i, j in pairs:
-    if d > 8 and find(i) != find(j):
-        routes.append([systems[i]['id'], systems[j]['id'], round(d, 1)])
-        parent[find(i)] = find(j)
+    if outside(i) and outside(j) and find(i) != find(j): link(i, j, None)
+# the charted routes into the void
+def nearest_outside(sid):
+    return min((k for k in range(N) if outside(k)), key=lambda k: dist(systems[k], by[sid]))
+link(nearest_outside('imrith'), ix['imrith'], 'charted')
+link(nearest_outside('teshun'), ix['teshun'], 'charted')
+link(ix['teshun'], ix['vane'], 'charted')
+for d, i, j in pairs:
+    if find(i) != find(j): link(i, j, 'hazard')
 assert len({find(i) for i in range(N)}) == 1
 data['routes'] = routes
 print('routes', len(routes), 'longest link', max(r[2] for r in routes))

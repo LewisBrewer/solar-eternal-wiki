@@ -38,6 +38,9 @@ function ownerAt(s, t) {
   if (CONTACT[p] && t < CONTACT[p]) return null;   // not yet known to humanity
   return { p, note: cur.note, derived: !!cur.derived, from: cur.from };
 }
+// a world shows its found biome until its terraforming is complete
+const biomeAt = (w, t) => (w && w.becomes && w.terraformed && t >= w.terraformed ? w.becomes : w && w.biome);
+const worldByName = (sid, name) => data.worlds.find((w) => w.sys === sid && w.name === name);
 const worldsAt = (sid, t) => data.worlds.filter((w) => w.sys === sid && w.settled <= t);
 const burnedAt = (sid, t) => data.burned.filter((b) => b.sys === sid && b.y <= t && t < b.y + 30);
 const eraOf = (y) => (ERAS.find((e) => y >= e[0] && y < e[1]) || ERAS[ERAS.length - 1])[2];
@@ -179,23 +182,90 @@ function paintTerritory(t) {
     g.font = "300 46px 'Jost', sans-serif"; g.fillStyle = 'rgba(255,255,255,0.14)';
     if ('letterSpacing' in g) g.letterSpacing = '9px';
     for (const r of data.regions) g.fillText(r.name.toUpperCase(), cx(r.x), cy(r.y));
-    // sectors: the Republic's administrative divisions, a dashed boundary and a smaller gold label
-    for (const s of data.sectors || []) {
-      // a sector covers the members the Republic holds in this year
-      const pts = s.members.map((id) => byId[id]).filter((p) => { const o = p && ownerAt(p, t); return o && ['earth', 'une', 'usr'].includes(o.p); });
-      if (pts.length < 2) continue;
-      const mx = pts.reduce((a, p) => a + p.x, 0) / pts.length, my = pts.reduce((a, p) => a + p.y, 0) / pts.length;
-      const hull = convexHull(pts.map((p) => [p.x, p.y])).map(([x, y]) => { const dx = x - mx, dy = y - my, l = Math.hypot(dx, dy) || 1; return [x + dx / l * 4.5, y + dy / l * 4.5]; });
+    // sectors: the Republic's administrative divisions. Each sector's boundary is a contour of
+    // a distance field that stops short of the bisector with its neighbours, so sectors never overlap.
+    for (const sh of sectorShapes(t)) {
       g.save(); g.setLineDash([14, 12]); g.lineWidth = 3; g.strokeStyle = 'rgba(242,213,154,0.45)'; g.lineJoin = 'round';
-      g.beginPath(); hull.forEach(([x, y], i) => (i ? g.lineTo(cx(x), cy(y)) : g.moveTo(cx(x), cy(y)))); g.closePath(); g.stroke(); g.restore();
-      const top = Math.max(...hull.map((h) => h[1]));
+      for (const line of sh.lines) { g.beginPath(); line.forEach(([x, y], i) => (i ? g.lineTo(cx(x), cy(y)) : g.moveTo(cx(x), cy(y)))); g.stroke(); }
+      g.restore();
       g.font = "500 26px 'Jost', sans-serif"; g.fillStyle = 'rgba(242,213,154,0.7)';
       if ('letterSpacing' in g) g.letterSpacing = '6px';
-      g.fillText(s.name.toUpperCase(), cx(mx), cy(top) - 18);
+      g.fillText(sh.name.toUpperCase(), cx(sh.lx), cy(sh.ly));
     }
   }
   if ('letterSpacing' in g) g.letterSpacing = '0px';
   terrTex.needsUpdate = true;
+}
+
+
+// ------------------------------------------------------------------ sector outlines
+const SECTOR_R = 5, SECTOR_GAP = 0.6, SECTOR_STEP = 0.5;
+let sectorCache = { key: null, shapes: [] };
+function sectorShapes(t) {
+  const held = (data.sectors || []).map((s) => ({ name: s.name, pts: s.members.map((id) => byId[id]).filter((p) => { const o = p && ownerAt(p, t); return o && ['earth', 'une', 'usr'].includes(o.p); }) }));
+  const key = held.map((h) => h.pts.map((p) => p.id).join(',')).join('|');
+  if (key === sectorCache.key) return sectorCache.shapes;
+  const all = held.flatMap((h) => h.pts);
+  const shapes = [];
+  if (all.length) {
+    const x0 = Math.min(...all.map((p) => p.x)) - SECTOR_R - 1, x1 = Math.max(...all.map((p) => p.x)) + SECTOR_R + 1;
+    const y0 = Math.min(...all.map((p) => p.y)) - SECTOR_R - 1, y1 = Math.max(...all.map((p) => p.y)) + SECTOR_R + 1;
+    const nx = Math.ceil((x1 - x0) / SECTOR_STEP) + 1, ny = Math.ceil((y1 - y0) / SECTOR_STEP) + 1;
+    // nearest held member of each sector, per grid point
+    const near = held.map(() => new Float32Array(nx * ny));
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const x = x0 + i * SECTOR_STEP, y = y0 + j * SECTOR_STEP;
+      held.forEach((h, k) => { let m = 1e9; for (const p of h.pts) { const d = Math.hypot(p.x - x, p.y - y); if (d < m) m = d; } near[k][j * nx + i] = m; });
+    }
+    held.forEach((h, k) => {
+      if (h.pts.length < 2) return;
+      const f = new Float32Array(nx * ny);
+      for (let q = 0; q < nx * ny; q++) {
+        let other = 1e9; held.forEach((_, kk) => { if (kk !== k && near[kk][q] < other) other = near[kk][q]; });
+        const ds = near[k][q];
+        f[q] = Math.min(SECTOR_R - ds, (other - ds) / 2 - SECTOR_GAP);
+      }
+      const lines = marching(f, nx, ny, x0, y0);
+      const cxm = h.pts.reduce((a, p) => a + p.x, 0) / h.pts.length;
+      shapes.push({ name: h.name, lines, lx: cxm, ly: Math.max(...h.pts.map((p) => p.y)) + SECTOR_R + 1.6 });
+    });
+  }
+  sectorCache = { key, shapes };
+  return shapes;
+}
+function marching(f, nx, ny, x0, y0) {
+  const segs = [];
+  const P = (i, j) => [x0 + i * SECTOR_STEP, y0 + j * SECTOR_STEP];
+  const lerp = (a, b, va, vb) => { const k = va / (va - vb); return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; };
+  for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) {
+    const v = [f[j * nx + i], f[j * nx + i + 1], f[(j + 1) * nx + i + 1], f[(j + 1) * nx + i]];
+    const c = [P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)];
+    const e = [];
+    for (let k = 0; k < 4; k++) { const a = v[k], b = v[(k + 1) % 4]; if ((a > 0) !== (b > 0)) e.push(lerp(c[k], c[(k + 1) % 4], a, b)); }
+    if (e.length === 2) segs.push([e[0], e[1]]);
+    else if (e.length === 4) { segs.push([e[0], e[1]]); segs.push([e[2], e[3]]); }
+  }
+  // chain segments into polylines so the dash pattern runs continuously
+  const k = (p) => p[0].toFixed(3) + ',' + p[1].toFixed(3);
+  const ends = new Map();
+  segs.forEach((s, i) => { for (const p of s) { const kk = k(p); if (!ends.has(kk)) ends.set(kk, []); ends.get(kk).push(i); } });
+  const used = new Uint8Array(segs.length), lines = [];
+  for (let i = 0; i < segs.length; i++) {
+    if (used[i]) continue; used[i] = 1;
+    const line = [segs[i][0], segs[i][1]];
+    for (const dir of [1, 0]) {
+      for (;;) {
+        const tip = dir ? line[line.length - 1] : line[0];
+        const nxt = (ends.get(k(tip)) || []).find((s) => !used[s]);
+        if (nxt === undefined) break;
+        used[nxt] = 1;
+        const [a, b] = segs[nxt], q = k(a) === k(tip) ? b : a;
+        if (dir) line.push(q); else line.unshift(q);
+      }
+    }
+    lines.push(line);
+  }
+  return lines;
 }
 
 function convexHull(p) {
@@ -246,17 +316,20 @@ scene.add(stars);
 // jump routes: every pair within a Pillai drive's 8 ly, plus the longer links that join the
 // rest, so every star can be reached (built in build_data.py). Long links are dashed.
 const routes = (() => {
-  const near = [], far = [];
-  for (const [a, b, d] of data.routes) {
+  const buckets = { near: [], far: [], charted: [], hazard: [] };
+  for (const [a, b, d, kind] of data.routes) {
     const A = byId[a], B = byId[b];
-    (d <= 8 ? near : far).push(A.x, A.z, -A.y, B.x, B.z, -B.y);
+    buckets[kind || (d <= 8 ? 'near' : 'far')].push(A.x, A.z, -A.y, B.x, B.z, -B.y);
   }
   const grp = new THREE.Group();
-  const g1 = new THREE.BufferGeometry(); g1.setAttribute('position', new THREE.Float32BufferAttribute(near, 3));
-  grp.add(new THREE.LineSegments(g1, new THREE.LineBasicMaterial({ color: 0xbfd4ee, transparent: true, opacity: 0.22 })));
-  const g2 = new THREE.BufferGeometry(); g2.setAttribute('position', new THREE.Float32BufferAttribute(far, 3));
-  const l2 = new THREE.LineSegments(g2, new THREE.LineDashedMaterial({ color: 0xbfd4ee, transparent: true, opacity: 0.3, dashSize: 0.8, gapSize: 0.8 }));
-  l2.computeLineDistances(); grp.add(l2);
+  const add = (pts, mat) => {
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    const l = new THREE.LineSegments(g, mat); if (mat.isLineDashedMaterial) l.computeLineDistances(); grp.add(l);
+  };
+  add(buckets.near, new THREE.LineBasicMaterial({ color: 0xbfd4ee, transparent: true, opacity: 0.22 }));
+  add(buckets.far, new THREE.LineDashedMaterial({ color: 0xbfd4ee, transparent: true, opacity: 0.3, dashSize: 0.8, gapSize: 0.8 }));
+  add(buckets.charted, new THREE.LineDashedMaterial({ color: 0xf2c14e, transparent: true, opacity: 0.55, dashSize: 1.2, gapSize: 0.8 }));
+  add(buckets.hazard, new THREE.LineDashedMaterial({ color: 0xe07a5f, transparent: true, opacity: 0.4, dashSize: 0.3, gapSize: 0.9 }));
   grp.visible = false; scene.add(grp); return grp;
 })();
 
@@ -365,6 +438,7 @@ function renderSelected() {
     '<dl><dt>Held by</dt><dd>' + held + '</dd>' +
     (wHtml ? '<dt>Worlds</dt><dd>' + wHtml + '</dd>' : '') +
     (s.catalogue ? '<dt>Catalogue</dt><dd>' + esc(s.catalogue) + '</dd>' : '') +
+    (s.hazard ? '<dt>Hazard</dt><dd style="color:#F0B6A8">' + esc(s.hazard) + '</dd>' : '') +
     '<dt>From Sol</dt><dd>' + (s.id === 'sol' ? '—' : dist.toFixed(1) + ' light years') + '</dd>' +
     '<dt>Stars</dt><dd>' + ['Single', 'Binary', 'Trinary'][s.stars - 1] + '</dd>' +
     (evHtml ? '<dt>Events</dt><dd>' + evHtml + '</dd>' : '') + '</dl>' +
@@ -568,6 +642,7 @@ function rngFor(id) { let h = 2166136261; for (const c of id) h = Math.imul(h ^ 
 const TYPES_IN = ['Molten world', 'Tidally locked rock', 'Hot cloud world', 'Barren rock'];
 const TYPES_MID = ['Barren world', 'Frozen desert', 'Ocean world', 'Steppe world', 'Barren world'];
 const TYPES_OUT = ['Gas giant', 'Ringed gas giant', 'Ice giant', 'Frozen dwarf'];
+const TYPES_DEAD = ['Barren world', 'Frozen world', 'Molten world', 'Irradiated rock', 'Barren world'];
 function makePlanets(s) {
   const r = rngFor(s.id);
   if (s.id === 'sol') {
@@ -589,7 +664,8 @@ function makePlanets(s) {
   const hz = 1 + Math.floor(r() * 2);
   const out = []; let a = 0.25 + r() * 0.25;
   for (let i = 0; i < n; i++) {
-    const type = i < hz ? TYPES_IN[Math.floor(r() * TYPES_IN.length)] : i < hz + 2 ? TYPES_MID[Math.floor(r() * TYPES_MID.length)] : TYPES_OUT[Math.floor(r() * TYPES_OUT.length)];
+    const MID = s.region2235 === 'rubin' ? TYPES_DEAD : TYPES_MID;   // nothing habitable in the Rubin Void
+    const type = i < hz ? TYPES_IN[Math.floor(r() * TYPES_IN.length)] : i < hz + 2 ? MID[Math.floor(r() * MID.length)] : TYPES_OUT[Math.floor(r() * TYPES_OUT.length)];
     out.push({ name: names[i + 1] || s.name + ' ' + ROMAN[i], a, type, ph: r() * 6.28, world: null, moons: [] });
     a *= 1.5 + r() * 0.6;
   }
@@ -670,7 +746,8 @@ function bodyInfo(b, t, o) {
   const rows = [];
   const parentName = b.p.world && (b.p.settled === undefined || b.p.settled <= t) ? b.p.world : b.p.name;
   rows.push(['Designation', esc(b.kind === 'moon' ? 'Moon of ' + parentName : sv.sys.name + ' ' + ROMAN[b.pi])]);
-  rows.push(['Type', esc(live && b.biome ? b.biome : b.type)]);
+  const bw = b.world && worldByName(sv.sys.id, b.world);
+  rows.push(['Type', esc(live && bw && biomeAt(bw, t) ? biomeAt(bw, t) : b.type)]);
   if (b.world) {
     const w = data.worlds.find((x) => x.sys === sv.sys.id && x.name === b.world);
     if (w && w.native) rows.push(['Inhabited', 'Native world']);
@@ -678,7 +755,11 @@ function bodyInfo(b, t, o) {
     if (w && w.capital) rows.push(['Capital', esc(w.capital)]);
     if (w && w.ship) rows.push(['Colony ship', esc(w.ship)]);
     if (w && w.by && !w.native && w.settled < 2283) rows.push(['Settled by', esc(w.by)]);
-    if (w && w.becomes) rows.push(['Being remade as', esc(w.becomes)]);
+    if (w && w.becomes && w.terraformed) {
+      const est = w.terraformedEstimated ? '<sup class="drv" title="Date estimated">†</sup>' : '';
+      if (t >= w.terraformed) rows.push(['Terraformed', esc(String(Math.floor(w.terraformed))) + est + ', from ' + esc(w.biome.toLowerCase())]);
+      else rows.push(['Being remade as', esc(w.becomes) + ', complete c. ' + esc(String(Math.floor(w.terraformed))) + est]);
+    }
     if (live) rows.push(['Status', burned ? 'Burned, ' + esc(fmtDate(burned.y)) : o ? esc(polName(o.p)) + (o.note ? ', ' + esc(o.note) : '') : 'Unclaimed']);
   } else rows.push(['Settled', 'No settlement']);
   if (b.kind === 'planet' && b.p.moons.length) rows.push(['Moons', b.p.moons.map((m, k) => '<button type="button" class="lnk" data-b="' + b.pi + '.' + k + '">' + esc(m.name) + '</button>').join(', ')]);
@@ -698,6 +779,7 @@ function renderSystemInfo() {
   html += sec('Observation data · epoch ' + year, [
     ['Stars', ['Single', 'Binary', 'Trinary'][s.stars - 1]],
     ...(s.catalogue ? [['Catalogue name', esc(s.catalogue)]] : []),
+    ...(s.hazard ? [['Hazard', '<span style="color:#F0B6A8">' + esc(s.hazard) + '</span>']] : []),
     ['Distance from Sol', s.id === 'sol' ? '—' : dist.toFixed(1) + ' ly'],
     ['Map position', s.x.toFixed(1) + ', ' + s.y.toFixed(1) + ', ' + s.z.toFixed(1) + ' ly<sup class="drv" title="Height above the plane is reconstructed">†</sup>'],
     ['Planets', String(sv.planets.length)],
@@ -766,7 +848,8 @@ function drawSystem(dt) {
       if (!$('#sv-map').classList.contains('nonames')) hits.push({ key: pi + '.' + k, box: [lx, ly - 12, lx + p.moons[k].name.length * 8.5, ly + 3] });
     });
     const label = settled ? p.world : p.name;
-    const sub = burnP ? 'Burned ' + Math.floor(burnP.y) : settled && p.biome ? p.biome : p.type;
+    const bio = settled && biomeAt(worldByName(sv.sys.id, p.world), t);
+    const sub = burnP ? 'Burned ' + Math.floor(burnP.y) : bio || p.type;
     const lift = sv.planets.indexOf(p) % 2 ? 22 : 0;
     if (!$('#sv-map').classList.contains('nonames')) hits.push({ key: String(pi), box: [x + 4, y - p.size - 38 - lift, x + 8 + label.length * (settled ? 11 : 9), y - p.size - 4 - lift] });
     out += '<g class="lbl"><line x1="' + x + '" y1="' + (y - p.size - 2) + '" x2="' + x + '" y2="' + (y - p.size - 30 - lift) + '" stroke="#fff" stroke-width="1"/>' +
