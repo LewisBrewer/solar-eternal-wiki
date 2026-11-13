@@ -182,10 +182,9 @@ function paintTerritory(t) {
     g.font = "300 46px 'Jost', sans-serif"; g.fillStyle = 'rgba(255,255,255,0.14)';
     if ('letterSpacing' in g) g.letterSpacing = '9px';
     for (const r of data.regions) g.fillText(r.name.toUpperCase(), cx(r.x), cy(r.y));
-    // sectors: the Republic's administrative divisions. Each sector's boundary is a contour of
-    // a distance field that stops short of the bisector with its neighbours, so sectors never overlap.
+    // sectors: the Republic's administrative divisions, drawn as straight-edged outlines
     for (const sh of sectorShapes(t)) {
-      g.save(); g.setLineDash([14, 12]); g.lineWidth = 3; g.strokeStyle = 'rgba(242,213,154,0.45)'; g.lineJoin = 'round';
+      g.save(); g.setLineDash([14, 12]); g.lineWidth = 3; g.strokeStyle = 'rgba(242,213,154,0.45)'; g.lineJoin = 'miter';
       for (const line of sh.lines) { g.beginPath(); line.forEach(([x, y], i) => (i ? g.lineTo(cx(x), cy(y)) : g.moveTo(cx(x), cy(y)))); g.stroke(); }
       g.restore();
       g.font = "500 26px 'Jost', sans-serif"; g.fillStyle = 'rgba(242,213,154,0.7)';
@@ -199,75 +198,62 @@ function paintTerritory(t) {
 
 
 // ------------------------------------------------------------------ sector outlines
-const SECTOR_R = 5, SECTOR_GAP = 0.6, SECTOR_STEP = 0.5;
+// Each sector is the convex hull of its held members, padded out with straight bevelled edges.
+// Where two sectors would touch, both are cut back along the line that best separates their
+// stars, so the outlines stay straight and never overlap.
+const SECTOR_PAD = 3.2, SECTOR_GAP = 0.8;
 let sectorCache = { key: null, shapes: [] };
 function sectorShapes(t) {
   const held = (data.sectors || []).map((s) => ({ name: s.name, pts: s.members.map((id) => byId[id]).filter((p) => { const o = p && ownerAt(p, t); return o && ['earth', 'une', 'usr'].includes(o.p); }) }));
   const key = held.map((h) => h.pts.map((p) => p.id).join(',')).join('|');
   if (key === sectorCache.key) return sectorCache.shapes;
-  const all = held.flatMap((h) => h.pts);
-  const shapes = [];
-  if (all.length) {
-    const x0 = Math.min(...all.map((p) => p.x)) - SECTOR_R - 1, x1 = Math.max(...all.map((p) => p.x)) + SECTOR_R + 1;
-    const y0 = Math.min(...all.map((p) => p.y)) - SECTOR_R - 1, y1 = Math.max(...all.map((p) => p.y)) + SECTOR_R + 1;
-    const nx = Math.ceil((x1 - x0) / SECTOR_STEP) + 1, ny = Math.ceil((y1 - y0) / SECTOR_STEP) + 1;
-    // nearest held member of each sector, per grid point
-    const near = held.map(() => new Float32Array(nx * ny));
-    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
-      const x = x0 + i * SECTOR_STEP, y = y0 + j * SECTOR_STEP;
-      held.forEach((h, k) => { let m = 1e9; for (const p of h.pts) { const d = Math.hypot(p.x - x, p.y - y); if (d < m) m = d; } near[k][j * nx + i] = m; });
-    }
-    held.forEach((h, k) => {
-      if (h.pts.length < 2) return;
-      const f = new Float32Array(nx * ny);
-      for (let q = 0; q < nx * ny; q++) {
-        let other = 1e9; held.forEach((_, kk) => { if (kk !== k && near[kk][q] < other) other = near[kk][q]; });
-        const ds = near[k][q];
-        f[q] = Math.min(SECTOR_R - ds, (other - ds) / 2 - SECTOR_GAP);
-      }
-      const lines = marching(f, nx, ny, x0, y0);
-      const cxm = h.pts.reduce((a, p) => a + p.x, 0) / h.pts.length;
-      shapes.push({ name: h.name, lines, lx: cxm, ly: Math.max(...h.pts.map((p) => p.y)) + SECTOR_R + 1.6 });
-    });
+  const live = held.filter((h) => h.pts.length >= 2);
+  const polys = live.map((h) => {
+    const ring = [];
+    for (const p of h.pts) for (let k = 0; k < 8; k++) { const a = (k + 0.5) * Math.PI / 4; ring.push([p.x + Math.cos(a) * SECTOR_PAD, p.y + Math.sin(a) * SECTOR_PAD]); }
+    return convexHull(ring);
+  });
+  // cut every pair apart along its widest separating line
+  for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) {
+    const cut = separator(live[i].pts, live[j].pts);
+    if (!cut) continue;
+    const [nx, ny, c] = cut; // n·p <= c - gap for i, n·p >= c + gap for j
+    polys[i] = clipHalf(polys[i], nx, ny, c - SECTOR_GAP / 2);
+    polys[j] = clipHalf(polys[j], -nx, -ny, -c - SECTOR_GAP / 2);
   }
+  const shapes = live.map((h, k) => {
+    const poly = polys[k];
+    if (poly.length < 3) return null;
+    const cxm = h.pts.reduce((a, p) => a + p.x, 0) / h.pts.length;
+    return { name: h.name, lines: [poly.concat([poly[0]])], lx: cxm, ly: Math.max(...poly.map((q) => q[1])) + 1.6 };
+  }).filter(Boolean);
   sectorCache = { key, shapes };
   return shapes;
 }
-function marching(f, nx, ny, x0, y0) {
-  const segs = [];
-  const P = (i, j) => [x0 + i * SECTOR_STEP, y0 + j * SECTOR_STEP];
-  const lerp = (a, b, va, vb) => { const k = va / (va - vb); return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; };
-  for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) {
-    const v = [f[j * nx + i], f[j * nx + i + 1], f[(j + 1) * nx + i + 1], f[(j + 1) * nx + i]];
-    const c = [P(i, j), P(i + 1, j), P(i + 1, j + 1), P(i, j + 1)];
-    const e = [];
-    for (let k = 0; k < 4; k++) { const a = v[k], b = v[(k + 1) % 4]; if ((a > 0) !== (b > 0)) e.push(lerp(c[k], c[(k + 1) % 4], a, b)); }
-    if (e.length === 2) segs.push([e[0], e[1]]);
-    else if (e.length === 4) { segs.push([e[0], e[1]]); segs.push([e[2], e[3]]); }
-  }
-  // chain segments into polylines so the dash pattern runs continuously
-  const k = (p) => p[0].toFixed(3) + ',' + p[1].toFixed(3);
-  const ends = new Map();
-  segs.forEach((s, i) => { for (const p of s) { const kk = k(p); if (!ends.has(kk)) ends.set(kk, []); ends.get(kk).push(i); } });
-  const used = new Uint8Array(segs.length), lines = [];
-  for (let i = 0; i < segs.length; i++) {
-    if (used[i]) continue; used[i] = 1;
-    const line = [segs[i][0], segs[i][1]];
-    for (const dir of [1, 0]) {
-      for (;;) {
-        const tip = dir ? line[line.length - 1] : line[0];
-        const nxt = (ends.get(k(tip)) || []).find((s) => !used[s]);
-        if (nxt === undefined) break;
-        used[nxt] = 1;
-        const [a, b] = segs[nxt], q = k(a) === k(tip) ? b : a;
-        if (dir) line.push(q); else line.unshift(q);
-      }
+// the line with the widest gap between two sets of stars, tried over many directions
+function separator(A, B) {
+  let best = null;
+  for (let k = 0; k < 180; k++) {
+    const a = k * Math.PI / 180, nx = Math.cos(a), ny = Math.sin(a);
+    for (const sgn of [1, -1]) {
+      const ux = nx * sgn, uy = ny * sgn;
+      const maxA = Math.max(...A.map((p) => p.x * ux + p.y * uy)), minB = Math.min(...B.map((p) => p.x * ux + p.y * uy));
+      const gap = minB - maxA;
+      if (!best || gap > best.gap) best = { gap, ux, uy, c: (maxA + minB) / 2 };
     }
-    lines.push(line);
   }
-  return lines;
+  return best && best.gap > 0 ? [best.ux, best.uy, best.c] : null;
 }
-
+// keep the part of a polygon where nx*x + ny*y <= c
+function clipHalf(poly, nx, ny, c) {
+  const out = [], inside = (p) => p[0] * nx + p[1] * ny <= c;
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length], ia = inside(a), ib = inside(b);
+    if (ia) out.push(a);
+    if (ia !== ib) { const da = a[0] * nx + a[1] * ny - c, db = b[0] * nx + b[1] * ny - c, k = da / (da - db); out.push([a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]); }
+  }
+  return out;
+}
 function convexHull(p) {
   p = p.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);

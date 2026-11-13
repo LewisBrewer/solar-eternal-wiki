@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install beautifulsoup4 google-api-python-client google-auth
+      - run: pip install beautifulsoup4 google-api-python-client google-auth numpy
       - name: Fetch articles from Google Drive
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
