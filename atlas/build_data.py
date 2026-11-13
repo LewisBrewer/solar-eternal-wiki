@@ -78,15 +78,19 @@ EXTRA = {
              ('Vharr', -63, -95), ('Drek Hul', -78, -97), ('Thul Ashra', -89, -91), ('Ossek', -54, -70),
              ('Varn Khet', -68, -70), ('Sel Tarik', -84, -101), ('Ushar\'s Well', -76, -66), ('Dhenmar', -62, -64)],
     'dwaii': [('Hwen', -106, -72), ('Ellui', -111, -78), ('Dwaimar', -103, -79)],
-    'kadur': [('Ossath', -104, -90), ('Kadris', -110, -95), ('Tamuur', -100, -97),
-              ('Dhur Ka', -115, -101), ('Sarrek', -106, -104), ('Imbal', -120, -107)],
-    'dsethen': [('Sethen\'s March', -112, -58)],
+    # The Ka-Dur League lies west of the Dwaii, south of the Nythran Void. Ossath stands where
+    # the map once had "Sethen's March". The Ka-Dur reach the Maweer by going round the
+    # void's western edge, Dothom to Ellamir.
+    'kadur': [('Ossath', -112, -58), ('Kadris', -117, -64), ('Tamuur', -123, -62),
+              ('Dhur Ka', -129, -62), ('Sarrek', -120, -70), ('Imbal', -127, -69)],
     # The Rubin Void, east of the Republic, named for the astronomer Vera Rubin. Low density.
     'rubin': [('Kessavar', 22, 31), ('Oru Tenna', 31, 18), ('Halvek', 30, 3), ('Imrith', 16, -5),
               ('Selund', 36, -14), ('Aqqar', 34, -24), ('Morrow\'s Light', 41, 9), ('Teshun', 11, -18),
               ('Vane', 18, -25)],
 }
 for region, lst in EXTRA.items():
+    if region == 'rubin':
+        rng.random(); rng.random()    # the retired Sethen's March's draws, so later stars keep their depth
     for name, x, y in lst:
         s = {'id': slug(name), 'name': name, 'x': float(x), 'y': float(y), 'z': round(rng.uniform(-3.5, 3.5), 2),
              'stars': 1 + (1 if rng.random() < 0.2 else 0), 'region2235': region, 'invented': True}
@@ -164,8 +168,13 @@ for sid, cat in CATALOGUE.items():
 FREEHOLDS = ['churassix', 'barban', 'matar', 'fevallion', 'daarasta', 'mecura', 'japhon', 'maasym']
 for f in FREEHOLDS:
     by[f]['region2235'] = 'fevarian'
-for k, v in {'zosma': 'maweer', 'saonus': 'none', 'howoz': 'none', 'furud': 'usr', 'barnards-star': 'usr'}.items():
+for k, v in {'zosma': 'maweer', 'furud': 'usr', 'barnards-star': 'usr'}.items():
     by[k]['region2235'] = v
+# The Maweer reach west across the Nythran Void's northern rim to Ellamir and Saonus.
+WEST_M = ['ellamir', 'guhur', 'osellus', 'hocry', 'kastra', 'saonus', 'howoz', 'polaris', 'rovannic',
+          'tethell', 'duhr', 'fir-mathrioz', 'halax', 'eriga', 'kazoo']
+for k in WEST_M:
+    by[k]['region2235'] = 'maweer'
 
 def dist(a, b):
     return math.dist((a['x'], a['y'], a['z']), (b['x'], b['y'], b['z']))
@@ -238,15 +247,24 @@ for lst, y0 in ((south_v, 2415.0), (north_v, 2416.0)):
 dhovar = [s['id'] for s in south_v[:3]]
 # The Maweer campaign, 2413 to 2417: the eleven marches on the Veil's approaches, and the
 # northern Maweer systems nearest the freeholds. The Maweer retake them 2447 to 2449.
+# The Khan came at them on two fronts: up from the Veil, and from the Ka-Dur round the
+# Nythran Void by Dothom to Ellamir. Six marches on the Veil's side and five in the west make
+# the book's eleven. The Maweer retake the southern six 2447 to 2449; the western five are
+# still the Khan's when he dies and become the Khanate of D'Sethen.
 maweer = [s for s in systems if s['region2235'] == 'maweer']
 core = ('maweer', 'fejantris')
-marches = sorted([m for m in maweer if m['id'] not in core], key=lambda s: s['y'])[:11]
-north_m = [m for m in maweer if m['id'] not in core and m not in marches and math.hypot(m['x'] - fx, m['y'] - fy) < 30]
+marches = sorted([m for m in maweer if m['id'] not in core and m['id'] not in WEST_M], key=lambda s: s['y'])[:6]
+west_marches = [by[k] for k in ('ellamir', 'guhur', 'osellus', 'hocry', 'kastra')]
+north_m = [m for m in maweer if m['id'] not in core and m not in marches and m['id'] not in WEST_M
+           and math.hypot(m['x'] - fx, m['y'] - fy) < 30]
 north_m.sort(key=lambda m: math.hypot(m['x'] - fx, m['y'] - fy))
 for lst, note in ((marches, 'the marches'), (north_m, 'northern conquest')):
     for i, s in enumerate(lst):
         set_owner(s['id'], round(2413 + 4 * i / max(1, len(lst) - 1), 1), 'khanate', note, derived=True)
         set_owner(s['id'], round(2447.2 + 2 * i / max(1, len(lst) - 1), 1), 'maweer', derived=True)
+for i, s in enumerate(west_marches):
+    set_owner(s['id'], round(2413.3 + 3 * i / max(1, len(west_marches) - 1), 1), 'khanate', 'the western marches', derived=True)
+WEST_MARCH_IDS = {s['id'] for s in west_marches}
 
 # Part Twelve and Thirteen: the Khan in human space.
 KHAN_TAKES = [
@@ -307,8 +325,6 @@ for i, (name, *_) in enumerate(EXTRA['kadur']):
     set_owner(slug(name), 1900, 'kadur')
     set_owner(slug(name), round(2410.3 + i * 0.5, 1), 'khanate', 'tributary', derived=True)
 KADUR_FREED = {'ossath': ym(2457, 3, 4), 'kadris': ym(2457, 7), 'tamuur': ym(2457, 10)}
-set_owner('sethens-march', 1900, 'maweer')
-set_owner('sethens-march', ym(2416), 'khanate', 'the marches', derived=True)
 
 # The sheet's new systems share the wartime fate of their nearest charted neighbour.
 for sid in placed:
@@ -350,7 +366,7 @@ for s in systems:
         if sid in KADUR_FREED: set_owner(sid, KADUR_FREED[sid], 'kadur')
     elif s['region2235'] == 'dwaii':
         set_owner(sid, DEATH, 'remnant', derived=True)
-    elif sid == 'sethens-march':
+    elif sid in WEST_MARCH_IDS:
         set_owner(sid, DEATH, 'dsethen')
     else:
         set_owner(sid, DEATH, 'eight')
@@ -606,7 +622,7 @@ def pair(lane):
         if a_ in ix and b_ in ix: return ix[a_], ix[b_]
     raise AssertionError(lane)
 # Lewis's hand edits to the network: lanes he wants and lanes he does not.
-EXTRA_LANES = """lytirim-grumium cygni-ijax wuae-wicklar wicklar-cazzabius azak-hoeddim ceyecarro-hoeddim
+EXTRA_LANES = """dhur-ka-dothom dothom-ellamir lytirim-grumium cygni-ijax wuae-wicklar wicklar-cazzabius azak-hoeddim ceyecarro-hoeddim
 kuma-ijaagin qad-vhi-ijaagin""".split()
 NO_LANES = "emim-maasym lytirim-dastamon cygni-myrum cygni-ross-alpha".split()
 for lane in NO_LANES:
