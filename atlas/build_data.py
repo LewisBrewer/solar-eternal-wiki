@@ -294,16 +294,40 @@ RETAKES = [
 for sid, y in RETAKES:
     set_owner(sid, y, 'human')
 
-# The Confederacy restored. Exedor in September 2451, the rest by 1 January 2452,
-# except D'Hovar's three far southern worlds.
-set_owner('exedor', ym(2451, 9, 29), 'voor')
+# The Voor worlds, 2451 to 2460: a grind, world by world. Hiverion's orbitals hold for
+# fourteen months after the Battle of Exedor and the Confederacy is restored on 1 January
+# 2453. D'Ashan comes out of the Veil in August 2453 and retakes Aethos, Ksora and
+# Banagho; D'Hovar strikes in February 2456 and retakes Omaggus. The main fleet goes north
+# in 2454 and west in 2455, and the Southern Command and the Legion fight on alone. Kuma
+# and Ijaagin are still under siege when the conference opens, and the Peace returns them.
+VOOR_BACK = {
+    'ladiom': ym(2451, 8), 'ximpok': ym(2451, 12, 4), 'leesak': ym(2451, 12), 'aethos': ym(2452, 1, 20),
+    'swur': ym(2452, 2), 'faenov': ym(2452, 5), 'hoeddim': ym(2452, 8), 'batraq': ym(2452, 11),
+    'exedor': ym(2452, 11, 30), 'azak': ym(2452, 10), 'ksora': ym(2452, 12), 'roschon': ym(2453, 1),
+    'banagho': ym(2453, 3), 'achernar': ym(2455, 11), 'omaggus': ym(2455, 7), 'ceyecarro': ym(2456, 9),
+    'nithascal': ym(2456, 12), 'umik': ym(2457, 3), 'beta-aquilae': ym(2457, 7),
+    'kuma': ym(2460, 4), 'ijaagin': ym(2460, 4),
+}
+COUNTER = [   # (system, date, holder, retaken)
+    ('aethos', ym(2453, 8, 9), 'dashan', ym(2453, 10, 18)),
+    ('ksora', ym(2453, 8, 20), 'dashan', ym(2455, 9)),
+    ('banagho', ym(2453, 9), 'dashan', ym(2456, 6)),
+    ('omaggus', ym(2456, 2, 11), 'dhovar', ym(2457, 9)),
+]
 for s in south_v + north_v:
-    if s['id'] == 'exedor':
-        continue
-    if s['id'] in dhovar:
-        set_owner(s['id'], 2449.47, 'dhovar', derived=True)
-    else:
-        set_owner(s['id'], 2452.0, 'voor')
+    sid = s['id']
+    if sid in dhovar:
+        set_owner(sid, 2449.47, 'dhovar', derived=True)
+    elif sid in ('kuma', 'ijaagin'):
+        set_owner(sid, ym(2453, 6), 'dhovar', 'under siege from 2458', derived=True)
+        set_owner(sid, VOOR_BACK[sid], 'voor', 'returned by the Fejantris Peace')
+    elif sid in VOOR_BACK:
+        set_owner(sid, VOOR_BACK[sid], 'voor')
+    else:                                   # the north, given up by the Word, reoccupied by the Legion
+        set_owner(sid, ym(2453, 4), 'voor', derived=True)
+for sid, y, p, back in COUNTER:
+    set_owner(sid, y, p, 'counterattack from the Veil')
+    set_owner(sid, back, 'voor')
 
 # The northern freeholds: destroyed 2454, then the Republic's occupation zone.
 FREEHOLD_END = {'churassix': ym(2454, 4), 'barban': ym(2454, 6), 'matar': ym(2454, 6),
@@ -515,7 +539,12 @@ EVENTS = [
     ev(ym(2450, 5, 16), 'Bounty retaken', 'cirban', 'battle', 'bounty'),
     ev(ym(2451, 5, 9), 'Third Battle of Haedius', 'haedus', 'battle'),
     ev(ym(2451, 9, 24), 'Battle of Exedor', 'exedor', 'battle', 'battle-of-exedor-2451'),
-    ev(ym(2452, 1, 1), 'Voor Confederacy restored', 'exedor', 'polity'),
+    ev(ym(2452, 11, 30), "Hiverion's orbitals fall", 'exedor', 'battle'),
+    ev(ym(2453, 1, 1), 'Voor Confederacy restored', 'exedor', 'polity'),
+    ev(ym(2453, 8, 9), "D'Ashan's counterattack", 'aethos', 'battle'),
+    ev(ym(2453, 10, 18), 'Second Battle of Aethos', 'aethos', 'battle'),
+    ev(ym(2456, 2, 11), "D'Hovar's counterattack", 'omaggus', 'battle'),
+    ev(ym(2460, 4, 1), 'Kuma and Ijaagin returned', 'kuma', 'treaty'),
     ev(ym(2454, 4), 'Churassix', 'churassix', 'battle'),
     ev(ym(2454, 10, 20), 'Battle of Fevallion', 'fevallion', 'battle'),
     ev(ym(2455, 6, 2), 'Fleets meet at Fejantris', 'fejantris', 'treaty'),
