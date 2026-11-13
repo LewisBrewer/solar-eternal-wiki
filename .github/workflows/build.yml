@@ -1,0 +1,52 @@
+name: Build and deploy the Archive
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'   # pull the Wiki folder every six hours
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install beautifulsoup4 google-api-python-client google-auth
+      - name: Fetch articles from Google Drive
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          WIKI_FOLDER_ID: ${{ vars.WIKI_FOLDER_ID || '13Kx5mR6fTIbzby2twmcXfNQW9s9pKrSK' }}
+        run: python tools/fetch_docs.py
+      - name: Build the Atlas data
+        run: python atlas/build_data.py
+      - name: Build the site
+        env:
+          SITE_CNAME: solareternal.lewisbrewer.com
+        run: python tools/build.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

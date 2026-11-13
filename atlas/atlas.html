@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas · Solar Eternal Archive</title>
+<meta name="description" content="Known space in three dimensions, from the Sun to the Ibannic Veil, 2050 to 2515.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="assets/atlas.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="atlas">
+  <canvas id="gl" aria-label="Three-dimensional map of known space"></canvas>
+  <div id="labels" aria-hidden="true"></div>
+
+  <header class="a-head">
+    <a class="a-brand" href="index.html"><b>SOLAR ETERNAL</b><span>Atlas</span></a>
+    <form class="a-find" role="search" autocomplete="off" onsubmit="return false">
+      <label class="sr" for="find">Search systems</label>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#A9BBD0" stroke-width="1.4" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+      <input id="find" type="search" placeholder="SEARCH SYSTEMS" spellcheck="false">
+      <ul id="find-results" role="listbox"></ul>
+    </form>
+    <div class="a-spacer"></div>
+    <button type="button" class="a-panel-toggle" id="toggle-controls" aria-controls="controls" aria-expanded="true">Layers</button>
+    <nav class="a-nav" aria-label="Primary">
+      <a href="index.html">Archive</a><a href="timeline.html">Timeline</a><a href="a-z.html">Index</a>
+    </nav>
+  </header>
+
+  <aside class="a-panel a-controls" id="controls" aria-label="Map controls">
+    <div class="a-year">
+      <span class="k">Year</span>
+      <span class="big" id="year-big">2510</span>
+      <span class="era" id="year-era"></span>
+      <span class="cap" id="year-cap"></span>
+    </div>
+    <div class="a-thisyear" id="thisyear"></div>
+    <div class="a-layers">
+      <p class="k">Layers</p>
+      <label><input id="l-ter" type="checkbox" checked>Territories</label>
+      <label><input id="l-nam" type="checkbox" checked>Names</label>
+      <label><input id="l-reg" type="checkbox" checked>Regions</label>
+      <label><input id="l-bat" type="checkbox" checked>Battles and events</label>
+      <label><input id="l-rou" type="checkbox">Jump routes</label>
+      <label><input id="l-gri" type="checkbox" checked>Plane grid</label>
+    </div>
+  </aside>
+
+  <aside class="a-panel a-selected" id="selected" aria-label="Selected system" hidden></aside>
+
+  <div class="a-zoom">
+    <p class="k hint">Drag to pan · Wheel zooms at the cursor · Right-drag to tilt · Double-click a star to open its system</p>
+    <div class="btns">
+      <button type="button" id="zoom-out" aria-label="Zoom out">−</button>
+      <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+      <button type="button" id="reset" class="txt">Reset view</button>
+    </div>
+  </div>
+
+  <footer class="a-foot" id="foot">
+    <div class="ttl"><span id="foot-title">KNOWN SPACE - 2510</span><span id="foot-sub"></span></div>
+    <div class="legend" id="legend" role="group" aria-label="Territories"></div>
+  </footer>
+
+  <section class="sysview" id="sysview" hidden aria-label="System view">
+    <div class="sv-head">
+      <button type="button" class="sv-back" id="sv-back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="1.4" aria-hidden="true"><path d="M13 8H3M7 4L3 8l4 4"/></svg>Back to known space</button>
+      <div class="a-spacer"></div>
+      <label class="sv-names"><input type="checkbox" id="sv-names" checked>Names</label>
+    </div>
+    <aside class="sv-info" id="sv-info"></aside>
+    <svg class="sv-map" id="sv-map" role="img" aria-label="Orbits of the selected system. Click a planet or moon for its details."></svg>
+    <footer class="a-foot sv-foot"><div class="ttl"><span id="sv-title"></span><span id="sv-sub"></span></div><div class="legend" id="sv-legend"></div></footer>
+  </section>
+
+  <div class="a-timeline" id="timeline" role="slider" tabindex="0" aria-label="Year" aria-valuemin="2050" aria-valuemax="2515" aria-valuenow="2510">
+    <canvas id="tl"></canvas>
+  </div>
+</div>
+<noscript><p style="color:#fff;padding:80px 24px;font-family:Jost,sans-serif">The Atlas needs JavaScript. The <a href="a-z.html" style="color:#fff">article index</a> works without it.</p></noscript>
+<script type="module" src="assets/atlas.js"></script>
+</body>
+</html>

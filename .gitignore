@@ -1,0 +1,9 @@
+out/
+design/
+__pycache__/
+atlas/trace/*.png
+atlas/trace/*.jpg
+atlas/trace/*.txt
+atlas/trace/systems_raw.json
+atlas/trace/systems_ocr.json
+src/docs/*.html
