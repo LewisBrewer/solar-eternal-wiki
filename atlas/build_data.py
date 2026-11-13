@@ -261,7 +261,10 @@ north_m.sort(key=lambda m: math.hypot(m['x'] - fx, m['y'] - fy))
 for lst, note in ((marches, 'the marches'), (north_m, 'northern conquest')):
     for i, s in enumerate(lst):
         set_owner(s['id'], round(2413 + 4 * i / max(1, len(lst) - 1), 1), 'khanate', note, derived=True)
-        set_owner(s['id'], round(2447.2 + 2 * i / max(1, len(lst) - 1), 1), 'maweer', derived=True)
+        back = round(2447.2 + 2 * i / max(1, len(lst) - 1), 1)
+        if note == 'northern conquest' and i >= len(lst) - 2:
+            back = ym(2449, 7, 15)      # the Word withdraws from the last two in July 2449
+        set_owner(s['id'], back, 'maweer', derived=True)
 for i, s in enumerate(west_marches):
     set_owner(s['id'], round(2413.3 + 3 * i / max(1, len(west_marches) - 1), 1), 'khanate', 'the western marches', derived=True)
 WEST_MARCH_IDS = {s['id'] for s in west_marches}
