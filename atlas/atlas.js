@@ -181,7 +181,11 @@ function paintTerritory(t) {
     g.textAlign = 'center'; g.textBaseline = 'middle';
     g.font = "300 46px 'Jost', sans-serif"; g.fillStyle = 'rgba(255,255,255,0.14)';
     if ('letterSpacing' in g) g.letterSpacing = '9px';
-    for (const r of data.regions) g.fillText(r.name.toUpperCase(), cx(r.x), cy(r.y));
+    for (const r of data.regions) {
+      // a label near the map's edge can be stacked one word to a line
+      const words = r.stack ? r.name.toUpperCase().split(' ') : [r.name.toUpperCase()];
+      words.forEach((w, i) => g.fillText(w, cx(r.x), cy(r.y) + (i - (words.length - 1) / 2) * 50));
+    }
     // sectors: the Republic's administrative divisions, drawn as straight-edged outlines
     for (const sh of sectorShapes(t)) {
       g.save(); g.setLineDash([14, 12]); g.lineWidth = 3; g.strokeStyle = 'rgba(242,213,154,0.45)'; g.lineJoin = 'miter';
@@ -442,6 +446,7 @@ $('#thisyear').addEventListener('click', (e) => { const b = e.target.closest('.g
 function regionOf(s) {
   const sec = (data.sectors || []).find((x) => x.members.includes(s.id));
   if (sec) return sec.name;
+  if (s.region2235 === 'rubin') return 'Rubin Void';
   let best = null, bd = 1e9;
   for (const r of data.regions) { const d = Math.hypot(r.x - s.x, r.y - s.y); if (d < bd) { bd = d; best = r; } }
   return bd < 22 ? best.name : null;

@@ -597,7 +597,8 @@ data = {
         {'name': 'Zadanis Void', 'near': ['lishval', 'okul', 'gorim', 'targon']},
         {'name': 'Shadow Nebula', 'near': ['asmore', 'sorcimax', 'uldor', 'quannaga']},
         {'name': 'Nythran Void', 'near': ['ponnell', 'brallix', 'ellamir', 'galurum']},
-        {'name': 'Mardak Cluster', 'near': ['torrom', 'uzun', 'ginnog', 'daranma']},
+        # beyond the Rubin Void's northern reach, past Torrom and Uzun (book 7.2 and 15.9)
+        {'name': 'Mardak Cluster', 'at': (31, 42), 'stack': True},
         {'name': 'Rubin Void', 'near': ['halvek', 'imrith', 'oru-tenna', 'selund']},
     ],
     # The Republic's administrative sectors, from the colony sheet
@@ -605,6 +606,8 @@ data = {
                 for n in ('Sol Sector', 'Binami Sector', 'Saolea Sector', 'Geronth Sector', 'Gagarin Sector')],
 }
 for r in data['regions']:
+    if 'at' in r:
+        r['x'], r['y'] = r.pop('at'); continue
     pts = [by[i] for i in r['near']]
     r['x'] = round(sum(p['x'] for p in pts) / len(pts), 2)
     r['y'] = round(sum(p['y'] for p in pts) / len(pts), 2)
