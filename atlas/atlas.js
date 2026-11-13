@@ -316,19 +316,30 @@ scene.add(stars);
 // jump routes: every pair within a Pillai drive's 8 ly, plus the longer links that join the
 // rest, so every star can be reached (built in build_data.py). Long links are dashed.
 const routes = (() => {
-  const buckets = { near: [], far: [], charted: [], hazard: [] };
-  for (const [a, b, d, kind] of data.routes) {
-    const A = byId[a], B = byId[b];
-    buckets[kind || (d <= 8 ? 'near' : 'far')].push(A.x, A.z, -A.y, B.x, B.z, -B.y);
-  }
+  // lanes are drawn as gentle curves, all in one style; the Rubin Void's charted routes are
+  // gold and its uncharted approaches red
+  const buckets = { lane: [], charted: [], hazard: [] };
+  const curve = (A, B, out, k) => {
+    const ax = A.x, ay = A.z, az = -A.y, bx = B.x, by_ = B.z, bz = -B.y;
+    const dx = bx - ax, dz = bz - az, len = Math.hypot(dx, dz) || 1;
+    let h = 0; for (const c of A.id + B.id) h = (h * 31 + c.charCodeAt(0)) | 0;
+    const bend = (h & 1 ? 1 : -1) * len * 0.12;
+    const mx = (ax + bx) / 2 - dz / len * bend, my = (ay + by_) / 2, mz = (az + bz) / 2 + dx / len * bend;
+    let px = ax, py = ay, pz = az;
+    for (let s = 1; s <= k; s++) {
+      const u = s / k, v = 1 - u;
+      const x = v * v * ax + 2 * v * u * mx + u * u * bx, y = v * v * ay + 2 * v * u * my + u * u * by_, z = v * v * az + 2 * v * u * mz + u * u * bz;
+      out.push(px, py, pz, x, y, z); px = x; py = y; pz = z;
+    }
+  };
+  for (const [a, b, d, kind] of data.routes) curve(byId[a], byId[b], buckets[kind || 'lane'], Math.max(4, Math.ceil(d / 1.5)));
   const grp = new THREE.Group();
   const add = (pts, mat) => {
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
     const l = new THREE.LineSegments(g, mat); if (mat.isLineDashedMaterial) l.computeLineDistances(); grp.add(l);
   };
-  add(buckets.near, new THREE.LineBasicMaterial({ color: 0xbfd4ee, transparent: true, opacity: 0.22 }));
-  add(buckets.far, new THREE.LineDashedMaterial({ color: 0xbfd4ee, transparent: true, opacity: 0.3, dashSize: 0.8, gapSize: 0.8 }));
-  add(buckets.charted, new THREE.LineDashedMaterial({ color: 0xf2c14e, transparent: true, opacity: 0.55, dashSize: 1.2, gapSize: 0.8 }));
+  add(buckets.lane, new THREE.LineBasicMaterial({ color: 0xe8b4a8, transparent: true, opacity: 0.42 }));
+  add(buckets.charted, new THREE.LineDashedMaterial({ color: 0xf2c14e, transparent: true, opacity: 0.6, dashSize: 1.2, gapSize: 0.8 }));
   add(buckets.hazard, new THREE.LineDashedMaterial({ color: 0xe07a5f, transparent: true, opacity: 0.4, dashSize: 0.3, gapSize: 0.9 }));
   grp.visible = false; scene.add(grp); return grp;
 })();

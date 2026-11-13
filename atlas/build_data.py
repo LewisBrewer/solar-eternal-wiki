@@ -571,23 +571,61 @@ def find(i):
         parent[i] = parent[parent[i]]; i = parent[i]
     return i
 ix = {s['id']: i for i, s in enumerate(systems)}
-pairs = sorted((dist(systems[i], systems[j]), i, j) for i in range(N) for j in range(i + 1, N))
-routes = []
-def link(i, j, kind):
+routes, seen = [], set()
+def link(i, j, kind=None):
+    key = (min(i, j), max(i, j))
+    if key in seen: return
+    seen.add(key)
     routes.append([systems[i]['id'], systems[j]['id'], round(dist(systems[i], systems[j]), 1)] + ([kind] if kind else []))
     parent[find(i)] = find(j)
 outside = lambda i: systems[i]['id'] not in RUBIN
-for d, i, j in pairs:
-    if d <= 8 and outside(i) and outside(j): link(i, j, None)
-for d, i, j in pairs:
-    if outside(i) and outside(j) and find(i) != find(j): link(i, j, None)
-# the charted routes into the void
+
+# 1. The Gulf's lanes, after Lewis's "Iron Gulf" map (2200 to 2233 in the old dating):
+#    Cirban to Haedus and Swur to Media at the centre, the core worlds to the Sectors, the
+#    Voor worlds from Exedor south to the Veil.
+LANES = """sol-procyon sol-alpha-centauri procyon-binami procyon-talandra talandra-nomotar nomotar-myrum
+talandra-binami binami-ijax ijax-cirban binami-yildun yildun-saolea cirban-izar izar-bashpit bashpit-ijax
+cirban-ajam ajam-stiridon cirban-haedus haedus-kastaba kastaba-myrum haedus-faenov haedus-exedor
+exedor-faenov faenov-wuae wuae-cheleb faenov-hydrobius faenov-zom exedor-ximpok exedor-leesak leesak-swur
+ximpok-aethos ximpok-roschon roschon-batraq batraq-swur swur-media media-uthan uthan-hhabban hhabban-feonus
+feonus-achernar achernar-omaggus omaggus-batraq omaggus-banagho banagho-aethos aethos-ksora aethos-nithascal
+aethos-ceyecarro saolea-taggalion taggalion-veyer veyer-hhabban ksora-umik umik-beta-aquilae umik-ijaagin""".split()
+for lane in LANES:
+    a_, b_ = None, None
+    for cut in range(1, lane.count('-') + 1):          # split "a-b" where both halves are system ids
+        parts = lane.split('-')
+        a_, b_ = '-'.join(parts[:cut]), '-'.join(parts[cut:])
+        if a_ in ix and b_ in ix: break
+    assert a_ in ix and b_ in ix, lane
+    link(ix[a_], ix[b_])
+# The Iron Gulf map's own area follows its lanes only; elsewhere the network is a relative
+# neighbourhood graph (two stars are linked when no third star lies closer to both), which
+# gives the same sparse, lane-like structure across the rest of the map.
+GULF = set("""sol procyon alpha-centauri tem torovil talandra brink binami bashpit izar ijax cirban haedus ajam
+stiridon trab yildun saolea ladiom golba esmyke hoeddim exedor azak leesak swur media taggalion uthan veyer
+ximpok ceyecarro batraq roschon hhabban aethos ksora nithascal banagho umik feonus achernar omaggus
+beta-aquilae kuma ijaagin qad-vhi kastaba myrum nomotar faenov wuae""".split())
+import numpy as np
+P = np.array([[s['x'], s['y'], s['z']] for s in systems])
+D = np.sqrt(((P[:, None, :] - P[None, :, :]) ** 2).sum(-1))
+for i in range(N):
+    if not outside(i): continue
+    for j in range(i + 1, N):
+        if not outside(j) or D[i, j] > 13: continue
+        if systems[i]['id'] in GULF and systems[j]['id'] in GULF: continue
+        if np.any(np.maximum(D[i], D[j]) < D[i, j] - 1e-9): continue
+        link(i, j)
+# 2. Whatever is still cut off joins by its shortest link, so every star can be reached.
+pairs = sorted((D[i, j], i, j) for i in range(N) for j in range(i + 1, N) if outside(i) and outside(j))
+for d_, i, j in pairs:
+    if find(i) != find(j): link(i, j)
+# 3. The Rubin Void: the charted routes, then hazards for the rest.
 def nearest_outside(sid):
-    return min((k for k in range(N) if outside(k)), key=lambda k: dist(systems[k], by[sid]))
+    return min((k for k in range(N) if outside(k)), key=lambda k: D[k, ix[sid]])
 link(nearest_outside('imrith'), ix['imrith'], 'charted')
 link(nearest_outside('teshun'), ix['teshun'], 'charted')
 link(ix['teshun'], ix['vane'], 'charted')
-for d, i, j in pairs:
+for d_, i, j in sorted((D[i, j], i, j) for i in range(N) for j in range(i + 1, N)):
     if find(i) != find(j): link(i, j, 'hazard')
 assert len({find(i) for i in range(N)}) == 1
 data['routes'] = routes
