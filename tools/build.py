@@ -658,10 +658,24 @@ def main():
     # the atlas is a static app with its own data
     atlas_src = os.path.join(ROOT, 'atlas')
     if os.path.exists(atlas_src):
+        # stamp each asset with a hash of its contents so browsers fetch the new copy after a deploy
+        import hashlib
+        def ver(f):
+            return hashlib.sha1(open(os.path.join(atlas_src, f), 'rb').read()).hexdigest()[:10]
+        stamps = {f: ver(f) for f in ('atlas.css', 'atlas-data.json') if os.path.exists(os.path.join(atlas_src, f))}
+        js = open(os.path.join(atlas_src, 'atlas.js'), encoding='utf-8').read()
+        if 'atlas-data.json' in stamps:
+            js = js.replace("'assets/atlas-data.json'", "'assets/atlas-data.json?v=%s'" % stamps['atlas-data.json'])
+        stamps['atlas.js'] = hashlib.sha1(js.encode('utf-8')).hexdigest()[:10]
         for f in os.listdir(atlas_src):
             p = os.path.join(atlas_src, f)
             if f == 'atlas.html':
-                shutil.copy(p, os.path.join(OUT, 'atlas.html'))
+                page = open(p, encoding='utf-8').read()
+                for name, v in stamps.items():
+                    page = page.replace('"assets/%s"' % name, '"assets/%s?v=%s"' % (name, v))
+                open(os.path.join(OUT, 'atlas.html'), 'w', encoding='utf-8').write(page)
+            elif f == 'atlas.js':
+                open(os.path.join(OUT, 'assets', f), 'w', encoding='utf-8').write(js)
             elif os.path.isfile(p) and not f.endswith('.py'):
                 shutil.copy(p, os.path.join(OUT, 'assets', f))
     if os.environ.get('SITE_CNAME'):
