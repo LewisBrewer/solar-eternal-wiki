@@ -5,7 +5,7 @@ Runs in the GitHub Action. Needs:
   WIKI_FOLDER_ID               the Drive folder that holds one Doc per article
 The folder must be shared with the service account's email address (Viewer is enough).
 """
-import io, json, os, re, sys
+import io, json, os, re, sys, time
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
@@ -44,12 +44,21 @@ def main():
     for f in sorted(files, key=lambda f: f['name']):
         if f['name'].startswith('_'):
             continue            # "_old draft - X" and other parked docs
-        req = drive.files().export_media(fileId=f['id'], mimeType='text/html')
-        buf = io.BytesIO()
-        dl = MediaIoBaseDownload(buf, req)
-        done = False
-        while not done:
-            _, done = dl.next_chunk()
+        # Drive's export sometimes returns a passing 500; try a few times before giving up
+        for attempt in range(5):
+            try:
+                req = drive.files().export_media(fileId=f['id'], mimeType='text/html')
+                buf = io.BytesIO()
+                dl = MediaIoBaseDownload(buf, req)
+                done = False
+                while not done:
+                    _, done = dl.next_chunk(num_retries=3)
+                break
+            except Exception as e:
+                if attempt == 4:
+                    raise
+                print('  retrying %s (%s)' % (f['name'], str(e)[:80]))
+                time.sleep(2 * (attempt + 1))
         open(os.path.join(OUT, slug(f['name']) + '.html'), 'wb').write(buf.getvalue())
         kept += 1
         print('  %s' % f['name'])

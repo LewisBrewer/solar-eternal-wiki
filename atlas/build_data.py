@@ -120,6 +120,8 @@ for sid in ('ladiom', 'swur'):
 SHEET_SECTOR['derellis'] = 'Geronth Sector'
 SHEET_SECTOR['brink'] = 'Sol Sector'      # so the sectors do not overlap
 SHEET_SECTOR['yildun'] = 'Saolea Sector'
+SHEET_SECTOR['hadriccus'] = 'Gagarin Sector'
+SHEET_SECTOR['zarqon'] = 'Geronth Sector'
 
 # Systems on the sheet but not on the 2235 map get invented positions inside their sector,
 # at the emptiest spot among its other members.
@@ -141,6 +143,10 @@ for sid, sec in SHEET_SECTOR.items():
     s = {'id': sid, 'name': SHEET_SYSNAME[sid], 'x': round(best[0], 2), 'y': round(best[1], 2),
          'z': round(prng.uniform(-3.5, 3.5), 2), 'stars': 1, 'region2235': 'usr', 'invented': True, 'sheet': True}
     systems.append(s); by[sid] = s; placed.append(sid)
+# Lewis's moves: Cygni sits between Ijax and Bashpit.
+MOVED = {'cygni': (-30.7, -10.4, -2.5)}
+for sid, (x, y, z) in MOVED.items():
+    by[sid].update(x=x, y=y, z=z)
 # catalogue names from the sheet's designations (Teegarden for Targon and so on)
 CATALOGUE = {}
 for r in sheet:
@@ -597,8 +603,9 @@ def pair(lane):
         if a_ in ix and b_ in ix: return ix[a_], ix[b_]
     raise AssertionError(lane)
 # Lewis's hand edits to the network: lanes he wants and lanes he does not.
-EXTRA_LANES = "lytirim-grumium".split()
-NO_LANES = "emim-maasym lytirim-dastamon".split()
+EXTRA_LANES = """lytirim-grumium cygni-ijax wuae-wicklar wicklar-cazzabius azak-hoeddim ceyecarro-hoeddim
+kuma-ijaagin qad-vhi-ijaagin""".split()
+NO_LANES = "emim-maasym lytirim-dastamon cygni-myrum cygni-ross-alpha".split()
 for lane in NO_LANES:
     i_, j_ = pair(lane); seen.add((min(i_, j_), max(i_, j_)))
 for lane in LANES + EXTRA_LANES:
