@@ -387,6 +387,10 @@ class Site:
         head_small = art['part_of'] and ('Part of ' + BeautifulSoup(self.links(art['part_of'], ''), 'html.parser').get_text()) or art['type']
         out = ['<aside class="infobox" aria-label="Summary"><div class="ib-head"><small>%s</small><b>%s</b></div>' %
                (html.escape(head_small), html.escape(art['title']))]
+        # a flag or emblem drawn for the article, kept in static/flags/<slug>.svg
+        if os.path.exists(os.path.join(STATIC, 'flags', art['slug'] + '.svg')):
+            out.append('<figure class="ib-flag"><img src="%sassets/flags/%s.svg" alt="Flag of the %s"></figure>' %
+                       (self.root_for_infobox, art['slug'], html.escape(art['title'])))
         used = set(['type'])
         if art['part_of']:
             used.add('part of')

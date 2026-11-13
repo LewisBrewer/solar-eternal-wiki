@@ -100,6 +100,8 @@ a:hover{text-decoration-color:var(--white)}
 .infobox .ib-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
 .infobox .ib-head small{font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
 .infobox .ib-head b{font-size:18px;font-weight:500}
+.infobox .ib-flag{margin:0;padding:16px 18px;border-bottom:1px solid var(--line)}
+.infobox .ib-flag img{display:block;width:100%;height:auto;border:1px solid var(--line)}
 .infobox dl{margin:0;display:grid;grid-template-columns:104px 1fr}
 .infobox dt{padding:10px 0 10px 18px;color:var(--muted);border-top:1px solid var(--line)}
 .infobox dd{margin:0;padding:10px 18px 10px 12px;border-top:1px solid var(--line);color:var(--white)}
