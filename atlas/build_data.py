@@ -122,6 +122,9 @@ SHEET_SECTOR['brink'] = 'Sol Sector'      # so the sectors do not overlap
 SHEET_SECTOR['yildun'] = 'Saolea Sector'
 SHEET_SECTOR['hadriccus'] = 'Gagarin Sector'
 SHEET_SECTOR['zarqon'] = 'Geronth Sector'
+SHEET_SECTOR['trab'] = 'Binami Sector'
+SHEET_SECTOR['esmyke'] = 'Saolea Sector'
+SHEET_SECTOR['golba'] = 'Saolea Sector'
 
 # Systems on the sheet but not on the 2235 map get invented positions inside their sector,
 # at the emptiest spot among its other members.
