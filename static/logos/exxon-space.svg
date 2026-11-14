@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+<rect width="600" height="360" fill="#FFFFFF"/>
+<path d="M174 196 L300 56 L426 196 L380 196 L300 108 L220 196 Z" fill="#D6202B"/>
+<path d="M134 222 Q300 156 466 222 L466 242 Q300 182 134 242 Z" fill="#1F4FA3"/>
+<text x="300" y="306" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="72" font-weight="900" fill="#D6202B" letter-spacing="-1.5">EXXON</text>
+<text x="300" y="342" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="bold" letter-spacing="16" fill="#1F4FA3">SPACE</text>
+</svg>
