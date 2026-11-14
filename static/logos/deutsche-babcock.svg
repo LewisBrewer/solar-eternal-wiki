@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" width="600" height="300">
+<rect width="600" height="300" fill="#FFFFFF"/>
+<text x="300" y="168" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-size="104" font-weight="900" fill="#0A4DA2" letter-spacing="-2">BABCOCK</text>
+<ellipse cx="362" cy="132" rx="136" ry="34" fill="none" stroke="#0A4DA2" stroke-width="8" transform="rotate(-12 362 132)"/>
+<text x="300" y="232" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" letter-spacing="11" fill="#0A4DA2">DEUTSCHE BABCOCK AG</text>
+</svg>

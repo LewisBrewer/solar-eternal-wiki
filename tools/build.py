@@ -393,6 +393,12 @@ class Site:
                 out.append('<figure class="ib-flag"><img src="%sassets/flags/%s.%s" alt="Flag of the %s"></figure>' %
                            (self.root_for_infobox, art['slug'], ext, html.escape(art['title'])))
                 break
+        # a company logo, kept in static/logos/<slug>.svg
+        for ext in ('svg', 'png'):
+            if os.path.exists(os.path.join(STATIC, 'logos', '%s.%s' % (art['slug'], ext))):
+                out.append('<figure class="ib-flag ib-logo"><img src="%sassets/logos/%s.%s" alt="Logo of %s"></figure>' %
+                           (self.root_for_infobox, art['slug'], ext, html.escape(art['title'])))
+                break
         used = set(['type'])
         if art['part_of']:
             used.add('part of')
