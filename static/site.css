@@ -96,7 +96,7 @@ a:hover{text-decoration-color:var(--white)}
 .sources{margin-top:16px;display:flex;flex-direction:column;gap:12px;padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:4px;font-size:14px;line-height:1.6;color:var(--muted)}
 .sources h2{margin:0;font-size:14px;font-weight:500;letter-spacing:.08em;color:var(--white);border:none;padding:0}
 .sources ol,.sources ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
-.infobox{flex:1 1 300px;max-width:380px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;font-size:14px;line-height:1.5;position:sticky;top:16px}
+.infobox{flex:1 1 300px;max-width:380px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;font-size:14px;line-height:1.5}
 .infobox .ib-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
 .infobox .ib-head small{font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
 .infobox .ib-head b{font-size:18px;font-weight:500}
