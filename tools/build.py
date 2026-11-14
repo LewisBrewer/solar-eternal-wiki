@@ -14,6 +14,7 @@ SRC = os.path.join(ROOT, 'src', 'docs')
 OUT = os.path.join(ROOT, 'out')
 STATIC = os.path.join(ROOT, 'static')
 
+SECTION = '\x00section'   # infobox key for a section heading row
 MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
 MRX = '|'.join(MONTHS)
 
@@ -81,7 +82,7 @@ def category_for(typ):
         return 'species'
     if any(k in t for k in ('world', 'star system', 'system', 'moon', 'planet')):
         return 'worlds'
-    if any(k in t for k in ('ship', 'class', 'drive', 'technology', 'vessel')):
+    if any(k in t for k in ('ship', 'class', 'drive', 'technology', 'vessel', 'cruiser', 'battlecruiser', 'carrier', 'destroyer', 'frigate', 'corvette')):
         return 'ships'
     if any(k in t for k in ('treaty', 'plan', 'act', 'pledge', 'protocol', 'charter', 'agreement')):
         return 'treaties'
@@ -273,11 +274,15 @@ def parse_article(path):
     for j, (name, el) in enumerate(rest):
         if name == 'table':
             rows = el.find_all('tr')
-            if rows and text(rows[0].find(['td', 'th'])).strip().lower() == 'type':
+            firsts = [text(r.find(['td', 'th'])).strip().lower() for r in rows if r.find(['td', 'th'])]
+            # a summary table: first cell "Type", or Wikipedia-style section rows with a Type row inside
+            if firsts and (firsts[0] == 'type' or ('type' in firsts and len(rows[0].find_all(['td', 'th'])) == 1)):
                 for r in rows:
                     cells = r.find_all(['td', 'th'])
-                    if len(cells) >= 2:
+                    if len(cells) >= 2 and text(cells[1]):
                         art['infobox'].append((text(cells[0]), cells[1].decode_contents().strip()))
+                    elif cells and text(cells[0]):
+                        art['infobox'].append((SECTION, text(cells[0])))   # a section row spanning the table
                 rest = rest[:j] + rest[j + 1:]
                 break
     # sources
@@ -462,8 +467,19 @@ class Site:
                 pairs.append((g, lst[0][1], lst[1][1]))
                 used.add(lst[0][2].lower()); used.add(lst[1][2].lower())
         plain = [(k, v) for k, v in rows if k.lower() not in used]
-        if plain:
-            out.append('<dl>' + ''.join('<dt>%s</dt><dd>%s</dd>' % (html.escape(k), v) for k, v in plain) + '</dl>')
+        # drop a section heading with nothing under it
+        plain = [(k, v) for i, (k, v) in enumerate(plain)
+                 if k != SECTION or (i + 1 < len(plain) and plain[i + 1][0] != SECTION)]
+        dl = []
+        for k, v in plain:
+            if k == SECTION:
+                if dl:
+                    out.append('<dl>' + ''.join(dl) + '</dl>'); dl = []
+                out.append('<p class="ib-sec">%s</p>' % BeautifulSoup(v, 'html.parser').get_text())
+            else:
+                dl.append('<dt>%s</dt><dd>%s</dd>' % (html.escape(k), v))
+        if dl:
+            out.append('<dl>' + ''.join(dl) + '</dl>')
         if pairs:
             out.append('<div class="pair">')
             for g, a, b in pairs:
