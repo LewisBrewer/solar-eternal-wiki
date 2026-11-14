@@ -106,6 +106,45 @@ def css_classes(soup):
     return props
 
 
+def list_level(el):
+    for c in el.get('class') or []:
+        m = re.match(r'lst-kix_[A-Za-z0-9]+-(\d+)$', c)
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def nest_lists(body, soup):
+    for parent in [body] + body.find_all(['div', 'section']):
+        stack = []   # (level, list element) for the run of lists being merged
+        for el in list(parent.children):
+            if isinstance(el, NavigableString):
+                if el.strip():
+                    stack = []
+                continue
+            lvl = list_level(el) if el.name in ('ul', 'ol') else None
+            if lvl is None:
+                stack = []
+                continue
+            if not stack:
+                stack = [(lvl, el)]
+                continue
+            while stack and stack[-1][0] > lvl:
+                stack.pop()
+            if stack and stack[-1][0] == lvl:
+                target = stack[-1][1]
+                for li in el.find_all('li', recursive=False):
+                    target.append(li.extract())
+                el.decompose()
+            elif stack:
+                host = stack[-1][1].find_all('li', recursive=False)
+                if host:
+                    host[-1].append(el.extract())
+                stack.append((lvl, el))
+            else:
+                stack = [(lvl, el)]
+
+
 def normalise(raw):
     soup = BeautifulSoup(raw, 'html.parser')
     props = css_classes(soup)
@@ -143,6 +182,9 @@ def normalise(raw):
         t.name = 'b'
     for t in body.find_all(['em']):
         t.name = 'i'
+    # Docs exports a nested list as flat sibling lists whose class ends -0, -1, -2 by depth;
+    # rebuild the nesting so an order of battle reads as a tree
+    nest_lists(body, soup)
     # Docs "title" paragraph becomes h1
     for p in body.find_all('p'):
         if 'title' in (p.get('class') or []):

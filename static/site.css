@@ -85,6 +85,7 @@ a:hover{text-decoration-color:var(--white)}
 .prose h3{margin:8px 0 0;font-weight:500;font-size:20px;color:var(--white)}
 .prose h4{margin:4px 0 0;font-weight:500;font-size:17px;letter-spacing:.04em;color:var(--white)}
 .prose ul,.prose ol{margin:0;padding-left:24px;display:flex;flex-direction:column;gap:8px}
+.prose li>ul,.prose li>ol{margin-top:6px;gap:4px}
 .epigraph{margin:0;display:flex;flex-direction:column;gap:8px;padding:4px 0 4px 20px;border-left:2px solid var(--line)}
 .epigraph q{font-style:italic;font-size:19px;line-height:1.6;color:var(--white);quotes:"\201C" "\201D"}
 .epigraph q::before{content:none}.epigraph q::after{content:none}
