@@ -374,12 +374,17 @@ class Site:
         for a in arts:
             self.alias[a['title'].lower()] = a['slug']
         # useful redirects
-        extra = {'nomotar incident': 'ciriban-incident', 'battle of exedor': 'battle-of-exedor',
+        extra = {'nomotar incident': 'ciriban-incident', 'battle of exedor': 'battle-of-exedor-disambiguation',
                  'siege of exedor': 'siege-of-hiverion', 'une': 'united-nations-of-earth',
                  'usr': 'unified-solar-republic', 'voor war': 'ciriban-gulf-conflict', 'ciriban gulf war': 'ciriban-gulf-conflict', 'cirban': 'ciriban', 'cirban protocol': 'ciriban-protocol'}
         for k, v in extra.items():
             if v in self.by_slug:
                 self.alias.setdefault(k, v)
+        # a disambiguation page answers for its bare name unless an article holds that name
+        for a in arts:
+            t = a['title'].lower()
+            if t.endswith(' (disambiguation)'):
+                self.alias.setdefault(t[:-len(' (disambiguation)')], a['slug'])
 
     def resolve(self, name):
         n = html.unescape(name).strip().lower()
