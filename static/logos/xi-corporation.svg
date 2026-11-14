@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420" width="600" height="420">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFD23F"/><stop offset="1" stop-color="#F08A1C"/></linearGradient>
+<linearGradient id="b" gradientUnits="userSpaceOnUse" x1="190" y1="40" x2="410" y2="260"><stop offset="0" stop-color="#2A6FD1"/><stop offset="1" stop-color="#103E8C"/></linearGradient>
+</defs>
+<rect width="600" height="420" fill="#FFFFFF"/>
+<circle cx="300" cy="150" r="110" fill="url(#b)"/>
+<clipPath id="c"><circle cx="300" cy="150" r="110"/></clipPath><g clip-path="url(#c)"><circle cx="282" cy="150" r="70" fill="#FFFFFF"/><circle cx="310" cy="140" r="60" fill="url(#b)"/></g>
+<path d="M162 205 Q300 54 445 88 Q336 102 238 205 Z" fill="url(#g)"/>
+<path d="M162 205 Q286 178 376 233 Q272 212 162 205 Z" fill="#E3262B"/>
+<text x="300" y="338" text-anchor="middle" font-family="'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif" font-size="62" font-weight="bold" fill="#103E8C">中国曦集团</text>
+<text x="300" y="390" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="bold" letter-spacing="5" fill="#103E8C">XI CORPORATION</text>
+</svg>
