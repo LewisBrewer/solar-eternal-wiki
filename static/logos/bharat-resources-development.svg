@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 440" width="600" height="440">
+<defs>
+<linearGradient id="saf" x1="0" y1="30" x2="0" y2="270" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#FFD27A"/><stop offset=".35" stop-color="#FF9F2E"/><stop offset=".75" stop-color="#E8650F"/><stop offset="1" stop-color="#B8460A"/></linearGradient>
+<linearGradient id="safin" x1="0" y1="270" x2="0" y2="30" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#FFC15A"/><stop offset="1" stop-color="#C9520C"/></linearGradient>
+<linearGradient id="navy" x1="220" y1="70" x2="380" y2="230" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#3A62C0"/><stop offset=".5" stop-color="#1A3478"/><stop offset="1" stop-color="#0A1A4A"/></linearGradient>
+<radialGradient id="hub" cx="294" cy="144" r="26" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#7BE08E"/><stop offset=".45" stop-color="#2FA84F"/><stop offset="1" stop-color="#0B5A26"/></radialGradient>
+<radialGradient id="field" cx="300" cy="150" r="96" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#FFFFFF"/><stop offset=".8" stop-color="#FFF6E8"/><stop offset="1" stop-color="#FCE3C2"/></radialGradient>
+<linearGradient id="cable" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#B8460A"/><stop offset=".45" stop-color="#FFE3A8"/><stop offset="1" stop-color="#C9520C"/></linearGradient>
+<linearGradient id="tx" x1="0" y1="330" x2="0" y2="372" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#1D3B7A"/><stop offset="1" stop-color="#0A1A4A"/></linearGradient>
+</defs>
+<rect width="600" height="440" fill="#FFFFFF"/>
+<!-- the tether, behind the wheel -->
+<rect x="296" y="14" width="8" height="272" fill="url(#cable)"/>
+<rect x="284" y="10" width="32" height="12" rx="3" fill="url(#navy)"/>
+<!-- ring -->
+<circle cx="300" cy="150" r="118" fill="url(#saf)"/>
+<circle cx="300" cy="150" r="100" fill="url(#safin)"/>
+<circle cx="300" cy="150" r="96" fill="url(#field)"/>
+<path d="M190 120 A118 118 0 0 1 410 120" fill="none" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="3"/>
+<!-- twelve spokes -->
+<g stroke="url(#navy)" stroke-width="7" stroke-linecap="round">
+<line x1="300" y1="58" x2="300" y2="242"/>
+<line x1="208" y1="150" x2="392" y2="150"/>
+<line x1="254" y1="70.3" x2="346" y2="229.7"/>
+<line x1="346" y1="70.3" x2="254" y2="229.7"/>
+<line x1="220.3" y1="104" x2="379.7" y2="196"/>
+<line x1="379.7" y1="104" x2="220.3" y2="196"/>
+</g>
+<!-- tether through the hub -->
+<rect x="296" y="52" width="8" height="196" fill="url(#cable)"/>
+<circle cx="300" cy="150" r="24" fill="url(#hub)" stroke="#0A1A4A" stroke-width="2"/>
+<ellipse cx="294" cy="141" rx="10" ry="5" fill="#FFFFFF" opacity=".45"/>
+<!-- climber on the cable -->
+<rect x="290" y="88" width="20" height="13" rx="2" fill="#FFFFFF" stroke="#0A1A4A" stroke-width="2"/>
+<!-- wordmark -->
+<text x="300" y="318" text-anchor="middle" font-family="FreeSans, Arial, sans-serif" font-size="26" font-weight="bold" fill="#E8650F">भारत संसाधन विकास</text>
+<text x="300" y="362" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" letter-spacing="4" fill="url(#tx)">BHARAT RESOURCES</text>
+<rect x="170" y="378" width="260" height="2" fill="#2FA84F"/>
+<text x="300" y="406" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" letter-spacing="8" fill="#4A5568">DEVELOPMENT</text>
+</svg>
