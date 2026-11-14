@@ -742,6 +742,12 @@ for w in worlds:
     k = w['sys'] + ':' + w['name']
     if k not in FLAGS and w.get('slug') in have: FLAGS[k] = [[w['settled'], [have[w['slug']]]]]
 data['flags'] = FLAGS
+# a non-human power with a banner file flies it over its worlds and keys it in the legends;
+# the Voor banner is a roundel (the Hearth), drawn round rather than as a 3:2 flag
+for k, pol in POLITIES.items():
+    if k in ('earth', 'une', 'usr'): continue
+    if pol.get('slug') in have: pol['flag'] = have[pol['slug']]
+data['roundFlags'] = ['voor-confederacy.svg']
 
 out = HERE / 'atlas-data.json'
 json.dump(data, open(out, 'w'), separators=(',', ':'))

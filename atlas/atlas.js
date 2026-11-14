@@ -433,7 +433,7 @@ function applyYear() {
   $('#foot-sub').textContent = evs.length ? evs[evs.length - 1].label : eraOf(year);
   // legend: polities present this year
   const present = new Set(SYS.map((s) => ownerAt(s, t)).filter(Boolean).map((o) => o.p));
-  const legend = Object.keys(P).filter((k) => present.has(k)).map((k) => '<span><i style="background:' + P[k].color + '"></i>' + esc(P[k].name) + '</span>').join('');
+  const legend = Object.keys(P).filter((k) => present.has(k)).map((k) => '<span>' + polKey(k) + esc(P[k].name) + '</span>').join('');
   $('#legend').innerHTML = legend + (layers.reg && year >= 2302 ? '<span><i class="sec"></i>Republic sector</span>' : '') + (layers.bat ? '<span><i class="bt"></i>Battle or event</span>' : '');
   if (selected) renderSelected();
   if (!$('#sysview').hidden && sv.sys) renderSystemInfo();
@@ -472,7 +472,7 @@ function renderSelected() {
   else if (o) desc = 'Held by the ' + polName(o.p) + '. No settled world is charted here.';
   else desc = 'Unclaimed. Charted, but held by no known power.';
   if (burned.length) desc += ' ' + burned.map((b) => b.name).join(' and ') + ' burned in ' + Math.floor(burned[0].y) + '.';
-  const held = o ? '<span class="sw" style="background:' + polColor(o.p) + '"></span>' + esc(polName(o.p)) + (o.note ? ' <span style="color:var(--muted)">(' + esc(o.note) + ')</span>' : '') + (o.derived ? '<sup class="drv" title="Date reconstructed, not stated in the book">†</sup>' : '') : 'Unclaimed';
+  const held = o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ' <span style="color:var(--muted)">(' + esc(o.note) + ')</span>' : '') + (o.derived ? '<sup class="drv" title="Date reconstructed, not stated in the book">†</sup>' : '') : 'Unclaimed';
   const evHtml = evs.length ? '<ul>' + evs.map((e) => '<li>' + (hasArticle(e.slug) ? '<a href="' + wikiHref(e.slug) + '">' + esc(e.label) + '</a>' : esc(e.label)) + ', ' + Math.floor(e.y) + '</li>').join('') + '</ul>' : '';
   const wHtml = ws.length ? '<ul>' + ws.map((w) => '<li>' + (hasArticle(w.slug) ? '<a href="' + wikiHref(w.slug) + '">' + esc(w.name) + '</a>' : esc(w.name)) + (w.native ? '' : ', ' + Math.floor(w.settled)) + '</li>').join('') + '</ul>' : '';
   $('#selected').innerHTML =
@@ -688,19 +688,36 @@ const TYPES_MID = ['Barren world', 'Frozen desert', 'Ocean world', 'Steppe world
 const TYPES_OUT = ['Gas giant', 'Ringed gas giant', 'Ice giant', 'Frozen dwarf'];
 const TYPES_DEAD = ['Barren world', 'Frozen world', 'Molten world', 'Irradiated rock', 'Barren world'];
 // flags flown on a world in a given year; Earth before 1 June 2283 flies its states' flags
+// a world without its own flag flies its owner's banner, if that power has one (the Voor roundel)
 function flagsAt(name, t) {
   const tl = (data.flags || {})[sv.sys.id + ':' + name]; let f = [];
-  if (tl) for (const [y, fs] of tl) if (y <= t) f = fs;
-  return f;
+  if (tl) { for (const [y, fs] of tl) if (y <= t) f = fs; return f; }
+  const o = ownerAt(sv.sys, t), pol = o && P[o.p];
+  return pol && pol.flag ? [pol.flag] : [];
 }
+const isRound = (f) => (data.roundFlags || []).includes(f);
 function flagRow(fs, x, y, h) {
-  const w = h * 1.5, per = 6; let out = '';
+  const per = 6; let out = '', fx = x;
   fs.forEach((f, k) => {
-    const fx = x + (k % per) * (w + 3), fy = y + Math.floor(k / per) * (h + 3);
-    out += '<image href="assets/flags/' + f + '" x="' + fx + '" y="' + fy + '" width="' + w + '" height="' + h + '" preserveAspectRatio="xMidYMid slice"/>' +
-      '<rect x="' + fx + '" y="' + fy + '" width="' + w + '" height="' + h + '" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".75"/>';
+    if (k && k % per === 0) fx = x;
+    const fy = y + Math.floor(k / per) * (h + 3);
+    if (isRound(f)) {
+      const d = h * 1.35, cy = fy + h / 2;
+      out += '<image href="assets/flags/' + f + '" x="' + fx + '" y="' + (cy - d / 2) + '" width="' + d + '" height="' + d + '"/>';
+      fx += d + 3;
+    } else {
+      const w = h * 1.5;
+      out += '<image href="assets/flags/' + f + '" x="' + fx + '" y="' + fy + '" width="' + w + '" height="' + h + '" preserveAspectRatio="xMidYMid slice"/>' +
+        '<rect x="' + fx + '" y="' + fy + '" width="' + w + '" height="' + h + '" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".75"/>';
+      fx += w + 3;
+    }
   });
   return out;
+}
+// a polity's key in a legend: its banner where it has one, else its colour
+function polKey(k) {
+  const pol = P[k];
+  return pol && pol.flag ? '<img class="flagkey" src="assets/flags/' + pol.flag + '" alt="">' : '<i style="background:' + (pol ? pol.color : polColor(k)) + '"></i>';
 }
 function makePlanets(s) {
   const r = rngFor(s.id);
@@ -843,7 +860,7 @@ function renderSystemInfo() {
     ['Map position', s.x.toFixed(1) + ', ' + s.y.toFixed(1) + ', ' + s.z.toFixed(1) + ' ly<sup class="drv" title="Height above the plane is reconstructed">†</sup>'],
     ['Planets', String(sv.planets.length)],
   ]);
-  html += sec('Sovereignty', [['Held by', o ? '<span class="sw" style="background:' + polColor(o.p) + '"></span>' + esc(polName(o.p)) + (o.note ? ', ' + esc(o.note) : '') : 'Unclaimed']]
+  html += sec('Sovereignty', [['Held by', o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ', ' + esc(o.note) : '') : 'Unclaimed']]
     .concat(hist.map((h) => [String(Math.floor(h.y)), esc(polName(h.p)) + (h.note ? ', ' + esc(h.note) : '') + (h.derived ? '<sup class="drv" title="Date reconstructed">†</sup>' : ''), h.y > t])));
   if (ws.length) html += sec('Settled worlds', ws.map((w) => [w.name, (hasArticle(w.slug) ? '<a href="' + wikiHref(w.slug) + '">Article</a> · ' : '') + (w.native ? 'Native world' : fmtDate(w.settled))]));
   if (evs.length) html += sec('History', evs.map((e) => [fmtDate(e.y), hasArticle(e.slug) ? '<a href="' + wikiHref(e.slug) + '">' + esc(e.label) + '</a>' : esc(e.label), e.y > t]));
@@ -853,7 +870,7 @@ function renderSystemInfo() {
   $('#sv-title').textContent = (body ? body.label : s.name) + ' - ' + year;
   const last = evs.filter((e) => e.y <= t).pop();
   $('#sv-sub').textContent = last ? last.label + ', ' + fmtDate(last.y) : (o ? polName(o.p) : 'Unclaimed');
-  $('#sv-legend').innerHTML = o ? '<span><i style="background:' + polColor(o.p) + '"></i>' + esc(polName(o.p)) + '</span>' : '';
+  $('#sv-legend').innerHTML = o ? '<span>' + polKey(o.p) + esc(polName(o.p)) + '</span>' : '';
 }
 function drawSystem(dt) {
   if (!sv.sys) return;
@@ -887,7 +904,7 @@ function drawSystem(dt) {
     hits.push({ key: String(pi), x, y, r: Math.max(16, p.size + 8) });
     if (settled) out += '<circle cx="' + x + '" cy="' + y + '" r="' + (p.size + 4) + '" fill="none" stroke="#fff" stroke-opacity=".85"/>';
     // moons orbit the planet; their names are listed beside it
-    const moonLines = [];
+    const moonLines = [], moonNames = [];
     p.moons.forEach((m, k) => {
       const mr = p.size + 12 + k * 7, ang = m.ph + sv.t * 2.2 / (1 + k * 0.6);
       const mx = x + Math.cos(ang) * mr, my = y + Math.sin(ang) * mr * 0.55;
@@ -898,14 +915,15 @@ function drawSystem(dt) {
       hits.push({ key: pi + '.' + k, x: mx, y: my, r: 9 });
       if (live) {
         out += '<circle cx="' + mx + '" cy="' + my + '" r="5.5" fill="none" stroke="#fff" stroke-opacity=".8"/>';
+        moonNames.push(m.name);
         moonLines.push('<tspan data-b="' + pi + '.' + k + '" style="cursor:pointer" class="nm" font-size="11">' + esc(m.name) + '</tspan>' + (burnM ? '<tspan class="sb" font-size="10"> · burned ' + Math.floor(burnM.y) + '</tspan>' : '<tspan class="sb" font-size="10"> · moon</tspan>'));
       }
     });
     moonLines.forEach((ln, k) => {
       const lx = x + p.size + 16 + p.moons.length * 7, ly = y + 4 + k * 15;
       out += '<text class="lbl" x="' + lx + '" y="' + ly + '">' + ln + '</text>';
-      const mf = flagsAt(p.moons[k].name, t);
-      if (mf.length) out += '<g class="lbl">' + flagRow(mf, lx + p.moons[k].name.length * 8.4 + 48, ly - 9, 9) + '</g>';
+      const mf = flagsAt(moonNames[k], t);
+      if (mf.length) out += '<g class="lbl">' + flagRow(mf, lx + moonNames[k].length * 8.4 + 48, ly - 9, 9) + '</g>';
       if (!$('#sv-map').classList.contains('nonames')) hits.push({ key: pi + '.' + k, box: [lx, ly - 12, lx + p.moons[k].name.length * 8.5, ly + 3] });
     });
     const label = settled ? p.world : p.name;
