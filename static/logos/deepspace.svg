@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 440" width="600" height="440">
+<defs>
+<linearGradient id="chrome" x1="0" y1="40" x2="0" y2="280" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#F7F9FC"/><stop offset=".22" stop-color="#C9D2DE"/><stop offset=".48" stop-color="#7C8A9E"/>
+<stop offset=".52" stop-color="#3E4A5C"/><stop offset=".7" stop-color="#9AA7B8"/><stop offset="1" stop-color="#E4E9F0"/></linearGradient>
+<linearGradient id="edge" x1="0" y1="40" x2="0" y2="280" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#2A3446"/><stop offset="1" stop-color="#B8C3D2"/></linearGradient>
+<radialGradient id="deep" cx="300" cy="140" r="130" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#2D5FB8"/><stop offset=".55" stop-color="#12285A"/><stop offset="1" stop-color="#050C22"/></radialGradient>
+<linearGradient id="red" x1="160" y1="0" x2="500" y2="0" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#8E1018" stop-opacity="0"/><stop offset=".12" stop-color="#C8202A"/><stop offset=".6" stop-color="#E8392E"/><stop offset="1" stop-color="#FF8A5C"/></linearGradient>
+<linearGradient id="redsheen" x1="0" y1="150" x2="0" y2="170" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#FFFFFF" stop-opacity=".45"/><stop offset=".5" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+<linearGradient id="tx" x1="0" y1="320" x2="0" y2="372" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#1D3B7A"/><stop offset="1" stop-color="#0B1B3D"/></linearGradient>
+<clipPath id="win"><path d="M224 74 H310 A86 86 0 0 1 310 246 H224 Z"/></clipPath>
+<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="600" height="440" fill="#FFFFFF"/>
+<!-- the deep-space window -->
+<path d="M224 74 H310 A86 86 0 0 1 310 246 H224 Z" fill="url(#deep)"/>
+<g clip-path="url(#win)" fill="#FFFFFF" filter="url(#glow)">
+<circle cx="250" cy="100" r="2.2"/><circle cx="292" cy="92" r="1.4"/><circle cx="338" cy="110" r="2.6"/>
+<circle cx="268" cy="128" r="1.2"/><circle cx="360" cy="138" r="1.5"/><circle cx="244" cy="196" r="1.6"/>
+<circle cx="300" cy="214" r="2.4"/><circle cx="346" cy="196" r="1.2"/><circle cx="276" cy="232" r="1.1"/>
+<circle cx="318" cy="128" r="1"/><circle cx="380" cy="182" r="1.8"/><circle cx="232" cy="150" r="1"/>
+</g>
+<!-- the chrome D -->
+<path fill-rule="evenodd" fill="url(#chrome)" stroke="url(#edge)" stroke-width="2"
+ d="M188 40 H310 A120 120 0 0 1 310 280 H188 Z M224 74 H310 A86 86 0 0 1 310 246 H224 Z"/>
+<path d="M190 42 H310 A118 118 0 0 1 426 140" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-opacity=".9"/>
+<path d="M226 244 H310 A84 84 0 0 0 394 170" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-opacity=".5"/>
+<!-- the red stripe -->
+<path d="M150 150 H468 L486 160 L468 170 H150 Z" fill="url(#red)"/>
+<path d="M150 150 H468 L486 160 L468 170 H150 Z" fill="url(#redsheen)"/>
+<!-- wordmark -->
+<text x="300" y="362" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="bold" letter-spacing="9" fill="url(#tx)">DEEPSPACE</text>
+<rect x="150" y="380" width="300" height="2" fill="#C8202A"/>
+<text x="300" y="408" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" letter-spacing="6" fill="#4A5568">CHARTERED 2152</text>
+</svg>
