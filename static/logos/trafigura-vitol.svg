@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="600" height="380">
+<defs>
+<linearGradient id="nL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2B5C9E"/><stop offset="1" stop-color="#0B1F3F"/></linearGradient>
+<linearGradient id="nR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0B1F3F"/><stop offset="1" stop-color="#16376A"/></linearGradient>
+<linearGradient id="tL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#00787B"/><stop offset="1" stop-color="#004E51"/></linearGradient>
+<linearGradient id="tR" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3FD6D2"/><stop offset="1" stop-color="#00A3A6"/></linearGradient>
+<linearGradient id="deck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A78B8"/><stop offset=".45" stop-color="#16376A"/><stop offset="1" stop-color="#0B1F3F"/></linearGradient>
+<linearGradient id="deckSide" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B1F3F"/><stop offset="1" stop-color="#06122A"/></linearGradient>
+<radialGradient id="sh" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".28"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="600" height="380" fill="#FFFFFF"/>
+<ellipse cx="300" cy="248" rx="120" ry="14" fill="url(#sh)"/>
+<!-- left sail (navy): two faces -->
+<polygon points="196,72 296,240 282,72" fill="url(#nL)"/>
+<polygon points="282,72 296,240 300,72" fill="url(#nR)"/>
+<!-- right sail (teal): two faces -->
+<polygon points="300,72 304,240 318,72" fill="url(#tL)"/>
+<polygon points="318,72 304,240 404,72" fill="url(#tR)"/>
+<!-- deck bar with bevel -->
+<polygon points="190,54 410,54 418,62 182,62" fill="#6F97CF"/>
+<rect x="182" y="62" width="236" height="12" fill="url(#deck)"/>
+<polygon points="182,74 418,74 410,82 190,82" fill="url(#deckSide)"/>
+<text x="300" y="312" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="bold" letter-spacing="5" fill="#0F2A52">TRAFIGURA <tspan fill="#00A3A6">VITOL</tspan></text>
+<text x="300" y="346" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" letter-spacing="9" fill="#5C6B7E">GENEVA · SINGAPORE</text>
+</svg>
