@@ -1,3 +1,4 @@
+import os
 """Build atlas-data.json: 194 systems traced from the 2235.12.10 reference map,
 their ownership through time, settled worlds and dated events.
 
@@ -710,6 +711,34 @@ for d_, i, j in sorted((D[i, j], i, j) for i in range(N) for j in range(i + 1, N
 assert len({find(i) for i in range(N)}) == 1
 data['routes'] = routes
 print('routes', len(routes), 'longest link', max(r[2] for r in routes))
+
+# ---- flags shown beside worlds in the system viewer: [from-year, [flag files]] per world
+SOL_SLUGS = {'Luna': 'luna', 'Mars': 'mars', 'Io': 'io', 'Europa': 'europa', 'Ganymede': 'ganymede', 'Callisto': 'callisto'}
+for w in worlds:
+    if w['sys'] == 'sol' and w['name'] in SOL_SLUGS: w['slug'] = SOL_SLUGS[w['name']]
+UNIFY = 2283.416   # New Luxor, 1 June 2283
+FED = 'united-nations-of-earth.png'
+USR = 'unified-solar-republic.png'   # 1 January 2341
+EARTH_STATES = ['united-states-of-america.svg', 'peoples-republic-of-china.svg', 'european-federation.svg',
+                'republic-of-india.svg', 'pacific-union.svg', 'arabic-league.png', 'canada.svg',
+                'federative-republic-of-brazil.svg', 'argentine-republic.svg', 'korean-republic.svg', 'russian-federation.svg']
+CAC = 'central-african-confederation.svg'
+FLAGS = {
+    'sol:Earth': [[1900, EARTH_STATES], [2057.62, EARTH_STATES[:6] + [CAC] + EARTH_STATES[6:]], [UNIFY, [FED]], [2341.0, [USR]]],
+    'sol:Luna': [[2063, ['peoples-republic-of-china.svg', 'european-federation.svg', 'united-states-of-america.svg']], [UNIFY, ['luna.png']]],
+    'sol:Mars': [[2076, ['european-federation.svg']], [2079.7, ['european-federation.svg', 'united-states-of-america.svg']], [UNIFY, ['mars.png']]],
+    'sol:Io': [[2100, ['republic-of-india.svg']], [UNIFY, ['io.png']]],
+    'sol:Europa': [[2100, ['european-federation.svg']], [UNIFY, ['europa.png']]],
+    'sol:Ganymede': [[2100, ['peoples-republic-of-china.svg']], [UNIFY, ['ganymede.png']]],
+    'sol:Callisto': [[2100, ['united-states-of-america.svg']], [UNIFY, ['callisto.png']]],
+}
+# any other world with its own flag file shows it from settlement
+FLAG_DIR = HERE.parent / 'static' / 'flags'
+have = {f.rsplit('.', 1)[0]: f for f in os.listdir(FLAG_DIR)} if FLAG_DIR.exists() else {}
+for w in worlds:
+    k = w['sys'] + ':' + w['name']
+    if k not in FLAGS and w.get('slug') in have: FLAGS[k] = [[w['settled'], [have[w['slug']]]]]
+data['flags'] = FLAGS
 
 out = HERE / 'atlas-data.json'
 json.dump(data, open(out, 'w'), separators=(',', ':'))

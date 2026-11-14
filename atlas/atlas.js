@@ -687,18 +687,33 @@ const TYPES_IN = ['Molten world', 'Tidally locked rock', 'Hot cloud world', 'Bar
 const TYPES_MID = ['Barren world', 'Frozen desert', 'Ocean world', 'Steppe world', 'Barren world'];
 const TYPES_OUT = ['Gas giant', 'Ringed gas giant', 'Ice giant', 'Frozen dwarf'];
 const TYPES_DEAD = ['Barren world', 'Frozen world', 'Molten world', 'Irradiated rock', 'Barren world'];
+// flags flown on a world in a given year; Earth before 1 June 2283 flies its states' flags
+function flagsAt(name, t) {
+  const tl = (data.flags || {})[sv.sys.id + ':' + name]; let f = [];
+  if (tl) for (const [y, fs] of tl) if (y <= t) f = fs;
+  return f;
+}
+function flagRow(fs, x, y, h) {
+  const w = h * 1.5, per = 6; let out = '';
+  fs.forEach((f, k) => {
+    const fx = x + (k % per) * (w + 3), fy = y + Math.floor(k / per) * (h + 3);
+    out += '<image href="assets/flags/' + f + '" x="' + fx + '" y="' + fy + '" width="' + w + '" height="' + h + '" preserveAspectRatio="xMidYMid slice"/>' +
+      '<rect x="' + fx + '" y="' + fy + '" width="' + w + '" height="' + h + '" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".75"/>';
+  });
+  return out;
+}
 function makePlanets(s) {
   const r = rngFor(s.id);
   if (s.id === 'sol') {
     const solW = data.worlds.filter((w) => w.sys === 'sol');
-    const moonsOf = (n) => solW.filter((w) => w.moon && w.pl === n).map((w) => ({ name: w.name, settled: w.settled, world: true, ph: r() * 6.28 }));
+    const moonsOf = (n) => solW.filter((w) => w.moon && w.pl === n).map((w) => ({ name: w.name, slug: w.slug, settled: w.settled, world: true, ph: r() * 6.28 }));
     return ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'].map((n, i) => {
       const w = solW.find((x) => x.name === n);
       const moons = moonsOf(i + 1);
       if (n === 'Saturn') moons.push({ name: 'Titan', settled: 2150, world: true, ph: r() * 6.28 });
       return { name: n, a: [0.39, 0.72, 1, 1.52, 5.2, 9.5, 19.2, 30][i], size: [3, 5, 5.5, 4, 11, 10, 7, 7][i],
         type: ['Rock', 'Cloud world', 'Homeworld of humanity', 'Terraformed world', 'Gas giant', 'Ringed gas giant', 'Ice giant', 'Ice giant'][i],
-        ring: i === 5, world: w ? n : null, settled: w ? w.settled : undefined, biome: w && w.biome, ph: r() * 6.28, moons, giant: i >= 4 };
+        ring: i === 5, world: w ? n : null, slug: w && w.slug, settled: w ? w.settled : undefined, biome: w && w.biome, ph: r() * 6.28, moons, giant: i >= 4 };
     });
   }
   const known = data.worlds.filter((w) => w.sys === s.id);
@@ -889,6 +904,8 @@ function drawSystem(dt) {
     moonLines.forEach((ln, k) => {
       const lx = x + p.size + 16 + p.moons.length * 7, ly = y + 4 + k * 15;
       out += '<text class="lbl" x="' + lx + '" y="' + ly + '">' + ln + '</text>';
+      const mf = flagsAt(p.moons[k].name, t);
+      if (mf.length) out += '<g class="lbl">' + flagRow(mf, lx + p.moons[k].name.length * 8.4 + 48, ly - 9, 9) + '</g>';
       if (!$('#sv-map').classList.contains('nonames')) hits.push({ key: pi + '.' + k, box: [lx, ly - 12, lx + p.moons[k].name.length * 8.5, ly + 3] });
     });
     const label = settled ? p.world : p.name;
@@ -899,6 +916,8 @@ function drawSystem(dt) {
     out += '<g class="lbl"><line x1="' + x + '" y1="' + (y - p.size - 2) + '" x2="' + x + '" y2="' + (y - p.size - 30 - lift) + '" stroke="#fff" stroke-width="1"/>' +
       '<text class="nm" data-b="' + pi + '" style="cursor:pointer" x="' + (x + 6) + '" y="' + (y - p.size - 22 - lift) + '" font-size="' + (settled ? 17 : 13) + '">' + esc(label) + '</text>' +
       '<text class="sb" x="' + (x + 6) + '" y="' + (y - p.size - 8 - lift) + '">' + esc(ROMAN[sv.planets.indexOf(p)] + ' · ' + sub) + '</text></g>';
+    const pf = settled ? flagsAt(p.world, t) : [];
+    if (pf.length) out += '<g class="lbl">' + flagRow(pf, x + 12 + label.length * 9.6, y - p.size - 35 - lift - (pf.length > 6 ? 15 : 0), 12) + '</g>';
   }
   svg.innerHTML = out;
   sv.hits = hits.reverse();   // labels and nearer bodies first
