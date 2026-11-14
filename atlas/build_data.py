@@ -413,7 +413,8 @@ for sid in own:
 # ------------------------------------------------------------------ worlds
 # Worlds: the sheet's settled worlds, with the book's dates where they differ, plus the
 # non-human worlds known from contact and the book's later settlements.
-BOOK_DATES = {'Mars': ym(2076, 7, 27), 'Callisto': ym(2088), 'Côte d\'Azur': ym(2342, 4, 21)}
+BOOK_DATES = {'Mars': ym(2076, 7, 27), 'Luna': ym(2063, 3, 21), 'Io': ym(2114, 3, 1), 'Europa': ym(2116), 'Ganymede': ym(2118), 'Callisto': ym(2120),
+              'Côte d\'Azur': ym(2342, 4, 21)}
 SPELL = {"Cote d'Azure": "Côte d'Azur", 'Nouveau Montreal': 'Nouveau Montréal', 'New Indata Mog': None, 'Earth': 'Earth'}
 SLUGS = {'Dauntless': 'dauntless', 'Mardak Vol': 'mardak-vol-planet', 'Theia': 'theia', 'Bounty': 'bounty'}
 def biome_label(b):
@@ -491,7 +492,9 @@ def ev(y, label, sys, kind='battle', slug=None):
     return e
 
 EVENTS = [
-    ev(ym(2076, 7, 27), 'Bartolomeu founded on Mars', 'sol', 'world'), ev(ym(2063), 'Luna colonised', 'sol', 'world'),
+    ev(ym(2076, 7, 27), 'Bartolomeu founded on Mars', 'sol', 'world'), ev(ym(2063, 3, 21), 'Zheng He founded on Luna', 'sol', 'world'),
+    ev(ym(2114, 3, 1), 'Van Maanush founded on Io', 'sol', 'world'), ev(ym(2116), 'New Rhine founded on Europa', 'sol', 'world'),
+    ev(ym(2118), 'Xi He founded on Ganymede', 'sol', 'world'), ev(ym(2120), 'Sabre founded on Callisto', 'sol', 'world'),
     ev(ym(2283, 6, 1), 'United Nations of Earth founded', 'sol', 'polity', 'united-nations-of-earth'),
     ev(ym(2300, 2, 25), 'Lief Ericson reaches Procyon', 'procyon', 'survey'),
     ev(ym(2303, 5), 'Mardak Vol colony ship found', 'tadasca', 'survey'),
