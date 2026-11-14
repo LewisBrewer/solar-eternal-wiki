@@ -198,7 +198,7 @@ def set_owner(sid, year, polity, note=None, derived=False):
 # Claim years the book states; the sheet supplies the rest.
 BOOK_CLAIMS = {
     'sol': 1900, 'procyon': ym(2302, 3, 3), 'torovil': 2302, 'barnards-star': 2303, 'talandra': 2308,
-    'yildun': 2307, 'sirius': 2312, 'daranma': 2313, 'saolea': 2316, 'cirban': 2317, 'nomotar': 2317,
+    'yildun': 2307, 'sirius': 2312, 'daranma': 2313, 'saolea': 2316, 'ciriban': 2317, 'nomotar': 2317,
     'derellis': 2331,
 }
 CLAIMS = dict(SHEET_CLAIM); CLAIMS.update(BOOK_CLAIMS)
@@ -278,7 +278,7 @@ WEST_MARCH_IDS = {s['id'] for s in west_marches}
 # Part Twelve and Thirteen: the Khan in human space.
 KHAN_TAKES = [
     ('myrum', ym(2428, 7, 9)), ('haedus', ym(2428, 9, 5)), ('kastaba', ym(2428, 9)),
-    ('cirban', ym(2429, 1, 20)), ('media', ym(2430, 8)), ('uthan', ym(2430, 10)), ('hhabban', ym(2430, 10)),
+    ('ciriban', ym(2429, 1, 20)), ('media', ym(2430, 8)), ('uthan', ym(2430, 10)), ('hhabban', ym(2430, 10)),
     ('bashpit', ym(2430, 12)), ('izar', ym(2431, 4)), ('taggalion', ym(2432, 6)), ('trab', ym(2432, 9)),
     ('ijax', ym(2433, 6)), ('saolea', ym(2436, 9, 12)), ('stiridon', ym(2436, 12)), ('ajam', ym(2436, 12)),
     ('veyer', ym(2437, 3)), ('golba', ym(2437, 6)), ('esmyke', ym(2437, 6)), ('feonus', ym(2437, 6)),
@@ -294,7 +294,7 @@ RETAKES = [
     ('alpha-centauri', ym(2447, 10, 21)), ('yildun', ym(2448, 1)), ('brink', ym(2448, 1)),
     ('procyon', ym(2448, 5, 14)), ('talandra', ym(2449, 6, 20)), ('nomotar', ym(2449, 8, 12)),
     ('bashpit', ym(2449, 11)), ('izar', ym(2449, 12)), ('ijax', ym(2449, 12)), ('binami', ym(2450, 1, 20)),
-    ('cirban', ym(2450, 5, 16)), ('saolea', ym(2450, 6, 22)), ('stiridon', ym(2450, 10)),
+    ('ciriban', ym(2450, 5, 16)), ('saolea', ym(2450, 6, 22)), ('stiridon', ym(2450, 10)),
     ('ajam', ym(2450, 10)), ('trab', ym(2450, 10)), ('taggalion', ym(2450, 11)), ('veyer', ym(2450, 12)),
     ('golba', ym(2451, 1)), ('esmyke', ym(2451, 1)), ('feonus', ym(2451, 2)), ('media', ym(2451, 2)),
     ('uthan', ym(2451, 3)), ('hhabban', ym(2451, 4)), ('haedus', ym(2451, 5, 12)),
@@ -477,12 +477,12 @@ for w in worlds:
         w['terraformed'] = round(w['settled'] + 120, 1)
     w['terraformedEstimated'] = True
 # Names of planets that are not settled worlds themselves
-PLANET_NAMES = {'saolea': {2: 'Okeanos'}, 'cirban': {3: 'Marigot', 5: 'Grand Anse'}, 'procyon': {2: 'Phoenicia'}}
+PLANET_NAMES = {'saolea': {2: 'Okeanos'}, 'ciriban': {3: 'Marigot', 5: 'Grand Anse'}, 'procyon': {2: 'Phoenicia'}}
 BURNED = [('procyon', 'Landfall', ym(2441, 11, 26)), ('yildun', 'Dauntless', ym(2444, 12, 3)),
           ('saolea', 'Theia', ym(2436, 9, 12)), ('veyer', 'Hualapai', ym(2437, 3)),
           ('nomotar', 'Nomotar', ym(2438, 8, 20)), ('talandra', 'Talandra', ym(2441, 5, 10)),
           ('haedus', 'Indata Mog', ym(2428, 11, 6)), ('ijax', 'Ijax', ym(2433, 6)),
-          ('cirban', 'Bounty', ym(2430, 5, 18))]
+          ('ciriban', 'Bounty', ym(2430, 5, 18))]
 
 # ------------------------------------------------------------------ events
 def ev(y, label, sys, kind='battle', slug=None):
@@ -527,8 +527,8 @@ EVENTS = [
     ev(ym(2428, 8, 6), 'First Battle of Haedius', 'haedus', 'battle'),
     ev(ym(2428, 9, 3), 'Second Battle of Haedius', 'haedus', 'battle'),
     ev(ym(2428, 11, 6), 'Indata Mog burned', 'haedus', 'burning'),
-    ev(ym(2429, 1, 22), 'Siege of Bounty', 'cirban', 'battle', 'siege-of-bounty'),
-    ev(ym(2430, 5, 17), "Last stand at Roric's Plaza", 'cirban', 'battle', 'siege-of-bounty'),
+    ev(ym(2429, 1, 22), 'Siege of Bounty', 'ciriban', 'battle', 'siege-of-bounty'),
+    ev(ym(2430, 5, 17), "Last stand at Roric's Plaza", 'ciriban', 'battle', 'siege-of-bounty'),
     ev(ym(2433, 6), 'Ijax burned', 'ijax', 'burning'),
     ev(ym(2434, 3, 12), 'Battle of Saolea', 'saolea', 'battle', 'saolea'),
     ev(ym(2436, 9, 12), 'Theia burned', 'saolea', 'burning', 'theia'),
@@ -546,9 +546,9 @@ EVENTS = [
     ev(ym(2447, 10, 14), 'Battle of Alpha Centauri', 'alpha-centauri', 'battle'),
     ev(ym(2448, 5, 4), 'Second Battle of Procyon', 'procyon', 'battle'),
     ev(ym(2449, 6, 14), 'Second Battle of Talandra', 'talandra', 'battle'),
-    ev(ym(2450, 5, 11), 'The eight khans disperse', 'cirban', 'polity'),
+    ev(ym(2450, 5, 11), 'The eight khans disperse', 'ciriban', 'polity'),
     ev(ym(2449, 11), 'Bashpit, the Scouring begins', 'bashpit', 'battle'),
-    ev(ym(2450, 5, 16), 'Bounty retaken', 'cirban', 'battle', 'bounty'),
+    ev(ym(2450, 5, 16), 'Bounty retaken', 'ciriban', 'battle', 'bounty'),
     ev(ym(2451, 5, 9), 'Third Battle of Haedius', 'haedus', 'battle'),
     ev(ym(2451, 9, 24), 'Battle of Exedor', 'exedor', 'battle', 'battle-of-exedor-2451'),
     ev(ym(2452, 11, 30), "Hiverion's orbitals fall", 'exedor', 'battle'),
@@ -575,7 +575,7 @@ CAPTIONS = [
     (2283, 2300, 'The United Nations of Earth is founded and commits to the stars.'),
     (2300, 2318, 'The Expansion Era. Four survey ships chart 800 stars; the core worlds are founded.'),
     (2318, 2333, 'Contact with the Voor. The Ciriban Gulf becomes a border of trade and forts.'),
-    (2333, 2341, 'The Voor War. The Republic\'s fleets drive into the Confederacy.'),
+    (2333, 2341, 'The Ciriban Gulf Conflict. The Republic\'s fleets drive into the Confederacy.'),
     (2341, 2405, 'The First Republic. Second and Third Waves settle the frontier; the Voor Territories join.'),
     (2405, 2428, 'The Red Khan unites the Veil and conquers the Dwaii, the Ka-Dur and the Confederacy.'),
     (2428, 2441, 'The Fevarian Crisis. The Khan takes the Gulf and both Sectors.'),
@@ -601,7 +601,7 @@ data = {
     'events': sorted(EVENTS, key=lambda e: e['y']),
     'captions': [{'from': a, 'to': b, 'text': t} for a, b, t in CAPTIONS],
     'regions': [
-        {'name': 'Ciriban Gulf', 'near': ['golba', 'media', 'swur', 'cirban']},
+        {'name': 'Ciriban Gulf', 'near': ['golba', 'media', 'swur', 'ciriban']},
         {'name': 'Ibannic Veil', 'near': ['kuma', 'banagho', 'omaggus', 'ijaagin'], 'toward': 'ushars-well'},
         {'name': 'Zadanis Void', 'near': ['lishval', 'okul', 'gorim', 'targon']},
         {'name': 'Shadow Nebula', 'near': ['asmore', 'sorcimax', 'uldor', 'quannaga']},
@@ -650,11 +650,11 @@ def link(i, j, kind=None):
 outside = lambda i: systems[i]['id'] not in RUBIN
 
 # 1. The Gulf's lanes, after Lewis's "Iron Gulf" map (2200 to 2233 in the old dating):
-#    Cirban to Haedus and Swur to Media at the centre, the core worlds to the Sectors, the
+#    Ciriban to Haedus and Swur to Media at the centre, the core worlds to the Sectors, the
 #    Voor worlds from Exedor south to the Veil.
 LANES = """sol-procyon sol-alpha-centauri procyon-binami procyon-talandra talandra-nomotar nomotar-myrum
-talandra-binami binami-ijax ijax-cirban binami-yildun yildun-saolea cirban-izar izar-bashpit bashpit-ijax
-cirban-ajam ajam-stiridon cirban-haedus haedus-kastaba kastaba-myrum haedus-faenov haedus-exedor
+talandra-binami binami-ijax ijax-ciriban binami-yildun yildun-saolea ciriban-izar izar-bashpit bashpit-ijax
+ciriban-ajam ajam-stiridon ciriban-haedus haedus-kastaba kastaba-myrum haedus-faenov haedus-exedor
 exedor-faenov faenov-wuae wuae-cheleb faenov-hydrobius faenov-zom exedor-ximpok exedor-leesak leesak-swur
 ximpok-aethos ximpok-roschon roschon-batraq batraq-swur swur-media media-uthan uthan-hhabban hhabban-feonus
 feonus-achernar achernar-omaggus omaggus-batraq omaggus-banagho banagho-aethos aethos-ksora aethos-nithascal
@@ -676,7 +676,7 @@ for lane in LANES + EXTRA_LANES:
 # The Iron Gulf map's own area follows its lanes only; elsewhere the network is a relative
 # neighbourhood graph (two stars are linked when no third star lies closer to both), which
 # gives the same sparse, lane-like structure across the rest of the map.
-GULF = set("""sol procyon alpha-centauri tem torovil talandra brink binami bashpit izar ijax cirban haedus ajam
+GULF = set("""sol procyon alpha-centauri tem torovil talandra brink binami bashpit izar ijax ciriban haedus ajam
 stiridon trab yildun saolea ladiom golba esmyke hoeddim exedor azak leesak swur media taggalion uthan veyer
 ximpok ceyecarro batraq roschon hhabban aethos ksora nithascal banagho umik feonus achernar omaggus
 beta-aquilae kuma ijaagin qad-vhi kastaba myrum nomotar faenov wuae""".split())

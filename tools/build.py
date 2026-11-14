@@ -45,7 +45,7 @@ ERAS = [
     ('PART VI · 2255–2290', 'Unification', 2255, 2290),
     ('PART VII · 2289–2318', 'The Expansion Era', 2289, 2318),
     ('PART VIII · 2318–2333', 'The Ring of Iron', 2318, 2333),
-    ('PART IX · 2333–2341', 'The Voor War', 2333, 2341),
+    ('PART IX · 2333–2341', 'The Ciriban Gulf Conflict', 2333, 2341),
     ('PART X · 2341–2405', 'The First Republic', 2341, 2405),
     ('PARTS XI–XII · 2405–2441', 'The Fevarian Crisis', 2405, 2441),
     ('PART XIII · 2441–2449', 'The Darkest Decade', 2441, 2449),
@@ -329,7 +329,7 @@ class Site:
         # useful redirects
         extra = {'nomotar incident': 'ciriban-incident', 'battle of exedor': 'battle-of-exedor',
                  'siege of exedor': 'siege-of-hiverion', 'une': 'united-nations-of-earth',
-                 'usr': 'unified-solar-republic', 'voor war': 'voor-war', 'ciriban gulf war': 'voor-war'}
+                 'usr': 'unified-solar-republic', 'voor war': 'ciriban-gulf-conflict', 'ciriban gulf war': 'ciriban-gulf-conflict', 'cirban': 'ciriban', 'cirban protocol': 'ciriban-protocol'}
         for k, v in extra.items():
             if v in self.by_slug:
                 self.alias.setdefault(k, v)

@@ -7,7 +7,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 const ERAS = [
   [1945, 2220, 'The Early Solar Era'], [2220, 2255, 'The Solar War'], [2255, 2289, 'Unification'],
-  [2289, 2318, 'The Expansion Era'], [2318, 2333, 'The Ring of Iron'], [2333, 2341, 'The Voor War'],
+  [2289, 2318, 'The Expansion Era'], [2318, 2333, 'The Ring of Iron'], [2333, 2341, 'The Ciriban Gulf Conflict'],
   [2341, 2405, 'The First Republic'], [2405, 2441, 'The Fevarian Crisis'], [2441, 2449, 'The Darkest Decade'],
   [2449, 2460, 'The Scouring'], [2460, 2510, 'Reconstruction'], [2510, 2600, 'The Apportionment Crisis'],
 ];
