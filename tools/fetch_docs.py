@@ -56,9 +56,15 @@ def main():
                 break
             except Exception as e:
                 if attempt == 4:
-                    raise
+                    buf = None
+                    break
                 print('  retrying %s (%s)' % (f['name'], str(e)[:80]))
                 time.sleep(2 * (attempt + 1))
+        if buf is None:
+            # one stuck export ("too large to be exported" clears after any edit to the doc)
+            # should not take the whole site down
+            print('  SKIPPED %s: Drive would not export it; edit the doc to clear it' % f['name'])
+            continue
         open(os.path.join(OUT, slug(f['name']) + '.html'), 'wb').write(buf.getvalue())
         kept += 1
         print('  %s' % f['name'])
