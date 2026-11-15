@@ -689,11 +689,14 @@ class Site:
                 for col in (0, 1):
                     items = blk[1].get(col, [])
                     h = []
+                    enemy = side_flags.get(1 - col)
                     for label, kids in items:
-                        h.append('<div class="u">%s</div>' % self.render_unit(label, year, side_flags.get(col), True))
+                        top_key = self.unit_key(label, year, side_flags.get(col), enemy, None)
+                        h.append('<div class="u">%s</div>' % self.render_unit(label, top_key))
                         if kids:
                             h.append('<ul class="u-kids">%s</ul>' % ''.join(
-                                '<li>%s</li>' % self.render_unit(k, year, side_flags.get(col), False) for k in kids))
+                                '<li>%s</li>' % self.render_unit(k, self.unit_key(k, year, side_flags.get(col), enemy, top_key))
+                                for k in kids))
                     cols.append('<div class="col">%s</div>' % ''.join(h))
                 out.append('<details class="ib-units"><summary><span>Units involved</span><i class="tg"></i></summary>'
                            '<div class="pair">%s</div></details>' % ''.join(cols))
@@ -741,23 +744,42 @@ class Site:
             return None
         top = body[start][0]
         sides = []
-        cur = None
+        cur = None      # the side: [heading, [(label, [kids])]]
+        group = None    # a sub-heading inside a side, shown as one formation with its items as kids
+        side_lvl = None
+        skip = False
+
+        def own_html(li):
+            return ''.join(str(c) for c in li.contents if not (isinstance(c, Tag) and c.name in ('ul', 'ol'))).strip()
+
         for n, el in body[start + 1:]:
-            if n == top or (n == 'h2' and top == 'h3'):
+            if n == top or (n == 'h2' and top == 'h3') or (n == 'h1'):
                 break
-            if n in ('h3', 'h4'):
-                cur = [text(el), []]
-                sides.append(cur)
-            elif n in ('ul', 'ol') and cur is not None:
+            if n in ('h3', 'h4', 'h5'):
+                head = text(el).strip()
+                if side_lvl is None:
+                    side_lvl = n
+                if n == side_lvl:
+                    skip = bool(re.match(r'(?i)(summary|notes?|sources|in support|losses)\b', head))
+                    group = None
+                    cur = None if skip else [head, []]
+                    if cur:
+                        sides.append(cur)
+                elif cur is not None:
+                    skip = bool(re.match(r'(?i)(summary|notes?|in support)\b', head))
+                    group = None if skip else (head, [])
+                    if group:
+                        cur[1].append(group)
+                continue
+            if n in ('ul', 'ol') and cur is not None and not skip:
                 for li in el.find_all('li', recursive=False):
                     sub = li.find(['ul', 'ol'])
-                    own = ''.join(str(c) for c in li.contents if not (isinstance(c, Tag) and c.name in ('ul', 'ol'))).strip()
-                    kids = []
-                    if sub:
-                        for li2 in sub.find_all('li', recursive=False):
-                            own2 = ''.join(str(c) for c in li2.contents if not (isinstance(c, Tag) and c.name in ('ul', 'ol'))).strip()
-                            kids.append(own2)
-                    cur[1].append((own, kids))
+                    own = own_html(li)
+                    kids = [own_html(li2) for li2 in sub.find_all('li', recursive=False)] if sub else []
+                    if group is not None:
+                        group[1].append(own)
+                    else:
+                        cur[1].append((own, kids))
         sides = [s for s in sides if s[1]]
         if len(sides) < 2:
             return None
@@ -788,7 +810,17 @@ class Site:
             res[col] = keep
         return res
 
-    def render_unit(self, s, year, fallback, top):
+    def unit_key(self, s, year, fallback, enemy, parent):
+        """The flag key for one formation. A name that matches the other side's polity (a defected
+        Bharat security detail, a seized Bharat hull) takes its parent formation's flag instead."""
+        fk = self.item_key(s, year, fallback)
+        if enemy and fk and not re.match(r'\s*\{', s):
+            fam = lambda k: FL.CONFED if k in FL.AREA_KEYS else k
+            if fam(fk) == fam(enemy):
+                fk = parent or (fallback if fam(fallback or '') != fam(enemy) else None)
+        return fk
+
+    def render_unit(self, s, fk):
         """One formation in the Units involved block: the name before any colon, with its flag."""
         txt = BeautifulSoup(s, 'html.parser').get_text()
         cut = None
@@ -804,7 +836,6 @@ class Site:
         head = clean_unit(s[:cut] if cut else s)
         if not head.strip():
             head = 'Forces'
-        fk = self.item_key(s, year, fallback)
         fl = FL.flag_file(fk) if fk else None
         img = ''
         if fl:
@@ -885,6 +916,9 @@ class Site:
             area = area or FL.area_for(plain)
             if area and FL.flag_file(area):
                 key = area
+        # before the Martian Revolt the Confederation was the Jovian colonies' alone
+        if key == FL.CONFED and year and year < 2224:
+            key = 'league-for-jovian-rule'
         return key or None
 
     def render_items(self, cell, kind, year, fallback):

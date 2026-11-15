@@ -35,9 +35,9 @@ TAGS = {
 # polities whose units fly a bloc's flag
 BLOC = {
     'japan': 'pacific-union', 'malaysia': 'pacific-union', 'singapore': 'pacific-union',
-    'hellenic-free-state': 'martian-jovian-confederation',
-    'confederation-of-jovian-free-colonies': 'martian-jovian-confederation',
-    'marineris-coalition': 'martian-jovian-confederation',
+    'hellenic-free-state': 'mars',
+    'confederation-of-jovian-free-colonies': 'league-for-jovian-rule',
+    'marineris-coalition': 'mars',
     'united-nations': 'un', 'united-nations-high-command': 'un',
     'united-nations-enforcement-directorate': 'un', 'unified-solar-marine-corps': 'un',
     'terrestrial-coalition': '', 'non-aligned-pact': '',
@@ -48,6 +48,8 @@ PATTERNS = [
     (r'Rapid Orbital Deployment|\bROD\b|Enforcement Directorate|United Nations|High Command|Unified Solar|Combined Chiefs|Grand Armada|\bUNS\b', U),
     (r'Central African|\bCADF\b|Great Lakes|Congolese|Kenyan', 'central-african-confederation'),
     (r'Voor\b|\bhearths?\b|Kor-class', 'voor-confederacy'),
+    (r'Jovian Free Colonies|League for Jovian Rule', 'league-for-jovian-rule'),
+    (r'Marineris Coalition', 'mars'),
     (r'Martian-Jovian|Confederation|Jovian Militia|Jovian League|League for Jovian|\bSpark\b|Io Divisions?|Europa Divisions?|Valles (Command|Militia|Division)'
      r'|Tharsis (Command|Hover|Division)|Elysium Command|Copernicus Division|Hellenic|Free State|Red Hand|Robespierre|Daxian'
      r'|Yugantar|\bJCV\b|\bMRNS\b|Europan Strike|Tunnel Brigade|Shipwrights|Caspari Fleet|militia', 'martian-jovian-confederation'),
@@ -119,7 +121,7 @@ def by_pattern(text):
 CONFED = 'martian-jovian-confederation'
 AREAS = [
     (r'[Ff]leet|Robespierre|Daxian|Yugantar|Red Hand|Trojan|\bJCV\b|\bMRNS\b|[Ss]quadron|[Tt]ask force|council', CONFED),
-    (r'Jovian Militia|\bLeague\b', 'league-for-jovian-rule'),
+    (r'Jovian Militia|Jovian Free Colonies|\bLeague\b', 'league-for-jovian-rule'),
     (r'\bIo\b|Spark|Tunnel Brigade|Chasma|Gandhi|Van Maanush|Loki|Pele\b|Mahajan', 'free-io'),
     (r'Europa|Europan|New Rhine|Da Gama|Tycho City|West Rhine|Magellan|Shipwrights', 'free-europa'),
     (r'Ganymede|Zhang|Pauldron|Xi He', 'free-ganymede'),
