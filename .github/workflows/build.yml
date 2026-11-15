@@ -36,6 +36,8 @@ jobs:
         env:
           SITE_CNAME: solareternal.lewisbrewer.com
         run: python tools/build.py
+      - name: Infobox sanity report
+        run: python tools/sanity.py || true
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

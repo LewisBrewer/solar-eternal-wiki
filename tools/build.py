@@ -1041,8 +1041,11 @@ class Site:
         s = a['part_of'].replace('\\[', '[').replace('\\]', ']')
         s = BeautifulSoup(s, 'html.parser').get_text()
         out = []
-        for part in re.split(r',\s*(?![^\[]*\]\])', s):
-            name = re.sub(r'\[\[([^\]|]+)(?:\|[^\]]+)?\]\]', r'\1', part).strip()
+        for part in re.split(r'[,;]\s*(?![^\[]*\]\])', s):
+            part = re.sub(r'\s*\((?:c\. )?\d{4}[^)]*\)', '', part)     # "(2224)" and the like
+            links = re.findall(r'\[\[([^\]|]+)(?:\|[^\]]+)?\]\]', part)
+            # "Prelude to the [[Ciriban Gulf Conflict]]" belongs to the link, not the whole phrase
+            name = links[-1].strip() if links else part.strip()
             if name:
                 out.append((self.resolve(name) or name.lower(), name))
         return out
