@@ -109,9 +109,17 @@ a:hover{text-decoration-color:var(--white)}
 .infobox dd{margin:0;padding:10px 18px 10px 12px;border-top:1px solid var(--line);color:var(--white)}
 .infobox .ib-sec{margin:0;padding:8px 18px;background:var(--panel2);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;border-top:1px solid var(--line)}
 .infobox .pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line)}
-.infobox .pair p{margin:0;padding:10px 12px 10px 18px}
-.infobox .pair p+p{border-left:1px solid var(--line);padding:10px 18px 10px 12px}
-.infobox .pair .h{grid-column:1/-1;padding:8px 18px;background:var(--panel2);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;border:none}
+.infobox .pair .h{grid-column:1/-1;margin:0;padding:8px 18px;background:var(--panel2);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;border:none}
+.infobox .pair .col{padding:9px 10px 10px 14px;min-width:0;font-size:13px;line-height:1.35}
+.infobox .pair .col+.col{border-left:1px solid var(--line);padding:9px 12px 10px 10px}
+.infobox .pair .ib-sec+.col{border-top:0}
+.infobox .it{display:flex;align-items:flex-start;gap:6px;margin:0 0 4px}
+.infobox .it:last-child{margin-bottom:0}
+.infobox .it>span{min-width:0;overflow-wrap:anywhere}
+.infobox .it-h{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
+.infobox .fl{flex:none;width:20px;height:13px;margin-top:3px;object-fit:cover;border:1px solid rgba(255,255,255,.25);box-sizing:border-box}
+.infobox .fl-none{border:0;width:0;margin-right:-6px}
+.infobox .pair .col .it:not(:has(.fl)) {padding-left:0}
 .series{margin-top:24px;border:1px solid var(--line);border-radius:6px;overflow:hidden;font-size:14px}
 .series p{margin:0;padding:12px 18px;background:var(--panel);font-size:12px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
 .series div{display:flex;flex-wrap:wrap;gap:4px 20px;padding:14px 18px}

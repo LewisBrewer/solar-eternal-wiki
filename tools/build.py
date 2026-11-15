@@ -8,6 +8,8 @@ Output: out/ (a static site for GitHub Pages).
 """
 import html, json, os, re, shutil, sys, datetime
 from bs4 import BeautifulSoup, NavigableString, Tag
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import flags as FL
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'src', 'docs')
@@ -70,13 +72,37 @@ def slugify(t):
     return t or 'untitled'
 
 
+def infer_type(art):
+    """A type for an infobox that does not state one."""
+    keys = set(k.lower() for k, v in art['infobox'] if k != SECTION)
+    secs = set(v.lower() for k, v in art['infobox'] if k == SECTION)
+    t = (art['title'] or '').lower()
+    if not art['infobox']:
+        return ''
+    if 'born' in keys or ('rank' in keys and 'allegiance' in keys):
+        return 'Person'
+    if 'belligerents' in keys or 'belligerents' in secs or ('result' in keys and 'part of' in keys):
+        for w, typ in (('siege', 'Siege'), ('campaign', 'Campaign'), ('operation', 'Military operation'), ('raid', 'Raid'),
+                       ('landing', 'Landing'), ('front', 'Campaign'), ('war', 'War'), ('massacre', 'Battle'), ('capture', 'Battle')):
+            if re.search(r'\b%s\b' % w, t):
+                return typ
+        return 'Battle'
+    if any(k.startswith('signatories') for k in keys) or 'terms' in keys:
+        return 'Surrender agreement'
+    if 'called by' in keys or 'participants' in keys:
+        return 'Conference'
+    if 'branch' in keys or ('active' in keys and 'strength' in keys):
+        return 'Military unit'
+    return ''
+
+
 def category_for(typ):
     t = (typ or '').lower()
-    if any(k in t for k in ('battle', 'campaign', 'siege', 'war ', 'incident', 'assault')) or t in ('war',):
+    if any(k in t for k in ('battle', 'campaign', 'siege', 'war ', 'incident', 'assault', 'operation', 'raid', 'landing')) or t in ('war',):
         return 'battles'
     if 'person' in t:
         return 'people'
-    if 'polity' in t:
+    if 'polity' in t or any(k in t for k in ('provisional state', 'alliance', 'political', 'mutual security')):
         return 'polities'
     if 'species' in t:
         return 'species'
@@ -84,9 +110,9 @@ def category_for(typ):
         return 'worlds'
     if any(k in t for k in ('ship', 'class', 'drive', 'technology', 'vessel', 'cruiser', 'battlecruiser', 'carrier', 'destroyer', 'frigate', 'corvette')):
         return 'ships'
-    if any(k in t for k in ('treaty', 'plan', 'act', 'pledge', 'protocol', 'charter', 'agreement')):
+    if any(k in t for k in ('treaty', 'plan', 'act', 'pledge', 'protocol', 'charter', 'agreement', 'conference')):
         return 'treaties'
-    if any(k in t for k in ('force', 'complex', 'office', 'organisation', 'agency', 'fortress')):
+    if any(k in t for k in ('force', 'complex', 'office', 'organisation', 'agency', 'fortress', 'military unit')):
         return 'organisations'
     return 'other'
 
@@ -276,12 +302,16 @@ def parse_article(path):
             rows = el.find_all('tr')
             firsts = [text(r.find(['td', 'th'])).strip().lower() for r in rows if r.find(['td', 'th'])]
             # a summary table: first cell "Type", or Wikipedia-style section rows with a Type row inside
-            if firsts and (firsts[0] == 'type' or ('type' in firsts and len(rows[0].find_all(['td', 'th'])) == 1)):
+            titled = (j <= 1 and len(rows) > 2 and len(rows[0].find_all(['td', 'th'])) == 1
+                      and len(rows[1].find_all(['td', 'th'])) >= 2)
+            if firsts and (firsts[0] == 'type' or ('type' in firsts and len(rows[0].find_all(['td', 'th'])) == 1) or titled):
                 for r in rows:
                     cells = r.find_all(['td', 'th'])
                     if len(cells) >= 2 and text(cells[1]):
                         art['infobox'].append((text(cells[0]), cells[1].decode_contents().strip()))
                     elif cells and text(cells[0]):
+                        if text(cells[0]).strip().lower() == (art['title'] or '').strip().lower():
+                            continue   # the title row at the top of a Wikipedia-style box
                         art['infobox'].append((SECTION, text(cells[0])))   # a section row spanning the table
                 rest = rest[:j] + rest[j + 1:]
                 break
@@ -297,7 +327,7 @@ def parse_article(path):
             break
     art['body'] = rest
     ib = dict((k.lower(), v) for k, v in art['infobox'])
-    art['type'] = BeautifulSoup(ib.get('type', ''), 'html.parser').get_text().strip()
+    art['type'] = BeautifulSoup(ib.get('type', ''), 'html.parser').get_text().strip() or infer_type(art)
     art['category'] = category_for(art['type'])
     art['part_of'] = ib.get('part of', '')
     art['slug'] = slugify(art['title'])
@@ -365,6 +395,77 @@ def events_for(art):
 
 
 # ---------------------------------------------------------------- rendering
+
+RANKS = (r'(?:(?:Grand|Fleet|Vice|Rear|Lieutenant|Major|Brigadier|Air|Supreme|Field|Sub|Chief)\s+)*'
+         r'(?:Admiral|General|Commodore|Colonel|Brigadier|Captain|Commander|Major|Lieutenant|Marshal|Sergeant|Premier|'
+         r'Prime Minister|President|Chancellor|Governor|Commissioner|Chairman|Chairwoman|Director|Ambassador)')
+
+
+def strip_rank(s):
+    """Drop a leading rank from a commander entry: 'Fleet Admiral [[Chen Wei-lun]]' -> '[[Chen Wei-lun]]'."""
+    return re.sub(r'^(\s*(?:<[^>]+>\s*)*)' + RANKS + r'\s+(?=\[\[|\\\[|<|[A-Z])', r'\1', s, count=1)
+
+
+VOID = ('br', 'img', 'hr')
+
+
+def split_items(s, colon=False, commas=False):
+    """Split an infobox cell into entries at '; ' (and, for lists, at ', ' after a colon or between counts),
+    keeping tags balanced. A heading before a colon comes back marked with \\x01."""
+    if not s:
+        return []
+    toks = re.split(r'(<[^>]+>)', s)
+    pieces, cur, stack = [], '', []
+    depth = 0
+    def cut():
+        nonlocal cur
+        closing = ''.join('</%s>' % re.match(r'<\s*(\w+)', t).group(1) for t in reversed(stack))
+        pieces.append(cur + closing)
+        cur = ''.join(stack)
+    for tok in toks:
+        if tok.startswith('<'):
+            m = re.match(r'<\s*(/?)\s*(\w+)', tok)
+            if m and m.group(2).lower() not in VOID and not tok.endswith('/>'):
+                if m.group(1):
+                    if stack:
+                        stack.pop()
+                else:
+                    stack.append(tok)
+            cur += tok
+            continue
+        i = 0
+        while i < len(tok):
+            ch = tok[i]
+            two = tok[i:i + 2]
+            if two == '[[' or ch == '(':
+                depth += 1
+            elif two == ']]' or ch == ')':
+                depth = max(0, depth - 1)
+            if depth == 0 and two == '; ':
+                cut(); i += 2; continue
+            cur += ch
+            i += 1
+    pieces.append(cur)
+    out = []
+    for p in pieces:
+        txt = BeautifulSoup(p, 'html.parser').get_text()
+        if not txt.strip():
+            continue
+        # 'Terrestrial Coalition: A' or '244 hulls: 6 battleships, 4 carriers'
+        if colon and re.match(r'^[^:(\[]{2,60}:\s', txt) and not re.match(r'^\s*\d{1,2}:\d', txt):
+            idx = p.find(': ')
+            head, tail = p[:idx], p[idx + 2:]
+            out.append('\x01' + head if not commas else head)
+            p = tail
+        if commas:
+            sub = re.split(r', (?![^()]*\))', p)
+            if len(sub) > 1 and all(re.match(r'^\s*(?:<[^>]+>)*\s*(?:\d|c\. |about |some |one |two |three |four |five |six |seven |eight |nine |ten |the |a |an )', x, re.I) for x in sub):
+                out.extend(x for x in sub if x.strip())
+                continue
+        out.append(p)
+    return out
+
+
 
 class Site:
     def __init__(self, arts):
@@ -454,42 +555,108 @@ class Site:
         used = set(['type'])
         if art['part_of']:
             used.add('part of')
-        # paired rows: Belligerents "A / B" and "X (A)" / "X (B)"
-        pairs = []
-        bel = d.get('belligerents')
-        sides = None
-        if bel and ' / ' in BeautifulSoup(bel, 'html.parser').get_text():
-            parts = re.split(r'\s+/\s+', bel, maxsplit=1)
-            pairs.append(('Belligerents', parts[0], parts[1]))
-            used.add('belligerents')
+        year = None
+        for k, v in art['infobox']:
+            if k.lower() in ('date', 'founded', 'declared', 'formed'):
+                dd = parse_date(v)
+                if dd:
+                    year = dd[0]
+                    break
+        # sides: Wikipedia-style section boxes put "Coalition | ..." rows under each section heading
+        raw = art['infobox']
+        sides = []
+        cur = None
+        for k, v in raw:
+            if k == SECTION:
+                cur = BeautifulSoup(v, 'html.parser').get_text().strip().lower()
+            elif cur == 'belligerents' and k not in sides:
+                sides.append(k)
+        side_flags = {}
+        out_blocks = []      # ('sec', title) | ('dl', k, v) | ('pair', title, a, b, kind)
+        cur = None
+        pending = None
         groups = {}
-        for k, v in rows:
+        for k, v in raw:
             m = re.match(r'(.+?) \((.+)\)$', k)
             if m:
-                groups.setdefault(m.group(1), []).append((m.group(2), v, k))
-        for g, lst in groups.items():
-            if len(lst) == 2:
-                pairs.append((g, lst[0][1], lst[1][1]))
-                used.add(lst[0][2].lower()); used.add(lst[1][2].lower())
-        plain = [(k, v) for k, v in rows if k.lower() not in used]
-        # drop a section heading with nothing under it
-        plain = [(k, v) for i, (k, v) in enumerate(plain)
-                 if k != SECTION or (i + 1 < len(plain) and plain[i + 1][0] != SECTION)]
-        dl = []
-        for k, v in plain:
+                groups.setdefault(m.group(1), []).append((m.group(2), v))
+        done_groups = set()
+        i = 0
+        while i < len(raw):
+            k, v = raw[i]
+            kl = k.lower()
             if k == SECTION:
-                if dl:
-                    out.append('<dl>' + ''.join(dl) + '</dl>'); dl = []
-                out.append('<p class="ib-sec">%s</p>' % BeautifulSoup(v, 'html.parser').get_text())
+                cur = BeautifulSoup(v, 'html.parser').get_text().strip()
+                out_blocks.append(('sec', cur))
+                i += 1
+                continue
+            if kl in used:
+                i += 1
+                continue
+            if sides and k in sides and cur:
+                vals = {}
+                while i < len(raw) and raw[i][0] in sides:
+                    vals[raw[i][0]] = raw[i][1]
+                    i += 1
+                out_blocks.append(('pair', cur, vals.get(sides[0], ''), vals.get(sides[1], '') if len(sides) > 1 else '', [cur] + sides[:2]))
+                continue
+            if kl == 'belligerents' and ' / ' in BeautifulSoup(v, 'html.parser').get_text():
+                parts = re.split(r'\s+/\s+', v, maxsplit=1)
+                out_blocks.append(('pair', 'Belligerents', parts[0], parts[1], ['Belligerents']))
+                i += 1
+                continue
+            m = re.match(r'(.+?) \((.+)\)$', k)
+            if m and len(groups.get(m.group(1), [])) == 2:
+                g = m.group(1)
+                if g not in done_groups:
+                    done_groups.add(g)
+                    lst = groups[g]
+                    out_blocks.append(('pair', g, lst[0][1], lst[1][1], [g]))
+                i += 1
+                continue
+            out_blocks.append(('dl', k, v))
+            i += 1
+        # drop a section heading with nothing under it
+        ob = []
+        for j, blk in enumerate(out_blocks):
+            if blk[0] == 'sec' and (j + 1 >= len(out_blocks) or out_blocks[j + 1][0] == 'sec'):
+                continue
+            ob.append(blk)
+        # the flag each side falls back on: its single flagged belligerent
+        for blk in ob:
+            if blk[0] == 'pair' and blk[1].lower() == 'belligerents':
+                for col, cell in ((0, blk[2]), (1, blk[3])):
+                    fl = set()
+                    for piece in split_items(cell, colon=True):
+                        f = self.item_flag(piece, year, None)
+                        if f:
+                            fl.add(f)
+                    if len(fl) == 1:
+                        side_flags[col] = fl.pop()
+        dl = []
+        def flush():
+            if dl:
+                out.append('<dl>' + ''.join(dl) + '</dl>')
+                del dl[:]
+        for blk in ob:
+            if blk[0] == 'sec':
+                flush()
+                out.append('<p class="ib-sec">%s</p>' % html.escape(blk[1]))
+            elif blk[0] == 'dl':
+                dl.append('<dt>%s</dt><dd>%s</dd>' % (html.escape(blk[1]), self.links(blk[2], '')))
             else:
-                dl.append('<dt>%s</dt><dd>%s</dd>' % (html.escape(k), v))
-        if dl:
-            out.append('<dl>' + ''.join(dl) + '</dl>')
-        if pairs:
-            out.append('<div class="pair">')
-            for g, a, b in pairs:
-                out.append('<p class="h">%s</p><p>%s</p><p>%s</p>' % (html.escape(g), a.replace('; ', '<br>'), b.replace('; ', '<br>')))
-            out.append('</div>')
+                flush()
+                title = blk[1]
+                tl = title.lower()
+                kind = ('list' if re.match(r'(strength|casualt|loss|losses)', tl) else
+                        'people' if re.search(r'command|leader|signator', tl) else 'flags')
+                in_sec = sides and blk[4][0] == title and len(blk[4]) > 1
+                head = '' if (in_sec and ob.index(blk) > 0 and ob[ob.index(blk) - 1] == ('sec', title)) else '<p class="h">%s</p>' % html.escape(title)
+                cols = []
+                for col, cell in ((0, blk[2]), (1, blk[3])):
+                    cols.append('<div class="col">%s</div>' % self.render_items(cell, kind, year, side_flags.get(col)))
+                out.append('<div class="pair">%s%s</div>' % (head, ''.join(cols)))
+        flush()
         sys_id = self.atlas_system(art)
         if sys_id:
             yr = None
@@ -501,6 +668,70 @@ class Site:
                         break
             out.append('<a class="ib-atlas" href="%satlas.html#%ssys=%s">Open in the Atlas</a>' % (self.root_for_infobox, ('year=%d&amp;' % yr) if yr and 2050 <= yr <= 2515 else '', sys_id))
         out.append('</aside>')
+        return ''.join(out)
+
+    def item_flag(self, piece, year, fallback):
+        """The flag file for one infobox entry, or None."""
+        s = piece.replace('\\[', '[').replace('\\]', ']')
+        plain = BeautifulSoup(s, 'html.parser').get_text()
+        m = re.match(r'\s*\{([a-z-]+)\}', plain)
+        if m:
+            key = FL.TAGS.get(m.group(1), m.group(1))
+            return FL.flag_file(FL.settle(key, year)) if key else None
+        for lm in re.finditer(r'\[\[([^\]|]+)', s):
+            slug = self.resolve(lm.group(1))
+            if not slug:
+                continue
+            k = FL.settle(slug, year) if (FL.flag_file(slug) or slug in FL.BLOC) else None
+            if k:
+                return FL.flag_file(k)
+            a = self.by_slug.get(slug)
+            if a and a.get('category') == 'people':
+                for kk, vv in a['infobox']:
+                    if kk.lower() in ('allegiance', 'nationality', 'country'):
+                        for am in re.finditer(r'\[\[([^\]|]+)', vv.replace('\\[', '[').replace('\\]', ']')):
+                            s2 = self.resolve(am.group(1))
+                            if s2:
+                                k2 = FL.settle(s2, year)
+                                if k2:
+                                    return FL.flag_file(k2)
+                        k2 = FL.by_pattern(BeautifulSoup(vv, 'html.parser').get_text())
+                        if k2:
+                            k2 = FL.settle(k2, year)
+                            if k2:
+                                return FL.flag_file(k2)
+        name = re.sub(r'\s*[†(].*$', '', strip_rank(plain)).strip().lower()
+        if name in FL.NAMES:
+            k = FL.settle(FL.NAMES[name], year)
+            return FL.flag_file(k) if k else None
+        k = FL.by_pattern(plain)
+        if k:
+            k = FL.settle(k, year)
+            if k:
+                return FL.flag_file(k)
+        return fallback
+
+    def render_items(self, cell, kind, year, fallback):
+        out = []
+        for piece in split_items(cell, colon=True, commas=(kind == 'list')):
+            if piece.startswith('\x01'):     # a heading line before a colon
+                out.append('<span class="it it-h">%s</span>' % self.links(piece[1:], ''))
+                continue
+            fl = None if kind == 'list' else self.item_flag(piece, year, fallback)
+            body = re.sub(r'^(\s*)\{[a-z-]+\}\s*', r'\1', piece)
+            if kind == 'people':
+                body = strip_rank(body)
+            img = ('<img class="fl" src="%sassets/flags/%s" alt="">' % (self.root_for_infobox, fl)) if fl else ''
+            if kind != 'list' and not fl:
+                img = '<span class="fl fl-none"></span>'
+            text_html = self.links(body.strip(), '')
+            # a bare name that is an article title becomes a link
+            if '<a ' not in text_html and '[[' not in body:
+                bare = BeautifulSoup(text_html, 'html.parser').get_text().strip()
+                slug = self.resolve(bare) if bare and len(bare) < 60 else None
+                if slug:
+                    text_html = '<a href="%s.html">%s</a>' % (slug, text_html)
+            out.append('<span class="it">%s<span>%s</span></span>' % (img, text_html))
         return ''.join(out)
 
     def atlas_system(self, art):
