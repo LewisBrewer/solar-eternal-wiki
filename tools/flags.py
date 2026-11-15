@@ -141,6 +141,6 @@ def area_for(text):
 
 # the article a flag links to, where it is not the flag's own name
 LINK = {
-    'free-io': 'io', 'free-europa': 'europa', 'free-ganymede': 'ganymede', 'free-callisto': 'callisto',
-    'free-luna': 'luna', 'united-nations': 'united nations',
+    'free-io': 'swaraj of io', 'free-europa': 'free hanse of europa', 'free-ganymede': "ganymede people's commune",
+    'free-callisto': 'free port of callisto', 'free-luna': 'lunar revolutionary administration', 'united-nations': 'united nations',
 }
