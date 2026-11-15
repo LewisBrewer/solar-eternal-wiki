@@ -137,3 +137,10 @@ def area_for(text):
         if rx.search(text or ''):
             return k
     return None
+
+
+# the article a flag links to, where it is not the flag's own name
+LINK = {
+    'free-io': 'io', 'free-europa': 'europa', 'free-ganymede': 'ganymede', 'free-callisto': 'callisto',
+    'free-luna': 'luna', 'united-nations': 'united nations',
+}

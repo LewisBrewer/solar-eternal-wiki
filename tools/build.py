@@ -746,11 +746,18 @@ class Site:
             if piece.startswith('\x01'):     # a heading line before a colon
                 out.append('<span class="it it-h">%s</span>' % self.links(piece[1:], ''))
                 continue
-            fl = None if kind == 'list' else self.item_flag(piece, year, fallback)
+            fk = None if kind == 'list' else self.item_key(piece, year, fallback)
+            fl = FL.flag_file(fk) if fk else None
             body = re.sub(r'^(\s*)\{[a-z-]+\}\s*', r'\1', piece)
             if kind == 'people':
                 body = strip_rank(body)
-            img = ('<img class="fl" src="%sassets/flags/%s" alt="">' % (self.root_for_infobox, fl)) if fl else ''
+            img = ''
+            if fl:
+                target = self.resolve(FL.LINK.get(fk, fk)) or (fk if fk in self.by_slug else None)
+                title = self.by_slug[target]['title'] if target else ''
+                img = '<img class="fl" src="%sassets/flags/%s" alt="%s">' % (self.root_for_infobox, fl, html.escape(title))
+                if target:
+                    img = '<a class="fl-a" href="%s.html" title="%s">%s</a>' % (target, html.escape(title), img)
             if kind != 'list' and not fl:
                 img = '<span class="fl fl-none"></span>'
             text_html = self.links(body.strip(), '')
