@@ -154,6 +154,7 @@ a:hover{text-decoration-color:var(--white)}
   .site-header,.page,.home,.listing{padding-left:20px;padding-right:20px}
   .toc{display:none}
   .infobox{max-width:none;position:static;order:-1}
+  .side{max-width:none;order:-1}
   .hero h1{font-size:38px}.title-block h1{font-size:34px}
   .browse ul{grid-template-columns:1fr}
   .timeline li.ev{grid-template-columns:1fr;gap:2px}
@@ -178,3 +179,17 @@ a:hover{text-decoration-color:var(--white)}
 .infobox .u-kids{margin:0 0 6px;padding-left:26px;font-size:12.5px;line-height:1.35}
 .infobox .u-kids li{margin:2px 0}
 .infobox .u-kids .it{margin:0}
+
+.side{flex:1 1 300px;max-width:380px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.side .infobox{flex:none;max-width:none}
+.cbox{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;font-size:13px;line-height:1.5}
+.cbox>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 16px;background:var(--panel2);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.cbox>summary::-webkit-details-marker{display:none}
+.cbox>summary a{color:var(--white);text-decoration:none}
+.cbox .tg::after{content:'Show';font-style:normal;font-size:11px;letter-spacing:.08em;color:var(--white);opacity:.7}
+.cbox[open] .tg::after{content:'Hide'}
+.cbox .cb-body{padding:6px 16px 12px;text-align:center}
+.cbox .cb-h{margin:10px 0 2px;font-size:12px;letter-spacing:.06em;font-weight:500;color:var(--white)}
+.cbox .cb-h a{text-decoration:none}
+.cbox .cb-l{margin:0 0 4px}
+.cbox .cb-l a{white-space:nowrap}

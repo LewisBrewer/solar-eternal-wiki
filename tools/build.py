@@ -302,12 +302,14 @@ def parse_article(path):
             rows = el.find_all('tr')
             firsts = [text(r.find(['td', 'th'])).strip().lower() for r in rows if r.find(['td', 'th'])]
             # a summary table: first cell "Type", or Wikipedia-style section rows with a Type row inside
-            titled = (j <= 1 and len(rows) > 2 and len(rows[0].find_all(['td', 'th'])) == 1
+            titled = (j <= 3 and len(rows) > 2 and len(rows[0].find_all(['td', 'th'])) == 1
                       and len(rows[1].find_all(['td', 'th'])) >= 2)
             if firsts and (firsts[0] == 'type' or ('type' in firsts and len(rows[0].find_all(['td', 'th'])) == 1) or titled):
                 for r in rows:
                     cells = r.find_all(['td', 'th'])
-                    if len(cells) >= 2 and text(cells[1]):
+                    if len(cells) >= 2 and text(cells[0]).strip() and text(cells[0]).strip() == text(cells[1]).strip():
+                        art['infobox'].append((SECTION, text(cells[0])))   # a section row exported as two equal cells
+                    elif len(cells) >= 2 and text(cells[1]):
                         art['infobox'].append((text(cells[0]), cells[1].decode_contents().strip()))
                     elif cells and text(cells[0]):
                         if text(cells[0]).strip().lower() == (art['title'] or '').strip().lower():
@@ -985,15 +987,130 @@ class Site:
         src = ''
         if art['sources']:
             src = '<section class="sources" id="sources"><h2>BOOK SOURCES</h2><ol>%s</ol></section>' % ''.join('<li>%s</li>' % s for s in art['sources'])
-        series = self.series_box(art)
+        side = self.render_infobox(art) + self.war_nav(art) + self.campaign_boxes(art)
+        if side:
+            side = '<div class="side">%s</div>' % side
+        series = ''
         h = [self.head('%s: Solar Eternal Archive' % art['title'], '../'), self.header('../'),
              '<div class="page"><nav class="toc" aria-label="Contents"><p class="label">Contents</p>%s</nav>' % ''.join(tocs),
              '<main class="article" id="top"><div class="title-block"><p class="crumbs">%s</p><h1>%s</h1>' % (' / '.join(crumbs), html.escape(art['title'])),
              '<div class="tabs"><a href="#top" class="on">Article</a>%s</div></div>' % ('<a href="#sources">Book sources</a>' if art['sources'] else ''),
-             '<div class="columns"><div class="prose">%s%s%s</div>%s</div>%s</main></div>' % (epi, body, src, self.render_infobox(art), series),
+             '<div class="columns"><div class="prose">%s%s%s</div>%s</div>%s</main></div>' % (epi, body, src, side, series),
              '<script src="../assets/toc.js" defer></script>',
              self.footer('../')]
         return ''.join(h)
+
+    def chain(self, a):
+        """The containers an article is part of, innermost first, as (key, name)."""
+        if not a.get('part_of'):
+            return []
+        s = a['part_of'].replace('\\[', '[').replace('\\]', ']')
+        s = BeautifulSoup(s, 'html.parser').get_text()
+        out = []
+        for part in re.split(r',\s*(?![^\[]*\]\])', s):
+            name = re.sub(r'\[\[([^\]|]+)(?:\|[^\]]+)?\]\]', r'\1', part).strip()
+            if name:
+                out.append((self.resolve(name) or name.lower(), name))
+        return out
+
+    def war_nav(self, art):
+        """A navigation box on a war's own page: its campaigns, belligerents and related articles."""
+        if not hasattr(self, '_chains'):
+            self._chains = {a['slug']: self.chain(a) for a in self.arts}
+        if self._chains.get(art['slug']):
+            return ''
+        members = [a for a in self.arts if any(k == art['slug'] for k, _ in self._chains[a['slug']])]
+        if len(members) < 3:
+            return ''
+        def sl(a):
+            return '<a href="%s.html">%s</a>' % (a['slug'], html.escape(a['title']))
+        rows = []
+        camps = [a for a in members if self._chains[a['slug']][0][0] == art['slug']
+                 and any(any(k == a['slug'] for k, _ in self._chains[b['slug']]) for b in self.arts)]
+        camps.sort(key=lambda a: self.first_date(a) or (9999, 0, 0))
+        if camps:
+            rows.append(('Campaigns', ' · '.join(sl(a) for a in camps)))
+        pols = []
+        for k, v in art['infobox']:
+            if k == SECTION:
+                continue
+            if k.lower().startswith('belligerent') or k.lower() in ('coalition', 'confederation') or k.lower().startswith('belligerents'):
+                for m in re.finditer(r'\[\[([^\]|]+)', v.replace('\\[', '[').replace('\\]', ']')):
+                    s = self.resolve(m.group(1))
+                    if s and s not in pols and self.by_slug[s].get('category') == 'polities':
+                        pols.append(s)
+        if pols:
+            rows.append(('Belligerents', ' · '.join(sl(self.by_slug[s]) for s in pols)))
+        name = art['title'].lower()
+        rel = [a for a in self.arts if a is not art and name in a['title'].lower() and a not in members]
+        if rel:
+            rows.append(('Related', ' · '.join(sl(a) for a in sorted(rel, key=lambda a: a['title']))))
+        rows.append(('Timeline', '<a href="../timeline.html">Timeline of the archive</a> · <a href="../category/battles.html">Battles and campaigns</a>'))
+        body = ''.join('<p class="cb-h">%s</p><p class="cb-l">%s</p>' % (h, v) for h, v in rows)
+        return ('<details class="cbox" open><summary><span>%s</span><i class="tg"></i></summary><div class="cb-body">'
+                '<p class="cb-h cb-nav">Navigation</p>%s</div></details>' % (html.escape(art['title']), body))
+
+    def campaign_boxes(self, art):
+        """Wikipedia-style campaign boxes: one per container the article belongs to, innermost first."""
+        if not hasattr(self, '_chains'):
+            self._chains = {a['slug']: self.chain(a) for a in self.arts}
+        keys = [(art['slug'], art['title'])] + self._chains.get(art['slug'], [])
+        out = []
+        seen = set()
+        for n, (ck, cname) in enumerate(keys):
+            if ck in seen:
+                continue
+            seen.add(ck)
+            members = [a for a in self.arts if any(k == ck for k, _ in self._chains[a['slug']])]
+            if len(members) < 2:
+                continue
+            groups = {}
+            heads = {}
+            for m in members:
+                ch = self._chains[m['slug']]
+                idx = [k for k, _ in ch].index(ck)
+                if idx > 0:
+                    gk, gname = ch[idx - 1]
+                    groups.setdefault(gk, []).append(m)
+                    heads[gk] = gname
+                else:
+                    groups.setdefault(m['slug'], [])
+                    heads.setdefault(m['slug'], m['title'])
+                    groups.setdefault('\x00', []).append(m)
+            loose = [m for m in groups.pop('\x00', []) if not groups.get(m['slug'])]
+            for m in loose:
+                groups.pop(m['slug'], None)
+            def gdate(gk, items):
+                ds = [self.first_date(x) for x in items if self.first_date(x)]
+                if gk in self.by_slug and self.first_date(self.by_slug[gk]):
+                    ds.append(self.first_date(self.by_slug[gk]))
+                return min(ds) if ds else (9999, 0, 0)
+            def link(a):
+                if a is art:
+                    return '<b>%s</b>' % html.escape(a['title'])
+                return '<a href="%s.html">%s</a>' % (a['slug'], html.escape(a['title']))
+            blocks = []
+            for gk, items in groups.items():
+                blocks.append((gdate(gk, items), gk, items))
+            if loose:
+                blocks.append((min(self.first_date(x) or (9999, 0, 0) for x in loose), None, loose))
+            blocks.sort(key=lambda b: b[0])
+            body = []
+            for _, gk, items in blocks:
+                items = sorted(items, key=lambda a: self.first_date(a) or (9999, 0, 0))
+                if gk is None:
+                    hd = '<p class="cb-h">Battles and operations</p>' if len(blocks) > 1 else ''
+                else:
+                    ga = self.by_slug.get(gk)
+                    hd = '<p class="cb-h">%s</p>' % (('<b>%s</b>' % html.escape(ga['title'])) if ga is art else
+                                                   ('<a href="%s.html">%s</a>' % (gk, html.escape(ga['title']))) if ga else html.escape(heads[gk]))
+                body.append(hd + ('<p class="cb-l">%s</p>' % ' · '.join(link(a) for a in items) if items else ''))
+            ca = self.by_slug.get(ck)
+            title = ('<a href="%s.html">%s</a>' % (ck, html.escape(ca['title']))) if ca and ca is not art else html.escape(ca['title'] if ca else cname)
+            label = ('Battles of the ' + (ca['title'] if ca else cname)) if (ca is art and not self._chains.get(art['slug'])) else None
+            out.append('<details class="cbox"%s><summary><span>%s</span><i class="tg"></i></summary><div class="cb-body">%s</div></details>'
+                       % (' open' if not out else '', html.escape(label) if label else title, ''.join(body)))
+        return ''.join(out)
 
     def series_box(self, art):
         if not art['part_of']:
