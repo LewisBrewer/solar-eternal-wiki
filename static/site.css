@@ -165,3 +165,16 @@ a:hover{text-decoration-color:var(--white)}
 
 .infobox .fl-a{flex:none;display:block;line-height:0;border:0;text-decoration:none}
 .infobox .fl-a:hover .fl{outline:1px solid var(--white)}
+
+.infobox .it-note{display:block;color:var(--muted);font-size:12px;margin:-2px 0 5px}
+.infobox details.ib-units{border-top:1px solid var(--line)}
+.infobox details.ib-units>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:8px 18px;background:var(--panel2);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.infobox details.ib-units>summary::-webkit-details-marker{display:none}
+.infobox details.ib-units .tg::after{content:'Show';font-style:normal;letter-spacing:.08em;color:var(--white);opacity:.7}
+.infobox details.ib-units[open] .tg::after{content:'Hide'}
+.infobox details.ib-units .pair{border-top:1px solid var(--line)}
+.infobox .u{margin:6px 0 2px}
+.infobox .u:first-child{margin-top:0}
+.infobox .u-kids{margin:0 0 6px;padding-left:26px;font-size:12.5px;line-height:1.35}
+.infobox .u-kids li{margin:2px 0}
+.infobox .u-kids .it{margin:0}

@@ -135,7 +135,7 @@ def css_classes(soup):
 
 def list_level(el):
     for c in el.get('class') or []:
-        m = re.match(r'lst-kix_[A-Za-z0-9]+-(\d+)$', c)
+        m = re.match(r'lst-kix_[A-Za-z0-9_]+-(\d+)$', c)
         if m:
             return int(m.group(1))
     return None
@@ -406,6 +406,33 @@ def strip_rank(s):
     return re.sub(r'^(\s*(?:<[^>]+>\s*)*)' + RANKS + r'\s+(?=\[\[|\\\[|<|[A-Z])', r'\1', s, count=1)
 
 
+
+def clean_unit(s):
+    """A formation's name for the infobox: no commanders, classes, nicknames or asides; sizes kept."""
+    links = []
+    def keep(m):
+        links.append(m.group(0))
+        return '\x02%d\x03' % (len(links) - 1)
+    s = re.sub(r'\[\[[^\]]*\]\]', keep, s)
+    s = re.split(r'\s+[–—]\s+', s)[0]
+    # parentheses: keep sizes like (about 65,000) or (16 capital ships), drop the rest
+    s = re.sub(r'\s*\((?!\s*(?:about |c\. |some )?[\d,]+(?:\)|\s))[^()]*\)', '', s)
+    s = re.sub(r'\s*\((?:[^()]*\([^()]*\))+[^()]*\)', '', s)
+    depth, cut = 0, len(s)
+    for i, ch in enumerate(s):
+        if ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth = max(0, depth - 1)
+        elif depth == 0 and (s.startswith(', ', i) or ch == ':' or re.match(r'\s+(?:under|in the|relieving|commanded by)\s', s[i:])):
+            cut = i
+            break
+    s = s[:cut]
+    # a size with an aside inside: '(2 capital ships, relieving ...)' keeps the size
+    s = re.sub(r'\(((?:[^(),]|,(?=\d))*\d(?:[^(),]|,(?=\d))*), [^()]*\)', r'(\1)', s)
+    s = re.sub(r'\x02(\d+)\x03', lambda m: links[int(m.group(1))], s)
+    return s.strip()
+
 VOID = ('br', 'img', 'hr')
 
 
@@ -633,12 +660,42 @@ class Site:
                             fl.add(FL.CONFED if f in FL.AREA_KEYS else f)
                     if len(fl) == 1:
                         side_flags[col] = fl.pop()
+        # Units involved: built from the article's Order of battle section
+        units = self.oob_units(art, ob)
+        if units:
+            # drop the doc's own Units rows and their section heading
+            ob = [b for b in ob if not (b[0] == 'pair' and b[1].lower().startswith('units'))
+                  and not (b[0] == 'sec' and b[1].lower().startswith('units'))]
+            at = len(ob)
+            for j, b in enumerate(ob):
+                if b[0] == 'pair' and re.search(r'command|leader', b[1].lower()):
+                    at = j + 1
+            if at == len(ob):
+                for j, b in enumerate(ob):
+                    if b[0] == 'pair' and b[1].lower() == 'belligerents':
+                        at = j + 1
+            ob.insert(at, ('units', units))
         dl = []
         def flush():
             if dl:
                 out.append('<dl>' + ''.join(dl) + '</dl>')
                 del dl[:]
         for blk in ob:
+            if blk[0] == 'units':
+                flush()
+                cols = []
+                for col in (0, 1):
+                    items = blk[1].get(col, [])
+                    h = []
+                    for label, kids in items:
+                        h.append('<div class="u">%s</div>' % self.render_unit(label, year, side_flags.get(col), True))
+                        if kids:
+                            h.append('<ul class="u-kids">%s</ul>' % ''.join(
+                                '<li>%s</li>' % self.render_unit(k, year, side_flags.get(col), False) for k in kids))
+                    cols.append('<div class="col">%s</div>' % ''.join(h))
+                out.append('<details class="ib-units"><summary><span>Units involved</span><i class="tg"></i></summary>'
+                           '<div class="pair">%s</div></details>' % ''.join(cols))
+                continue
             if blk[0] == 'sec':
                 flush()
                 out.append('<p class="ib-sec">%s</p>' % html.escape(blk[1]))
@@ -669,6 +726,94 @@ class Site:
             out.append('<a class="ib-atlas" href="%satlas.html#%ssys=%s">Open in the Atlas</a>' % (self.root_for_infobox, ('year=%d&amp;' % yr) if yr and 2050 <= yr <= 2515 else '', sys_id))
         out.append('</aside>')
         return ''.join(out)
+
+    def oob_units(self, art, ob):
+        """{column: [(label, [child labels])]} from the article's Order of battle section, or None."""
+        body = art['body']
+        start = None
+        for j, (n, el) in enumerate(body):
+            if n in ('h2', 'h3') and 'order of battle' in text(el).lower():
+                start = j
+                break
+        if start is None:
+            return None
+        top = body[start][0]
+        sides = []
+        cur = None
+        for n, el in body[start + 1:]:
+            if n == top or (n == 'h2' and top == 'h3'):
+                break
+            if n in ('h3', 'h4'):
+                cur = [text(el), []]
+                sides.append(cur)
+            elif n in ('ul', 'ol') and cur is not None:
+                for li in el.find_all('li', recursive=False):
+                    sub = li.find(['ul', 'ol'])
+                    own = ''.join(str(c) for c in li.contents if not (isinstance(c, Tag) and c.name in ('ul', 'ol'))).strip()
+                    kids = []
+                    if sub:
+                        for li2 in sub.find_all('li', recursive=False):
+                            own2 = ''.join(str(c) for c in li2.contents if not (isinstance(c, Tag) and c.name in ('ul', 'ol'))).strip()
+                            kids.append(own2)
+                    cur[1].append((own, kids))
+        sides = [s for s in sides if s[1]]
+        if len(sides) < 2:
+            return None
+        # which column is which: match the side heading to the belligerents
+        bel = None
+        for b in ob:
+            if b[0] == 'pair' and b[1].lower() == 'belligerents':
+                bel = b
+        order = [0, 1]
+        if bel:
+            c0 = BeautifulSoup(self.links(bel[2], ''), 'html.parser').get_text().lower()
+            c1 = BeautifulSoup(self.links(bel[3], ''), 'html.parser').get_text().lower()
+            h0 = sides[0][0].lower()
+            if (h0 in c1 or c1[:20] in h0) and not (h0 in c0):
+                order = [1, 0]
+        res = {}
+        for col, (head, items) in zip(order, sides[:2]):
+            keep = []
+            for own, kids in items:
+                plain = BeautifulSoup(own, 'html.parser').get_text()
+                # commander lines are already in the Commanders row
+                if re.match(r'\s*' + RANKS + r'\b', plain):
+                    if not kids:
+                        continue
+                    m = re.search(r'(?:\]\]|[A-Za-z]) ?†?,\s+', own)
+                    own = own[m.end():] if m else own
+                keep.append((own, kids))
+            res[col] = keep
+        return res
+
+    def render_unit(self, s, year, fallback, top):
+        """One formation in the Units involved block: the name before any colon, with its flag."""
+        txt = BeautifulSoup(s, 'html.parser').get_text()
+        cut = None
+        depth = 0
+        for i, ch in enumerate(s):
+            if ch in '([':
+                depth += 1
+            elif ch in ')]':
+                depth = max(0, depth - 1)
+            elif ch == ':' and depth == 0 and s[i + 1:i + 2] == ' ':
+                cut = i
+                break
+        head = clean_unit(s[:cut] if cut else s)
+        if not head.strip():
+            head = 'Forces'
+        fk = self.item_key(s, year, fallback)
+        fl = FL.flag_file(fk) if fk else None
+        img = ''
+        if fl:
+            target = self.resolve(FL.LINK.get(fk, fk)) or (fk if fk in self.by_slug else None)
+            ttl = self.by_slug[target]['title'] if target else ''
+            img = '<img class="fl" src="%sassets/flags/%s" alt="%s">' % (self.root_for_infobox, fl, html.escape(ttl))
+            if target:
+                img = '<a class="fl-a" href="%s.html" title="%s">%s</a>' % (target, html.escape(ttl), img)
+        else:
+            img = '<span class="fl fl-none"></span>'
+        return '<span class="it">%s<span>%s</span></span>' % (img, self.links(BeautifulSoup(head, 'html.parser').decode_contents().strip(), ''))
 
     def item_flag(self, piece, year, fallback):
         """The flag file for one infobox entry, or None. fallback is a side's flag key."""
@@ -745,6 +890,14 @@ class Site:
         for piece in split_items(cell, colon=True, commas=(kind == 'list')):
             if piece.startswith('\x01'):     # a heading line before a colon
                 out.append('<span class="it it-h">%s</span>' % self.links(piece[1:], ''))
+                continue
+            if kind == 'list':
+                txt = BeautifulSoup(piece, 'html.parser').get_text().strip()
+                figure = re.match(r'(?:about |c\. |some |more than |over |nearly |up to |~|\+)?[\d,.]+|^(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|all|every)\b', txt, re.I)
+                if out and not figure:
+                    out.append('<span class="it it-note"><span>%s</span></span>' % self.links(piece.strip(), ''))
+                else:
+                    out.append('<span class="it"><span>%s</span></span>' % self.links(piece.strip(), ''))
                 continue
             fk = None if kind == 'list' else self.item_key(piece, year, fallback)
             fl = FL.flag_file(fk) if fk else None
