@@ -49,6 +49,7 @@ PATTERNS = [
     (r'Central African|\bCADF\b|Great Lakes|Congolese|Kenyan', 'central-african-confederation'),
     (r'Voor\b|\bhearths?\b|Kor-class', 'voor-confederacy'),
     (r'Jovian Free Colonies|League for Jovian Rule', 'league-for-jovian-rule'),
+    (r'Caños|Guardia del Delta|outer delta|Moriche', 'dauntless'),
     (r'Marineris Coalition', 'mars'),
     (r'Martian-Jovian|Confederation|Jovian Militia|Jovian League|League for Jovian|\bSpark\b|Io Divisions?|Europa Divisions?|Valles (Command|Militia|Division)'
      r'|Tharsis (Command|Hover|Division)|Elysium Command|Copernicus Division|Hellenic|Free State|Red Hand|Robespierre|Daxian'
@@ -107,6 +108,13 @@ def settle(key, year):
             y = year or 2250
             key = 'united-nations' if y < 2283 else ('united-nations-of-earth' if y < 2341 else 'unified-solar-republic')
     return key if (key and flag_file(key)) else ''
+
+
+# after unification (1 June 2283) every human formation is the federation's, whatever a name suggests
+NATIONAL = {'united-states-of-america', 'european-federation', 'peoples-republic-of-china', 'republic-of-india',
+            'pacific-union', 'arabic-league', 'central-african-confederation', 'federative-republic-of-brazil',
+            'argentine-republic', 'canada', 'korean-republic', 'russian-federation', 'japan', 'malaysia',
+            'singapore', 'philippines', 'vietnam', 'indonesia', 'martian-jovian-confederation'}
 
 
 def by_pattern(text):

@@ -839,7 +839,7 @@ class Site:
             elif ch == ':' and depth == 0 and s[i + 1:i + 2] == ' ':
                 cut = i
                 break
-        head = clean_unit(s[:cut] if cut else s)
+        head = clean_unit(re.sub(r'^(\s*(?:<[^>]+>)*\s*)\{[a-z-]+\}\s*', r'\1', s[:cut] if cut else s))
         if not head.strip():
             head = 'Forces'
         fl = FL.flag_file(fk) if fk else None
@@ -907,6 +907,8 @@ class Site:
             key = FL.settle(named, year)
         if not key:
             k2 = FL.by_pattern(plain)
+            if k2 in FL.NATIONAL and year and year >= 2284:
+                k2 = 'un'
             key = FL.settle(k2, year) if k2 else None
         if not key:
             key = fallback
@@ -1013,6 +1015,8 @@ class Site:
 
     def article_page(self, art):
         body, toc = self.render_body(art, '')
+        # flag tags such as {dauntless} steer the infobox and are not shown in the text
+        body = re.sub(r'\{(%s)\}\s*' % '|'.join(map(re.escape, sorted(set(FL.TAGS) | {os.path.splitext(f)[0] for f in os.listdir(FL.FLAGDIR)}, key=len, reverse=True))), '', body)
         cat = dict((c[0], c[1]) for c in CATEGORIES)[art['category']]
         crumbs = ['<a href="../category/%s.html">%s</a>' % (art['category'], html.escape(cat))]
         if art['part_of']:
