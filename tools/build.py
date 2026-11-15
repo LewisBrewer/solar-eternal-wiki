@@ -818,6 +818,12 @@ class Site:
             fam = lambda k: FL.CONFED if k in FL.AREA_KEYS else k
             if fam(fk) == fam(enemy):
                 fk = parent or (fallback if fam(fallback or '') != fam(enemy) else None)
+                if fk == FL.CONFED:
+                    plain = BeautifulSoup(s, 'html.parser').get_text()
+                    area = FL.area_for(plain)
+                    fk = area if area and FL.flag_file(area) else fk
+                if fk == FL.CONFED and year and year < 2224:
+                    fk = 'league-for-jovian-rule'
         return fk
 
     def render_unit(self, s, fk):

@@ -45,7 +45,7 @@ BLOC = {
 
 U = 'un'
 PATTERNS = [
-    (r'Rapid Orbital Deployment|\bROD\b|Enforcement Directorate|United Nations|High Command|Unified Solar|Combined Chiefs|Grand Armada|\bUNS\b', U),
+    (r'Rapid Orbital Deployment|\bROD\b|Enforcement Directorate|United Nations|High Command\b|Unified Solar|Combined Chiefs|Grand Armada|\bUNS\b', U),
     (r'Central African|\bCADF\b|Great Lakes|Congolese|Kenyan', 'central-african-confederation'),
     (r'Voor\b|\bhearths?\b|Kor-class', 'voor-confederacy'),
     (r'Jovian Free Colonies|League for Jovian Rule', 'league-for-jovian-rule'),

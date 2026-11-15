@@ -52,6 +52,8 @@ def main():
             if h and h.get_text().strip().lower() == 'belligerents':
                 for c, col in enumerate(pair.select(':scope > div.col')[:2]):
                     for it in col.select('span.it'):
+                        if 'it-h' in (it.get('class') or []):
+                            continue
                         img = it.select_one('img.fl')
                         if img:
                             bel[c].add(fam(key(img)))
