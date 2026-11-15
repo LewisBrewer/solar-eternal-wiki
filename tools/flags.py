@@ -28,6 +28,8 @@ TAGS = {
     'mjc': 'martian-jovian-confederation', 'voor': 'voor-confederacy',
     'un': 'un', 'une': 'united-nations-of-earth', 'usr': 'unified-solar-republic',
     'none': '',
+    'mars': 'mars', 'io': 'free-io', 'europa': 'free-europa', 'ganymede': 'free-ganymede',
+    'callisto': 'free-callisto', 'luna': 'free-luna', 'league': 'league-for-jovian-rule',
 }
 
 # polities whose units fly a bloc's flag
@@ -36,7 +38,6 @@ BLOC = {
     'hellenic-free-state': 'martian-jovian-confederation',
     'confederation-of-jovian-free-colonies': 'martian-jovian-confederation',
     'marineris-coalition': 'martian-jovian-confederation',
-    'league-for-jovian-rule': 'martian-jovian-confederation',
     'united-nations': 'un', 'united-nations-high-command': 'un',
     'united-nations-enforcement-directorate': 'un', 'unified-solar-marine-corps': 'un',
     'terrestrial-coalition': '', 'non-aligned-pact': '',
@@ -47,7 +48,7 @@ PATTERNS = [
     (r'Rapid Orbital Deployment|\bROD\b|Enforcement Directorate|United Nations|High Command|Unified Solar|Combined Chiefs|Grand Armada|\bUNS\b', U),
     (r'Central African|\bCADF\b|Great Lakes|Congolese|Kenyan', 'central-african-confederation'),
     (r'Voor\b|\bhearths?\b|Kor-class', 'voor-confederacy'),
-    (r'Martian-Jovian|Confederation|Jovian Militia|\bSpark\b|Io Divisions?|Europa Divisions?|Valles (Command|Militia|Division)'
+    (r'Martian-Jovian|Confederation|Jovian Militia|Jovian League|League for Jovian|\bSpark\b|Io Divisions?|Europa Divisions?|Valles (Command|Militia|Division)'
      r'|Tharsis (Command|Hover|Division)|Elysium Command|Copernicus Division|Hellenic|Free State|Red Hand|Robespierre|Daxian'
      r'|Yugantar|\bJCV\b|\bMRNS\b|Europan Strike|Tunnel Brigade|Shipwrights|Caspari Fleet|militia', 'martian-jovian-confederation'),
     (r'Brazil', 'federative-republic-of-brazil'),
@@ -109,5 +110,30 @@ def settle(key, year):
 def by_pattern(text):
     for rx, k in PATTERNS:
         if rx.search(text):
+            return k
+    return None
+
+
+# The Confederation's forces fly the flag of their home area: Mars, the revolutionary moon flags,
+# or the Jovian League's for Jovian-wide bodies. The fleet and the council fly the Confederation's.
+CONFED = 'martian-jovian-confederation'
+AREAS = [
+    (r'[Ff]leet|Robespierre|Daxian|Yugantar|Red Hand|Trojan|\bJCV\b|\bMRNS\b|[Ss]quadron|[Tt]ask force|council', CONFED),
+    (r'Jovian Militia|\bLeague\b', 'league-for-jovian-rule'),
+    (r'\bIo\b|Spark|Tunnel Brigade|Chasma|Gandhi|Van Maanush|Loki|Pele\b|Mahajan', 'free-io'),
+    (r'Europa|Europan|New Rhine|Da Gama|Tycho City|West Rhine|Magellan|Shipwrights', 'free-europa'),
+    (r'Ganymede|Zhang|Pauldron|Xi He', 'free-ganymede'),
+    (r'Callisto|Sabre|Big River', 'free-callisto'),
+    (r'Mars|Martian|Valles|Tharsis|Elysium|Hellas|Hellenic|Free State|Marineris|Liberté|Bartolomeu|Redoubt|Ionia|'
+     r'Oberstdorf|New Corinth|Albany|Coleridge|Phobos|Deimos|Hesperus|Daxia|Ophir|Port Argo', 'mars'),
+    (r'\bLuna\b|Lunar|Copernicus|Zheng He|Crisium|Delambre|Farside|Hangzhou One|Yorktown|Dongsuo|Procellarum', 'free-luna'),
+]
+AREAS = [(re.compile(p), k) for p, k in AREAS]
+AREA_KEYS = set(k for _, k in AREAS) | {CONFED}
+
+
+def area_for(text):
+    for rx, k in AREAS:
+        if rx.search(text or ''):
             return k
     return None

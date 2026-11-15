@@ -628,9 +628,9 @@ class Site:
                 for col, cell in ((0, blk[2]), (1, blk[3])):
                     fl = set()
                     for piece in split_items(cell, colon=True):
-                        f = self.item_flag(piece, year, None)
+                        f = self.item_key(piece, year, None)
                         if f:
-                            fl.add(f)
+                            fl.add(FL.CONFED if f in FL.AREA_KEYS else f)
                     if len(fl) == 1:
                         side_flags[col] = fl.pop()
         dl = []
@@ -671,45 +671,74 @@ class Site:
         return ''.join(out)
 
     def item_flag(self, piece, year, fallback):
-        """The flag file for one infobox entry, or None."""
+        """The flag file for one infobox entry, or None. fallback is a side's flag key."""
+        k = self.item_key(piece, year, fallback)
+        return FL.flag_file(k) if k else None
+
+    def person_field(self, slug, names):
+        a = self.by_slug.get(slug)
+        if not a or a.get('category') != 'people':
+            return None
+        for kk, vv in a['infobox']:
+            if kk.lower() in names:
+                return vv.replace('\\[', '[').replace('\\]', ']')
+        return None
+
+    def item_key(self, piece, year, fallback):
         s = piece.replace('\\[', '[').replace('\\]', ']')
         plain = BeautifulSoup(s, 'html.parser').get_text()
         m = re.match(r'\s*\{([a-z-]+)\}', plain)
         if m:
             key = FL.TAGS.get(m.group(1), m.group(1))
-            return FL.flag_file(FL.settle(key, year)) if key else None
+            return FL.settle(key, year) if key else None
+        people = []
+        key = None
         for lm in re.finditer(r'\[\[([^\]|]+)', s):
             slug = self.resolve(lm.group(1))
             if not slug:
                 continue
-            k = FL.settle(slug, year) if (FL.flag_file(slug) or slug in FL.BLOC) else None
-            if k:
-                return FL.flag_file(k)
-            a = self.by_slug.get(slug)
-            if a and a.get('category') == 'people':
-                for kk, vv in a['infobox']:
-                    if kk.lower() in ('allegiance', 'nationality', 'country'):
-                        for am in re.finditer(r'\[\[([^\]|]+)', vv.replace('\\[', '[').replace('\\]', ']')):
-                            s2 = self.resolve(am.group(1))
-                            if s2:
-                                k2 = FL.settle(s2, year)
-                                if k2:
-                                    return FL.flag_file(k2)
-                        k2 = FL.by_pattern(BeautifulSoup(vv, 'html.parser').get_text())
-                        if k2:
-                            k2 = FL.settle(k2, year)
-                            if k2:
-                                return FL.flag_file(k2)
-        name = re.sub(r'\s*[†(].*$', '', strip_rank(plain)).strip().lower()
-        if name in FL.NAMES:
-            k = FL.settle(FL.NAMES[name], year)
-            return FL.flag_file(k) if k else None
-        k = FL.by_pattern(plain)
-        if k:
-            k = FL.settle(k, year)
-            if k:
-                return FL.flag_file(k)
-        return fallback
+            if FL.flag_file(slug) or slug in FL.BLOC:
+                key = FL.settle(slug, year)
+                if key:
+                    break
+            if self.by_slug.get(slug, {}).get('category') == 'people':
+                people.append(slug)
+        if not key:
+            for slug in people:
+                vv = self.person_field(slug, ('allegiance', 'nationality', 'country')) or ''
+                for am in re.finditer(r'\[\[([^\]|]+)', vv):
+                    s2 = self.resolve(am.group(1))
+                    if s2 and FL.settle(s2, year):
+                        key = FL.settle(s2, year)
+                        break
+                if not key and vv:
+                    k2 = FL.by_pattern(BeautifulSoup(vv, 'html.parser').get_text())
+                    key = FL.settle(k2, year) if k2 else None
+                if key:
+                    break
+        bare = re.sub(r'\[\[([^\]|]+)(?:\|([^\]]+))?\]\]', lambda m: m.group(2) or m.group(1), strip_rank(plain))
+        name = re.sub(r'\s*[†(,].*$', '', bare).strip().lower()
+        named = FL.NAMES.get(name)
+        if not key and named:
+            key = FL.settle(named, year)
+        if not key:
+            k2 = FL.by_pattern(plain)
+            key = FL.settle(k2, year) if k2 else None
+        if not key:
+            key = fallback
+        # the Confederation's forces fly their home area's flag
+        if key == FL.CONFED and (not year or 2220 <= year <= 2252):
+            area = named if named in FL.AREA_KEYS else None
+            if not area:
+                for slug in people:
+                    born = self.person_field(slug, ('born', 'origin', 'home'))
+                    area = FL.area_for(BeautifulSoup(born or '', 'html.parser').get_text())
+                    if area:
+                        break
+            area = area or FL.area_for(plain)
+            if area and FL.flag_file(area):
+                key = area
+        return key or None
 
     def render_items(self, cell, kind, year, fallback):
         out = []
