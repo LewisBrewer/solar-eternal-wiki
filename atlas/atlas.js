@@ -464,6 +464,10 @@ function applyYear() {
 $('#thisyear').addEventListener('click', (e) => { const b = e.target.closest('.go'); if (b) select(b.dataset.sys, true); });
 
 // ------------------------------------------------------------------ selection panel
+function sectorFlag(name) {
+  const sec = (data.sectors || []).find((x) => x.name === name);
+  return sec && sec.flag ? '<img class="flagkey secflag" src="assets/flags/' + sec.flag + '" alt=""> ' : '';
+}
 function regionOf(s) {
   const sec = (data.sectors || []).find((x) => x.members.includes(s.id));
   if (sec) return sec.name;
@@ -498,7 +502,7 @@ function renderSelected() {
   const wHtml = ws.length ? '<ul>' + ws.map((w) => '<li>' + (hasArticle(w.slug) ? '<a href="' + wikiHref(w.slug) + '">' + esc(w.name) + '</a>' : esc(w.name)) + (w.native ? '' : ', ' + Math.floor(w.settled)) + '</li>').join('') + '</ul>' : '';
   $('#selected').innerHTML =
     '<div class="hd"><button type="button" class="x" aria-label="Close">×</button>' +
-    '<span class="k">' + esc((reg ? reg + ' // ' : '') + (o ? polName(o.p) : 'Unclaimed')) + '</span>' +
+    '<span class="k">' + (reg ? sectorFlag(reg) + esc(reg) + ' // ' : '') + esc(o ? polName(o.p) : 'Unclaimed') + '</span>' +
     '<h1>' + esc(s.name) + '</h1><span class="ds">' + esc(desc) + '</span></div>' +
     '<dl><dt>Held by</dt><dd>' + held + '</dd>' +
     (wHtml ? '<dt>Worlds</dt><dd>' + wHtml + '</dd>' : '') +

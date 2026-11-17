@@ -614,7 +614,7 @@ data = {
         {'name': 'Rubin Void', 'near': ['halvek', 'imrith', 'oru-tenna', 'selund']},
     ],
     # The Republic's administrative sectors, from the colony sheet
-    'sectors': [{'name': n, 'members': sorted(m for m, s in SHEET_SECTOR.items() if s == n)}
+    'sectors': [{'name': n, 'flag': slug(n) + '.png', 'members': sorted(m for m, s in SHEET_SECTOR.items() if s == n)}
                 for n in ('Sol Sector', 'Binami Sector', 'Saolea Sector', 'Geronth Sector', 'Gagarin Sector')],
 }
 for r in data['regions']:
