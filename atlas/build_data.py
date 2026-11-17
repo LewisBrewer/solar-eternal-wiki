@@ -416,7 +416,8 @@ for sid in own:
 BOOK_DATES = {'Mars': ym(2076, 7, 27), 'Luna': ym(2063, 3, 21), 'Io': ym(2114, 3, 1), 'Europa': ym(2116), 'Ganymede': ym(2118), 'Callisto': ym(2120),
               'Côte d\'Azur': ym(2342, 4, 21)}
 SPELL = {"Cote d'Azure": "Côte d'Azur", 'Nouveau Montreal': 'Nouveau Montréal', 'New Indata Mog': None, 'Earth': 'Earth'}
-SLUGS = {'Dauntless': 'dauntless', 'Mardak Vol': 'mardak-vol-planet', 'Theia': 'theia', 'Bounty': 'bounty'}
+SLUGS = {'Dauntless': 'dauntless', 'Mardak Vol': 'mardak-vol-planet', 'Theia': 'theia', 'Bounty': 'bounty',
+         'Landfall': 'landfall', 'Circumstance': 'circumstance', 'Serenity': 'serenity', 'Hualapai': 'hualapai'}
 def biome_label(b):
     b = b.strip()
     if not b: return None
@@ -449,13 +450,15 @@ for sid, w, y, sl, pl in [
         ('exedor', 'Hiverion', 2318.3, 'hiverion', (2, 0)), ('haedus', 'Indata Mog', 2318.3, 'indata-mog', (3, 0)),
         ('aethos', 'Vur Duri', 2318.3, None, None), ('ximpok', 'Vi Simni', 2318.3, None, None),
         ('binami', 'Binami II (Inari)', ym(2315, 6, 3), 'inari', (2, 0)),
-        ('nomotar', 'Nomotar', ym(2320), None, (3, 0)), ('feonus', "Vel's Rest", ym(2467), None, (4, 0))]:
+        ('nomotar', 'Nomotar', ym(2320), 'nomotar', (3, 0)), ('feonus', "Vel's Rest", ym(2467), None, (4, 0)),
+        ('talandra', 'Talandra', ym(2345), 'talandra', (2, 0))]:
     d = {'sys': sid, 'name': w, 'settled': y}
     if sl: d['slug'] = sl
     if pl: d['pl'], d['moon'] = pl[0], bool(pl[1])
     if w in ('Hiverion', 'Indata Mog', 'Vur Duri', 'Vi Simni', 'Binami II (Inari)'): d['native'] = True
     if w == 'Indata Mog': d['biome'] = 'Steppe world'
     if w == 'Nomotar': d['biome'] = 'Barren world'
+    if w == 'Talandra': d['biome'] = 'Dry temperate world'
     worlds.append(d)
 # Terraforming. A world keeps its found biome until its remaking is complete. The book dates
 # Mars (the Marineris Tent lifted, 14 April 2182); the rest are estimated: worlds that were
