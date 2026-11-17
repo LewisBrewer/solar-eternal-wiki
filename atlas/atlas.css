@@ -142,3 +142,9 @@ img.sw.flagkey{width:16px;height:16px;border-radius:50%;vertical-align:-3px}
 .sv-map circle[data-b]:hover{fill:rgba(242,193,78,.12)}
 img.secflag{width:21px;height:14px;vertical-align:-2px;border-radius:0;margin-right:2px}
 .k a{color:inherit;text-decoration:underline dotted;text-underline-offset:3px}
+
+.sv-globe{position:relative;width:100%;aspect-ratio:1;margin:4px 0 10px;cursor:grab}
+.sv-globe canvas{display:block;width:100%!important;height:100%!important}
+.pg-labels{position:absolute;inset:0;pointer-events:none}
+.pg-labels span{position:absolute;left:0;top:0;font-size:11px;color:#fff;text-shadow:0 0 4px #000;white-space:nowrap;margin:-7px 0 0 6px}
+.pg-labels span::before{content:'';position:absolute;left:-7px;top:5px;width:4px;height:4px;border-radius:50%;background:#ffd38a}

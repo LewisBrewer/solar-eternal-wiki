@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mountGlobe, stateAt as planetState } from './planet.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -12,10 +13,25 @@ const ERAS = [
   [2449, 2460, 'The Scouring'], [2460, 2510, 'Reconstruction'], [2510, 2600, 'The Apportionment Crisis'],
 ];
 
-const [data, articles] = await Promise.all([
+const [data, articles, PLANETS] = await Promise.all([
   fetch('assets/atlas-data.json').then((r) => r.json()),
   fetch('assets/articles.json').then((r) => r.json()).catch(() => ({})),
+  fetch('assets/planets/planets.json').then((r) => r.json()).catch(() => ({})),
 ]);
+// generated planet maps, found by world name
+const planetByName = Object.fromEntries(Object.entries(PLANETS).map(([slug, p]) => [p.name, Object.assign({ slug }, p)]));
+const SOL_BODIES = { Mercury: 'mercury', Venus: 'venus', Jupiter: 'jupiter', Saturn: 'saturn', Uranus: 'uranus', Neptune: 'neptune', Titan: 'titan' };
+function spriteFor(name, t) {
+  const p = planetByName[name];
+  if (p) return 'assets/planets/' + p.slug + '/' + planetState(p, t).k + '-sprite.webp';
+  if (SOL_BODIES[name]) return 'assets/planets/_sol/' + SOL_BODIES[name] + '-sprite.webp';
+  return null;
+}
+// a sprite lit from its left, turned so its lit side faces the star
+function spriteSVG(href, x, y, r, sx, sy) {
+  const a = Math.atan2(sy - y, sx - x) * 180 / Math.PI - 180;
+  return '<image href="' + href + '" x="' + (x - r) + '" y="' + (y - r) + '" width="' + (2 * r) + '" height="' + (2 * r) + '" transform="rotate(' + a.toFixed(1) + ' ' + x + ' ' + y + ')"/>';
+}
 const SYS = data.systems;
 const byId = Object.fromEntries(SYS.map((s) => [s.id, s]));
 const P = data.polities;
@@ -869,7 +885,12 @@ function bodyInfo(b, t, o) {
   } else rows.push(['Settled', 'No settlement']);
   if (b.kind === 'planet' && b.p.moons.length) rows.push(['Moons', b.p.moons.map((m, k) => '<button type="button" class="lnk" data-b="' + b.pi + '.' + k + '">' + esc(m.name) + '</button>').join(', ')]);
   if (b.kind === 'moon') rows.push(['Orbits', '<button type="button" class="lnk" data-b="' + b.pi + '">' + esc(parentName) + '</button>']);
-  let h = sec('Selected · ' + b.label, rows);
+  let h = '';
+  const pg = b.world && live && planetByName[b.world];
+  const solName = !b.world || !live ? (b.kind === 'moon' ? b.m.name : b.p.name) : null;
+  if (pg) h += '<div class="sv-globe" data-world="' + esc(b.world) + '"></div>';
+  else if (solName && SOL_BODIES[solName] && sv.sys.id === 'sol') h += '<div class="sv-globe" data-sol="' + SOL_BODIES[solName] + '"></div>';
+  h += sec('Selected · ' + b.label, rows);
   if (b.slug && hasArticle(b.slug) && live) h += '<a class="art" href="' + wikiHref(b.slug) + '">Read about ' + esc(b.label) + ' →</a>';
   return h;
 }
@@ -895,6 +916,18 @@ function renderSystemInfo() {
   if (evs.length) html += sec('History', evs.map((e) => [fmtDate(e.y), hasArticle(e.slug) ? '<a href="' + wikiHref(e.slug) + '">' + esc(e.label) + '</a>' : esc(e.label), e.y > t]));
   if (hasArticle(s.id)) html += '<a class="art" href="' + wikiHref(s.id) + '">Read the article →</a>';
   $('#sv-info').innerHTML = html;
+  const gEl = $('#sv-info .sv-globe');
+  if (gEl) {
+    if (gEl.dataset.world) {
+      const p = planetByName[gEl.dataset.world];
+      const g = mountGlobe(THREE, gEl, { base: 'assets/planets/' + p.slug + '/', cities: p.cities, lon: (p.cities[0] || { lon: 0 }).lon, height: gEl.clientWidth });
+      g.set(planetState(p, t));
+    } else {
+      const k = gEl.dataset.sol;
+      const g = mountGlobe(THREE, gEl, { base: 'assets/planets/_sol/', cities: [], height: gEl.clientWidth });
+      g.set({ k, atmo: null, glow: '#000000', noData: true });
+    }
+  }
   $('#sv-info').querySelectorAll('.sv-sec').forEach((b) => b.addEventListener('click', () => { const open = b.getAttribute('aria-expanded') === 'true'; b.setAttribute('aria-expanded', String(!open)); b.nextElementSibling.hidden = open; }));
   $('#sv-title').textContent = (body ? body.label : s.name) + ' - ' + year;
   const last = evs.filter((e) => e.y <= t).pop();
@@ -932,10 +965,12 @@ function drawSystem(dt) {
     const burnP = settled && burnedList.find((b) => b.name === p.world);
     if (p.ring) out += '<ellipse cx="' + x + '" cy="' + y + '" rx="' + p.size * 2 + '" ry="' + p.size * 0.65 + '" transform="rotate(-14 ' + x + ' ' + y + ')" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="1.5"/>';
     const pi = sv.planets.indexOf(p);
-    out += '<circle cx="' + x + '" cy="' + y + '" r="' + p.size + '" fill="' + (burnP ? '#E07A5F' : '#fff') + '"/>';
+    const spr = spriteFor(p.world && settled ? p.world : p.name, t) || (p.world && spriteFor(p.world, t));
+    if (spr) out += spriteSVG(spr, x, y, p.size * 1.7, cxs, cys);
+    else out += '<circle cx="' + x + '" cy="' + y + '" r="' + p.size + '" fill="' + (burnP ? '#E07A5F' : '#fff') + '"/>';
     if (sv.pick === String(pi)) out += '<circle cx="' + x + '" cy="' + y + '" r="' + (p.size + 10) + '" fill="none" stroke="#F2C14E" stroke-width="1.5" stroke-dasharray="3 3"/>';
     hits.push({ key: String(pi), x, y, r: Math.max(16, p.size + 8) });
-    if (settled) out += '<circle cx="' + x + '" cy="' + y + '" r="' + (p.size + 4) + '" fill="none" stroke="#fff" stroke-opacity=".85"/>';
+    if (settled) out += '<circle cx="' + x + '" cy="' + y + '" r="' + (p.size * (spr ? 1.7 : 1) + 4) + '" fill="none" stroke="#fff" stroke-opacity=".85"/>';
     // moons orbit the planet; their names are listed beside it
     const moonLines = [], moonNames = [];
     p.moons.forEach((m, k) => {
@@ -943,7 +978,9 @@ function drawSystem(dt) {
       const mx = x + Math.cos(ang) * mr, my = y + Math.sin(ang) * mr * 0.55;
       const live = m.settled <= t, burnM = live && burnedList.find((b) => b.name === m.name);
       out += '<ellipse cx="' + x + '" cy="' + y + '" rx="' + mr + '" ry="' + mr * 0.55 + '" fill="none" stroke="#fff" stroke-opacity=".18"/>';
-      out += '<circle cx="' + mx + '" cy="' + my + '" r="2.6" fill="' + (burnM ? '#E07A5F' : '#fff') + '"/>';
+      const ms = spriteFor(m.name, t);
+      if (ms) out += spriteSVG(ms, mx, my, 4.5, cxs, cys);
+      else out += '<circle cx="' + mx + '" cy="' + my + '" r="2.6" fill="' + (burnM ? '#E07A5F' : '#fff') + '"/>';
       if (sv.pick === pi + '.' + k) out += '<circle cx="' + mx + '" cy="' + my + '" r="8" fill="none" stroke="#F2C14E" stroke-width="1.5" stroke-dasharray="3 3"/>';
       hits.push({ key: pi + '.' + k, x: mx, y: my, r: 9 });
       if (live) {

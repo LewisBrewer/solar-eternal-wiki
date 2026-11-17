@@ -193,3 +193,23 @@ a:hover{text-decoration-color:var(--white)}
 .cbox .cb-h a{text-decoration:none}
 .cbox .cb-l{margin:0 0 4px}
 .cbox .cb-l a{white-space:nowrap}
+/* planet globe and map */
+.ib-globe{margin:0;padding:12px 16px 14px;border-bottom:1px solid var(--line,rgba(255,255,255,.12))}
+.ib-globe .pg{position:relative;width:100%;aspect-ratio:1;cursor:grab}
+.ib-globe .pg canvas{display:block;width:100%!important;height:100%!important}
+.pg-labels{position:absolute;inset:0;pointer-events:none}
+.pg-labels span{position:absolute;left:0;top:0;font-size:11px;letter-spacing:.04em;color:#fff;text-shadow:0 0 4px #000,0 0 2px #000;white-space:nowrap;transition:opacity .2s;margin:-7px 0 0 6px}
+.pg-labels span::before{content:'';position:absolute;left:-7px;top:5px;width:4px;height:4px;border-radius:50%;background:#ffd38a}
+.pg-years{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.pg-years button{font:inherit;font-size:11px;padding:2px 7px;background:transparent;color:inherit;border:1px solid rgba(255,255,255,.3);cursor:pointer}
+.pg-years button.on{background:#fff;color:#0d2150}
+.ib-globe figcaption{font-size:11px;opacity:.7;margin-top:6px}
+.planet-map{margin:16px 0 22px}
+.pm-wrap{position:relative}
+.pm-wrap img{display:block;width:100%;height:auto}
+.pm-wrap svg{position:absolute;inset:0;width:100%;height:100%}
+.pm-grid{stroke:#fff;stroke-opacity:.15;stroke-width:1;vector-effect:non-scaling-stroke}
+.pm-city{fill:#ffd38a;stroke:#0d2150;stroke-width:1.5;vector-effect:non-scaling-stroke}
+.pm-lbl{fill:#fff;font-size:15px;paint-order:stroke;stroke:#0d2150;stroke-width:3px}
+.pm-lbl.cap{font-weight:600}
+.planet-map figcaption{font-size:12px;opacity:.7;margin-top:6px}

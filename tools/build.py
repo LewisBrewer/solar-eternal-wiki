@@ -15,6 +15,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'src', 'docs')
 OUT = os.path.join(ROOT, 'out')
 STATIC = os.path.join(ROOT, 'static')
+PLANET_JS = ('<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js"}}</script>'
+             '<script type="module" src="../assets/planet-page.js"></script>')
 
 SECTION = '\x00section'   # infobox key for a section heading row
 MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
@@ -575,6 +577,10 @@ class Site:
                 out.append('<figure class="ib-flag"><img src="%sassets/flags/%s.%s" alt="Flag of the %s"></figure>' %
                            (self.root_for_infobox, art['slug'], ext, html.escape(art['title'])))
                 break
+        # a generated globe for worlds with maps in static/planets/<slug>/
+        if os.path.isdir(os.path.join(STATIC, 'planets', art['slug'])):
+            out.append('<figure class="ib-globe" data-planet="%s"><div class="pg"></div><div class="pg-years" role="group" aria-label="Year"></div>'
+                       '<figcaption>Drag to turn. City lights show on the night side.</figcaption></figure>' % art['slug'])
         # a company logo, kept in static/logos/<slug>.svg
         for ext in ('svg', 'png'):
             if os.path.exists(os.path.join(STATIC, 'logos', '%s.%s' % (art['slug'], ext))):
@@ -1041,6 +1047,7 @@ class Site:
              '<div class="tabs"><a href="#top" class="on">Article</a>%s</div></div>' % ('<a href="#sources">Book sources</a>' if art['sources'] else ''),
              '<div class="columns"><div class="prose">%s%s%s</div>%s</div>%s</main></div>' % (epi, body, src, side, series),
              '<script src="../assets/toc.js" defer></script>',
+             (PLANET_JS if os.path.isdir(os.path.join(STATIC, 'planets', art['slug'])) else ''),
              self.footer('../')]
         return ''.join(h)
 
@@ -1231,7 +1238,8 @@ class Site:
         inner = ('<h1>About the archive</h1><div class="prose" style="max-width:760px">'
                  '<p>The Solar Eternal Archive is an encyclopedia of a fictional future history, from the founding of the United Nations to the Reconstruction of the Second Republic. It is written in the voice of the Republic\'s own histories.</p>'
                  '<p>Its articles are drawn from <i>Solar Eternal</i>, a history by Lewis Brewer, and each article lists the sections of the book it is drawn from. Where the book is silent, the archive fills gaps in keeping with it.</p>'
-                 '<p>The Atlas places every charted system of known space, after the reference chart of 2235, and lets you travel through the centuries to watch the borders move.</p></div>')
+                 '<p>The Atlas places every charted system of known space, after the reference chart of 2235, and lets you travel through the centuries to watch the borders move.</p>'
+                 '<h2>Planet maps</h2><p>The worlds of known space are generated for the archive. The real surfaces of Mercury, Venus, the Moon, Mars and the giant planets are Solar System Scope textures, based on NASA mission data and used under CC BY 4.0. Earth is NASA\'s Blue Marble and ETOPO1. Mars\'s terraformed coasts follow NASA\'s MOLA elevation data.</p></div>')
         return self.listing('About', inner, '', '')
 
     def home_page(self, updated):
