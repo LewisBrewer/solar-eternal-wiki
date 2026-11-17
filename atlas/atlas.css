@@ -114,10 +114,18 @@ img.sw.flagkey{width:16px;height:16px;border-radius:50%;vertical-align:-3px}
 .sv-info .art{display:block;padding:14px 16px;border-top:1px solid var(--line);font:500 11px 'Jost',sans-serif;letter-spacing:.18em;text-transform:uppercase;text-decoration:none}
 .sv-map{position:absolute;top:56px;left:360px;right:0;bottom:var(--foot);width:calc(100% - 360px);height:calc(100% - 56px - var(--foot));display:block;cursor:grab}
 .sv-foot{bottom:0}
+.sv-map canvas,.sv-map svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sv-map svg{pointer-events:none;overflow:hidden}
+.sv-map{overflow:hidden}
+.sv-map svg [data-b]{pointer-events:auto}
 .sv-map text{font-family:'Jost',sans-serif}
+.sv-map .ft{font-style:italic;fill:#BFD3EA}
+.sv-map .ft-fleet,.sv-map .ft-hulk{fill:#F0B6A8}
+.sv-home{align-self:center;height:32px;margin-right:14px;padding:0 12px;background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;font:500 11px 'Jost',sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 .sv-map .nm{font-size:13px;letter-spacing:.5px;fill:#fff;text-transform:uppercase}
 .sv-map .sb{font-size:11px;fill:#C9D6E5}
 .sv-map.nonames .lbl{display:none}
+.sv-map{touch-action:none}
 @media (max-width:900px){
   :root{--foot:64px;--tl:56px}
   .a-brand{padding:0 14px}.a-brand span{display:none}.a-brand b{font-size:13px;letter-spacing:.18em;white-space:nowrap}

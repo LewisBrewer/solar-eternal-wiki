@@ -69,10 +69,11 @@
     <div class="sv-head">
       <button type="button" class="sv-back" id="sv-back"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="1.4" aria-hidden="true"><path d="M13 8H3M7 4L3 8l4 4"/></svg>Back to known space</button>
       <div class="a-spacer"></div>
+      <button type="button" class="sv-home" id="sv-home">Whole system</button>
       <label class="sv-names"><input type="checkbox" id="sv-names" checked>Names</label>
     </div>
     <aside class="sv-info" id="sv-info"></aside>
-    <svg class="sv-map" id="sv-map" role="img" aria-label="Orbits of the selected system. Click a planet or moon for its details."></svg>
+    <div class="sv-map" id="sv-map" role="img" aria-label="The selected system in 3D. Drag to turn, scroll to zoom, click a planet or moon for its details."><canvas id="sv-gl"></canvas><svg id="sv-svg"></svg></div>
     <footer class="a-foot sv-foot"><div class="ttl"><span id="sv-title"></span><span id="sv-sub"></span></div><div class="legend" id="sv-legend"></div></footer>
   </section>
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { mountGlobe, stateAt as planetState } from './planet.js';
+import { mountGlobe, makeGlobe, statesAt, latLon, stateAt as planetState } from './planet.js';
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -797,7 +797,11 @@ function makePlanets(s) {
     if (w.moon) p.moons.push({ name: w.name, slug: w.slug, settled: w.settled, world: true, ph: r() * 6.28 });
     else { p.world = w.name; p.slug = w.slug; p.settled = w.settled; p.biome = w.biome; }
   }
-  const order = out.map((p, i) => i).filter((i) => !out[i].world).sort((x, y) => Math.abs(x - hz - 0.5) - Math.abs(y - hz - 0.5));
+  for (const b of (data.bodies || {})[s.id] || []) {
+    const p = out[b.pl - 1]; if (!p) continue;
+    p.name = b.name; p.type = b.type; p.body = b;
+  }
+  const order = out.map((p, i) => i).filter((i) => !out[i].world && !out[i].body).sort((x, y) => Math.abs(x - hz - 0.5) - Math.abs(y - hz - 0.5));
   free.forEach((w, k) => { const p = out[order[k]]; if (p) { p.world = w.name; p.slug = w.slug; p.settled = w.settled; p.biome = w.biome; } });
   for (const p of out) {
     if (p.moons.length && !p.world && !/giant/.test(p.type)) p.type = 'Gas giant';
@@ -811,6 +815,7 @@ function makePlanets(s) {
 function openSystem(id) {
   const s = byId[id]; sv.sys = s; sv.planets = makePlanets(s); sv.zoom = 1; sv.pick = null;
   $('#sysview').hidden = false;
+  svBuild(true);
   renderSystemInfo();
   writeHash();
 }
@@ -818,30 +823,9 @@ function closeSystem() { $('#sysview').hidden = true; sv.sys = null; writeHash()
 $('#sv-back').onclick = closeSystem;
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#sysview').hidden) closeSystem(); });
 $('#sv-names').addEventListener('change', (e) => $('#sv-map').classList.toggle('nonames', !e.target.checked));
-// The orbit view is redrawn every frame, so bodies are picked by position, not by element.
+$('#sv-home').onclick = () => { sv.pick = null; svFocus(null); renderSystemInfo(); };
 sv.hits = [];
-let svDown = null;
-$('#sv-map').addEventListener('pointerdown', (e) => { svDown = { x: e.clientX, y: e.clientY }; });
-$('#sv-map').addEventListener('pointerup', (e) => {
-  if (!svDown || Math.hypot(e.clientX - svDown.x, e.clientY - svDown.y) > 6) { svDown = null; return; }
-  svDown = null;
-  const r = $('#sv-map').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-  let best = null, bd = Infinity;
-  for (const h of sv.hits) {
-    const d = h.box ? (x >= h.box[0] && x <= h.box[2] && y >= h.box[1] && y <= h.box[3] ? 0 : Infinity) : Math.hypot(h.x - x, h.y - y) - h.r;
-    if (d <= 0 && d < bd) { bd = d; best = h; } else if (d <= 0 && best === null) best = h;
-  }
-  sv.pick = best ? best.key : null;
-  renderSystemInfo();
-  if (sv.pick) $('#sv-info').scrollTop = 0;
-});
-$('#sv-map').addEventListener('pointermove', (e) => {
-  const r = $('#sv-map').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-  const over = sv.hits.some((h) => h.box ? x >= h.box[0] && x <= h.box[2] && y >= h.box[1] && y <= h.box[3] : Math.hypot(h.x - x, h.y - y) <= h.r);
-  $('#sv-map').style.cursor = over ? 'pointer' : '';
-});
-$('#sv-info').addEventListener('click', (e) => { const b = e.target.closest('[data-b]'); if (b) { sv.pick = b.dataset.b; renderSystemInfo(); } });
-$('#sv-map').addEventListener('wheel', (e) => { e.preventDefault(); sv.zoom = Math.max(0.4, Math.min(4, sv.zoom * (e.deltaY > 0 ? 0.9 : 1.1))); }, { passive: false });
+$('#sv-info').addEventListener('click', (e) => { const b = e.target.closest('[data-b]'); if (b) { sv.pick = b.dataset.b; svFocus(sv.pick); renderSystemInfo(); } });
 
 const chev = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#A9BBD0" stroke-width="1.6" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
 function sec(title, rows) {
@@ -921,7 +905,7 @@ function renderSystemInfo() {
     if (gEl.dataset.world) {
       const p = planetByName[gEl.dataset.world];
       const g = mountGlobe(THREE, gEl, { base: 'assets/planets/' + p.slug + '/', cities: p.cities, lon: (p.cities[0] || { lon: 0 }).lon, height: gEl.clientWidth });
-      g.set(planetState(p, t), t);
+      g.setYear(p, t);
     } else {
       const k = gEl.dataset.sol;
       const g = mountGlobe(THREE, gEl, { base: 'assets/planets/_sol/', cities: [], height: gEl.clientWidth });
@@ -934,81 +918,362 @@ function renderSystemInfo() {
   $('#sv-sub').textContent = last ? last.label + ', ' + fmtDate(last.y) : (o ? polName(o.p) : 'Unclaimed');
   $('#sv-legend').innerHTML = o ? '<span>' + polKey(o.p) + esc(polName(o.p)) + '</span>' : '';
 }
-function drawSystem(dt) {
-  if (!sv.sys) return;
-  sv.t += dt / 1000 * sv.speed;
-  const svg = $('#sv-map'), w = svg.clientWidth, h = svg.clientHeight; if (!w) return;
-  const cxs = w * 0.5, cys = h * 0.5, tilt = 0.42;
-  const amax = sv.planets[sv.planets.length - 1].a;
-  const scale = (Math.min(w, h / tilt) * 0.46) * sv.zoom;
-  const R = (a) => (Math.log(1 + a * 4) / Math.log(1 + amax * 4)) * scale;
-  const t = year + 0.999;
-  let out = '<defs><radialGradient id="sv-star"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></radialGradient></defs>';
-  out += '<ellipse cx="' + cxs + '" cy="' + cys + '" rx="' + (R(amax) * 1.18) + '" ry="' + (R(amax) * 1.18 * tilt) + '" fill="none" stroke="#fff" stroke-opacity=".35" stroke-dasharray="2 6"/>';
-  out += '<text class="lbl sb" x="' + cxs + '" y="' + (cys - R(amax) * 1.18 * tilt - 8) + '" text-anchor="middle" font-size="10" letter-spacing="2" fill="#C9D6E5">PILLAI RADIUS · JUMP LIMIT</text>';
-  for (const p of sv.planets) out += '<ellipse cx="' + cxs + '" cy="' + cys + '" rx="' + R(p.a) + '" ry="' + R(p.a) * tilt + '" fill="none" stroke="#fff" stroke-opacity="' + (p.world ? 0.55 : 0.22) + '"/>';
-  if (sv.sys.blackhole) {
-    out = out.replace('</defs>', '<radialGradient id="sv-bh"><stop offset="0" stop-color="#FFE9C2"/><stop offset=".45" stop-color="#F28C38"/><stop offset="1" stop-color="#F28C38" stop-opacity="0"/></radialGradient></defs>');
-    out += '<ellipse cx="' + cxs + '" cy="' + cys + '" rx="46" ry="' + (46 * tilt) + '" fill="url(#sv-bh)" opacity=".9"/>';
-    out += '<circle cx="' + cxs + '" cy="' + cys + '" r="13" fill="none" stroke="#FFE9C2" stroke-width="2.5"/><circle cx="' + cxs + '" cy="' + cys + '" r="11.5" fill="#000"/>';
-  } else out += '<circle cx="' + cxs + '" cy="' + cys + '" r="22" fill="url(#sv-star)"/><circle cx="' + cxs + '" cy="' + cys + '" r="7" fill="#fff"/>';
-  out += '<text class="lbl nm" x="' + (cxs + 14) + '" y="' + (cys - 16) + '" font-size="15">' + esc(sv.sys.name) + '</text>';
-  const items = sv.planets.map((p) => {
-    const ang = p.ph + sv.t * 0.6 / Math.pow(p.a, 1.5);
-    return { p, x: cxs + Math.cos(ang) * R(p.a), y: cys + Math.sin(ang) * R(p.a) * tilt };
-  }).sort((a, b) => a.y - b.y);
-  const link = (slug, inner) => (slug && hasArticle(slug) ? '<a href="' + wikiHref(slug) + '">' + inner + '</a>' : inner);
-  const burnedList = burnedAt(sv.sys.id, t);
-  const hits = [];
-  for (const { p, x, y } of items) {
+// ------------------------------------------------------------------ system view, in 3D
+// Drag to orbit and tilt, wheel or pinch to zoom, right-drag to pan. Clicking a planet or moon
+// selects it and flies the camera to it; the camera then follows it round its orbit. Orbits use a
+// log scale so inner and outer planets both fit; bodies are drawn far larger than to scale.
+const S3 = { r: null, scene: null, cam: null, ctl: null, root: null, feat: null, bodies: [], globes: [], focus: null, fly: null, featYear: null, down: null };
+const SVW = 10, PILLAI = 1.18;
+const svR = (a) => { const amax = sv.planets[sv.planets.length - 1].a; return Math.log(1 + a * 4) / Math.log(1 + amax * 4) * SVW; };
+const bodyR = (p) => 0.07 + p.size * 0.021;
+const TEXC = new Map();
+function canvasTex(key, draw, w = 256, h = 128) {
+  if (TEXC.has(key)) return TEXC.get(key);
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; TEXC.set(key, t); return t;
+}
+function seeded(str) { let h = 2166136261; for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296; }
+// a plain procedural surface for planets nobody has mapped, by type
+function typeTex(type, name) {
+  const pal = {
+    'Gas giant': ['#c9a27a', '#e4cfa8', '#a7764f', '#efe2c6'], 'Ringed gas giant': ['#d9c08e', '#efe0b8', '#b89a6a', '#f6ecd0'],
+    'Ice giant': ['#7fb4c9', '#a6d3e0', '#5d97b0', '#c2e6ee'], 'Frozen dwarf': ['#cfd6dc', '#aab4bd', '#e9eef2'],
+    'Molten world': ['#3a1f17', '#7a2c12', '#e0581c', '#2a1712'], 'Tidally locked rock': ['#7d6e62', '#a49384', '#4e443d'],
+    'Hot cloud world': ['#e8d39c', '#f3e5bd', '#cdb57b'], 'Barren rock': ['#8a7f75', '#6c635b', '#a59a8f'],
+    'Barren world': ['#9a8a78', '#7b6d60', '#b5a693'], 'Frozen desert': ['#d8d2c8', '#b9b0a2', '#efebe4'],
+    'Ocean world': ['#1d4f7a', '#2f6d9a', '#16395a'], 'Steppe world': ['#9e9a62', '#7f7f4d', '#b5ad78'],
+    'Frozen world': ['#dfe7ee', '#c3cfd9', '#f5f8fa'], 'Irradiated rock': ['#6f6a5c', '#8f8a72', '#4d4a41'],
+  }[type] || ['#8f8a84', '#6f6a64', '#aaa49d'];
+  const banded = /giant/.test(type);
+  return canvasTex('t:' + type + ':' + name, (g, w, h) => {
+    const r = seeded(name);
+    g.fillStyle = pal[0]; g.fillRect(0, 0, w, h);
+    if (banded) {
+      for (let y = 0; y < h; y += 2 + r() * 6) { g.fillStyle = pal[Math.floor(r() * pal.length)]; g.globalAlpha = 0.5 + r() * 0.5; g.fillRect(0, y, w, 1 + r() * 7); }
+    } else {
+      for (let k = 0; k < 260; k++) { g.fillStyle = pal[Math.floor(r() * pal.length)]; g.globalAlpha = 0.25 + r() * 0.4; g.beginPath(); g.arc(r() * w, r() * h, 2 + r() * 14, 0, 7); g.fill(); }
+    }
+    g.globalAlpha = 1;
+  });
+}
+const glowTex = () => canvasTex('glow', (g, w, h) => {
+  const gr = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w / 2);
+  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.18, 'rgba(255,244,214,.85)'); gr.addColorStop(0.45, 'rgba(255,214,150,.18)'); gr.addColorStop(1, 'rgba(255,200,140,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+}, 256, 256);
+function svInit() {
+  if (S3.r) return;
+  const wrap = $('#sv-map');
+  S3.r = new THREE.WebGLRenderer({ canvas: $('#sv-gl'), antialias: true, alpha: true });
+  S3.r.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  S3.scene = new THREE.Scene();
+  S3.cam = new THREE.PerspectiveCamera(40, 1, 0.005, 400);
+  S3.ctl = new OrbitControls(S3.cam, wrap);
+  Object.assign(S3.ctl, { enableDamping: true, dampingFactor: 0.08, minDistance: 0.12, maxDistance: 60, rotateSpeed: 0.6, zoomSpeed: 1.1 });
+  S3.ctl.addEventListener('start', () => { S3.fly = null; });
+  S3.scene.add(new THREE.AmbientLight(0xffffff, 0.05));
+  S3.light = new THREE.PointLight(0xfff4e6, 3.2, 0, 0); S3.scene.add(S3.light);
+  wrap.addEventListener('pointerdown', (e) => { S3.down = { x: e.clientX, y: e.clientY }; });
+  wrap.addEventListener('pointerup', (e) => {
+    if (!S3.down || Math.hypot(e.clientX - S3.down.x, e.clientY - S3.down.y) > 6) { S3.down = null; return; }
+    S3.down = null;
+    const r = wrap.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    let best = null, bd = Infinity;
+    for (const h of sv.hits) {
+      const d = h.box ? (x >= h.box[0] && x <= h.box[2] && y >= h.box[1] && y <= h.box[3] ? -1 : Infinity) : Math.hypot(h.x - x, h.y - y) - h.r;
+      if (d <= 0 && d < bd) { bd = d; best = h; }
+    }
+    sv.pick = best ? best.key : null;
+    svFocus(sv.pick);
+    renderSystemInfo(); writeHash();
+    if (sv.pick) $('#sv-info').scrollTop = 0;
+  });
+  wrap.addEventListener('pointermove', (e) => {
+    const r = wrap.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    const over = sv.hits.some((h) => h.box ? x >= h.box[0] && x <= h.box[2] && y >= h.box[1] && y <= h.box[3] : Math.hypot(h.x - x, h.y - y) <= h.r);
+    wrap.style.cursor = over ? 'pointer' : '';
+  });
+}
+function disposeTree(o) {
+  o.traverse((m) => { if (m.geometry) m.geometry.dispose(); if (m.material) [].concat(m.material).forEach((x) => { if (x.map && !TEXC.has(x.map.name)) {} x.dispose(); }); });
+}
+function lineCircle(r, op, dashed) {
+  const pts = []; for (let i = 0; i <= 160; i++) { const a = i / 160 * Math.PI * 2; pts.push(new THREE.Vector3(Math.cos(a) * r, 0, Math.sin(a) * r)); }
+  const g = new THREE.BufferGeometry().setFromPoints(pts);
+  const m = dashed ? new THREE.LineDashedMaterial({ color: 0xffffff, transparent: true, opacity: op, dashSize: 0.08, gapSize: 0.22 }) : new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: op });
+  const l = new THREE.Line(g, m); if (dashed) l.computeLineDistances(); return l;
+}
+// a body's surface: a generated globe where one exists, a real map for the Sun's planets, otherwise a plain type texture
+function svSurface(name, type, rad, t) {
+  const pg = planetByName[name];
+  if (pg) {
+    const { a, b, k } = statesAt(pg, t), base = 'assets/planets/' + pg.slug + '/';
+    const g = makeGlobe(THREE, { day: base + a.k + '-day.webp', data: a.noData ? null : base + a.k + '-data.webp', day2: base + b.k + '-day.webp', data2: (a.noData || b.noData) ? null : base + b.k + '-data.webp', atmo: a.atmo, atmo2: b.atmo, k, glow: a.glow, clouds: true });
+    g.scale.setScalar(rad); S3.globes.push({ g, pg, name }); return g;
+  }
+  const sk = SOL_BODIES[name] || (sv.sys.id === 'sol' && { Earth: null }[name]);
+  const mat = new THREE.MeshStandardMaterial({ roughness: 0.95, metalness: 0 });
+  if (sk) { const tx = new THREE.TextureLoader().load('assets/planets/_sol/' + sk + '-day.webp'); tx.colorSpace = THREE.SRGBColorSpace; mat.map = tx; }
+  else mat.map = typeTex(type, name);
+  const m = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), mat); m.scale.setScalar(rad); return m;
+}
+function ringMesh(p, rad) {
+  const inner = rad * 1.35, outer = rad * 2.3, geo = new THREE.RingGeometry(inner, outer, 128, 1);
+  const uv = geo.attributes.uv, pos = geo.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < uv.count; i++) { v.fromBufferAttribute(pos, i); uv.setXY(i, (v.length() - inner) / (outer - inner), 0.5); }
+  let tex;
+  if (p.name === 'Saturn') { tex = new THREE.TextureLoader().load('assets/planets/_sol/saturn-ring.png'); tex.colorSpace = THREE.SRGBColorSpace; }
+  else tex = canvasTex('ring:' + p.name, (g, w, h) => { const r = seeded(p.name); for (let x = 0; x < w; x++) { const a = 0.15 + 0.6 * r(); g.fillStyle = 'rgba(230,214,186,' + a.toFixed(2) + ')'; g.fillRect(x, 0, 1, h); } }, 256, 4);
+  const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, depthWrite: false }));
+  m.rotation.x = -Math.PI / 2 + 0.35; return m;
+}
+// build the system: star, orbits, planets, moons, rings; features are rebuilt as the year changes
+function svBuild(reset) {
+  svInit(); S3.year = year;
+  if (S3.root) { S3.scene.remove(S3.root); disposeTree(S3.root); }
+  S3.root = new THREE.Group(); S3.scene.add(S3.root); S3.bodies = []; S3.globes = []; S3.feat = null; S3.featYear = null;
+  const t = year + 0.999, sys = sv.sys;
+  if (sys.blackhole) {
+    S3.root.add(new THREE.Mesh(new THREE.SphereGeometry(0.22, 32, 24), new THREE.MeshBasicMaterial({ color: 0x000000 })));
+    const disk = new THREE.Mesh(new THREE.RingGeometry(0.3, 1.1, 96), new THREE.MeshBasicMaterial({ map: canvasTex('bh', (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, 0); gr.addColorStop(0, 'rgba(255,240,210,1)'); gr.addColorStop(0.4, 'rgba(242,140,56,.8)'); gr.addColorStop(1, 'rgba(242,140,56,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h); }, 256, 4), transparent: true, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
+    const uv = disk.geometry.attributes.uv, pos = disk.geometry.attributes.position, v = new THREE.Vector3();
+    for (let i = 0; i < uv.count; i++) { v.fromBufferAttribute(pos, i); uv.setXY(i, (v.length() - 0.3) / 0.8, 0.5); }
+    disk.rotation.x = -Math.PI / 2 + 0.25; S3.root.add(disk);
+    S3.light.intensity = 0.6;
+  } else {
+    S3.root.add(new THREE.Mesh(new THREE.SphereGeometry(0.2, 32, 24), new THREE.MeshBasicMaterial({ color: 0xfff6e8 })));
+    const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
+    gl.scale.setScalar(2.4); S3.root.add(gl);
+    S3.light.intensity = 3.2;
+  }
+  const pil = lineCircle(svR(sv.planets[sv.planets.length - 1].a) * PILLAI, 0.35, true); S3.root.add(pil);
+  sv.planets.forEach((p, pi) => {
+    S3.root.add(lineCircle(svR(p.a), p.world ? 0.5 : 0.2));
+    const rad = bodyR(p), grp = new THREE.Group(); S3.root.add(grp);
     const settled = p.world && (p.settled === undefined || p.settled <= t);
-    const burnP = settled && burnedList.find((b) => b.name === p.world);
-    if (p.ring) out += '<ellipse cx="' + x + '" cy="' + y + '" rx="' + p.size * 2 + '" ry="' + p.size * 0.65 + '" transform="rotate(-14 ' + x + ' ' + y + ')" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="1.5"/>';
-    const pi = sv.planets.indexOf(p);
-    const spr = spriteFor(p.world && settled ? p.world : p.name, t) || (p.world && spriteFor(p.world, t));
-    if (spr) out += spriteSVG(spr, x, y, p.size * 1.7, cxs, cys);
-    else out += '<circle cx="' + x + '" cy="' + y + '" r="' + p.size + '" fill="' + (burnP ? '#E07A5F' : '#fff') + '"/>';
-    if (sv.pick === String(pi)) out += '<circle cx="' + x + '" cy="' + y + '" r="' + (p.size + 10) + '" fill="none" stroke="#F2C14E" stroke-width="1.5" stroke-dasharray="3 3"/>';
-    hits.push({ key: String(pi), x, y, r: Math.max(16, p.size + 8) });
-    if (settled) out += '<circle cx="' + x + '" cy="' + y + '" r="' + (p.size * (spr ? 1.7 : 1) + 4) + '" fill="none" stroke="#fff" stroke-opacity=".85"/>';
-    // moons orbit the planet; their names are listed beside it
-    const moonLines = [], moonNames = [];
-    p.moons.forEach((m, k) => {
-      const mr = p.size + 12 + k * 7, ang = m.ph + sv.t * 2.2 / (1 + k * 0.6);
-      const mx = x + Math.cos(ang) * mr, my = y + Math.sin(ang) * mr * 0.55;
-      const live = m.settled <= t, burnM = live && burnedList.find((b) => b.name === m.name);
-      out += '<ellipse cx="' + x + '" cy="' + y + '" rx="' + mr + '" ry="' + mr * 0.55 + '" fill="none" stroke="#fff" stroke-opacity=".18"/>';
-      const ms = spriteFor(m.name, t);
-      if (ms) out += spriteSVG(ms, mx, my, 4.5, cxs, cys);
-      else out += '<circle cx="' + mx + '" cy="' + my + '" r="2.6" fill="' + (burnM ? '#E07A5F' : '#fff') + '"/>';
-      if (sv.pick === pi + '.' + k) out += '<circle cx="' + mx + '" cy="' + my + '" r="8" fill="none" stroke="#F2C14E" stroke-width="1.5" stroke-dasharray="3 3"/>';
-      hits.push({ key: pi + '.' + k, x: mx, y: my, r: 9 });
-      if (live) {
-        out += '<circle cx="' + mx + '" cy="' + my + '" r="5.5" fill="none" stroke="#fff" stroke-opacity=".8"/>';
-        moonNames.push(m.name);
-        moonLines.push('<tspan data-b="' + pi + '.' + k + '" style="cursor:pointer" class="nm" font-size="11">' + esc(m.name) + '</tspan>' + (burnM ? '<tspan class="sb" font-size="10"> · burned ' + Math.floor(burnM.y) + '</tspan>' : '<tspan class="sb" font-size="10"> · moon</tspan>'));
+    const spin = new THREE.Group(); grp.add(spin);
+    spin.add(svSurface(settled ? p.world : p.name, p.type, rad, t));
+    if (p.ring) grp.add(ringMesh(p, rad));
+    if (p.body && p.body.kind === 'shattered') {
+      const pts = [], r = seeded(p.name);
+      for (let k = 0; k < 900; k++) { const a = r() * 6.283, d = rad * (1.6 + r() * 1.4); pts.push(Math.cos(a) * d, (r() - 0.5) * rad * 0.25, Math.sin(a) * d); }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+      const debris = new THREE.Points(g, new THREE.PointsMaterial({ color: 0x9a8f86, size: 0.012, sizeAttenuation: true }));
+      debris.rotation.x = 0.3; grp.add(debris);
+    }
+    const moons = p.moons.map((m, k) => {
+      const mr = rad * (0.24 + 0.04 * ((k * 7) % 3)), orbit = rad * (2.1 + k * 0.85);
+      const mg = new THREE.Group(); grp.add(mg);
+      const ol = lineCircle(orbit, 0.16); ol.rotation.x = 0.12; grp.add(ol);
+      const live = m.settled === undefined || m.settled <= t;
+      mg.add(svSurface(m.world && live ? m.name : m.name, 'Barren rock', mr, t));
+      return { m, k, mg, mr, orbit };
+    });
+    S3.bodies.push({ p, pi, grp, spin, rad, moons });
+  });
+  svFeatures(true);
+  if (reset) {
+    S3.focus = null; S3.fly = null;
+    const R = svR(sv.planets[sv.planets.length - 1].a) * PILLAI;
+    S3.ctl.target.set(0, 0, 0); S3.cam.position.set(0, R * 0.62, R * 1.25); S3.ctl.update();
+  }
+}
+// stations, yards, starforts, tethers, mirrors, Custos and monoliths for the year shown
+function svFeatures(force) {
+  const t = year + 0.999;
+  if (!force && S3.featYear === year) return;
+  S3.featYear = year;
+  if (S3.feat) { for (const f of S3.feat) { f.obj.parent && f.obj.parent.remove(f.obj); disposeTree(f.obj); } }
+  S3.feat = [];
+  const list = ((data.features || {})[sv.sys.id] || []).filter((f) => t >= f.from && !(f.to && t >= f.to) && !(f.gap && t >= f.gap[0] && t < f.gap[1]));
+  const R = svR(sv.planets[sv.planets.length - 1].a) * PILLAI;
+  let pillaiK = 0;
+  const bodyAt = (at) => {
+    if (Array.isArray(at)) { const b = S3.bodies[at[0] - 1]; const mo = b && b.moons[at[1]]; return mo ? { grp: mo.mg, rad: mo.mr, spin: mo.mg } : null; }
+    const b = S3.bodies[at - 1]; return b ? { grp: b.grp, rad: b.rad, spin: b.spin, b } : null;
+  };
+  const dark = new THREE.MeshStandardMaterial({ color: 0x2a2526, emissive: 0x5a1010, emissiveIntensity: 0.6, roughness: 0.6, metalness: 0.4 });
+  const steel = new THREE.MeshStandardMaterial({ color: 0xc9d2dc, roughness: 0.4, metalness: 0.6, emissive: 0x223344, emissiveIntensity: 0.4 });
+  const hulkM = new THREE.MeshStandardMaterial({ color: 0x6d655f, roughness: 0.9, metalness: 0.2 });
+  for (const f of list) {
+    const host = f.at === 'pillai' ? null : bodyAt(f.at);
+    let obj = new THREE.Group(), anchor = null;
+    if (f.at === 'pillai' || !host) {
+      const a = 0.6 + pillaiK++ * 0.55; obj.position.set(Math.cos(a) * R, 0, Math.sin(a) * R); S3.root.add(obj); anchor = obj;
+    } else (f.kind === 'tether' ? host.spin : host.grp).add(obj);
+    const rad = host ? host.rad : 0.15;
+    if (f.kind === 'tether') {
+      const dir = latLon(THREE, 0, f.lon || 0, 1), len = rad * 1.9;
+      const g = new THREE.BufferGeometry().setFromPoints([dir.clone().multiplyScalar(rad), dir.clone().multiplyScalar(rad + len)]);
+      obj.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0xe8eef6, transparent: true, opacity: 0.85 })));
+      const cw = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), steel); cw.scale.setScalar(rad * 0.08); cw.position.copy(dir.clone().multiplyScalar(rad + len)); obj.add(cw);
+      anchor = cw;
+    } else if (f.kind === 'mirrors') {
+      const prog = Math.min(1, (t - f.from) / Math.max(0.5, (f.build || f.from + 1) - f.from)), n = Math.round(30 + 170 * prog), pts = [], r = seeded(f.name);
+      for (let k = 0; k < n; k++) {
+        if (f.pole) { const a = r() * 6.283, d = Math.sqrt(r()) * rad * 0.75; pts.push(Math.cos(a) * d, f.pole * rad * 1.7, Math.sin(a) * d); }
+        else { const a = r() * 6.283, d = rad * (1.95 + r() * 0.15); pts.push(Math.cos(a) * d, (r() - 0.5) * rad * 0.08, Math.sin(a) * d); }
+      }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+      obj.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffe9b8, size: rad * 0.032, sizeAttenuation: true, transparent: true, opacity: 0.9 })));
+      anchor = new THREE.Object3D(); anchor.position.set(0, f.pole ? f.pole * rad * 1.7 : 0, f.pole ? 0 : rad * 2); obj.add(anchor);
+    } else if (f.kind === 'custos') {
+      const st = new THREE.Mesh(new THREE.OctahedronGeometry(rad * 0.12), steel); obj.add(st); obj.userData.custos = { st, rad, on: t >= (f.on || f.from) };
+      if (t >= (f.on || f.from)) {
+        const tail = new THREE.Mesh(new THREE.ConeGeometry(rad * 1.2, rad * 6, 40, 1, true), new THREE.MeshBasicMaterial({ color: 0x7fb2ff, transparent: true, opacity: 0.022, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
+        obj.userData.tail = tail; obj.add(tail);
+      }
+      anchor = st;
+    } else if (f.kind === 'fleet' || f.kind === 'hulk') {
+      const n = Math.min(f.n || 4, 48), r = seeded(f.name + f.from);
+      for (let k = 0; k < n; k++) {
+        const m = f.kind === 'fleet' ? new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 1), dark) : new THREE.Mesh(new THREE.IcosahedronGeometry(0.5, 0), hulkM);
+        const sz = f.kind === 'fleet' ? 0.05 : 0.03 * (0.6 + r());
+        m.scale.multiplyScalar(sz);
+        const a = r() * 6.283, d = (host ? rad * 2.6 : 0.35) * (0.7 + r() * 0.6);
+        m.position.set(Math.cos(a) * d, (r() - 0.5) * 0.12, Math.sin(a) * d); m.rotation.set(r(), r() * 6, r());
+        obj.add(m);
+      }
+      anchor = obj;
+    } else {
+      const geo = f.kind === 'starfort' ? new THREE.OctahedronGeometry(1) : f.kind === 'yard' ? new THREE.BoxGeometry(1.6, 0.4, 0.8) : new THREE.TorusGeometry(1, 0.28, 8, 24);
+      const m = new THREE.Mesh(geo, steel); m.scale.setScalar(host ? rad * 0.12 : 0.05);
+      if (host) m.position.set(rad * 1.6, rad * 0.2, 0);
+      obj.add(m); anchor = m;
+    }
+    S3.feat.push({ f, obj, anchor: anchor || obj, host });
+  }
+}
+// fly the camera to a body (or back to the whole system)
+function svFocus(key, instant) {
+  if (!S3.ctl) return;
+  S3.focus = key;
+  const R = svR(sv.planets[sv.planets.length - 1].a) * PILLAI;
+  const b = key ? bodyKeyRad(key) : null;
+  const toDist = b ? Math.max(0.25, b.rad * 9) : R * 1.4;
+  S3.fly = { t0: performance.now(), d: instant ? 1 : 1100, from: S3.cam.position.distanceTo(S3.ctl.target), to: toDist, fromT: S3.ctl.target.clone() };
+}
+function bodyKeyRad(key) {
+  const [pi, mi] = String(key).split('.').map(Number), b = S3.bodies[pi];
+  if (!b) return null;
+  if (mi === undefined || Number.isNaN(mi)) return { obj: b.grp, rad: b.rad };
+  const m = b.moons[mi]; return m ? { obj: m.mg, rad: m.mr } : null;
+}
+const V3 = new THREE.Vector3(), V4 = new THREE.Vector3();
+function drawSystem(dt) {
+  if (!sv.sys || !S3.r) return;
+  const wrap = $('#sv-map'), w = wrap.clientWidth, h = wrap.clientHeight; if (!w) return;
+  if (S3.r.domElement.width !== Math.round(w * S3.r.getPixelRatio())) { S3.r.setSize(w, h, false); S3.cam.aspect = w / h; S3.cam.updateProjectionMatrix(); }
+  if (S3.year !== year) { S3.year = year; svBuild(false); }
+  svFeatures(false);
+  sv.t += dt / 1000 * sv.speed;
+  const t = year + 0.999;
+  for (const b of S3.bodies) {
+    const R = svR(b.p.a), ang = b.p.ph + sv.t * 0.6 / Math.pow(b.p.a, 1.5);
+    b.grp.position.set(Math.cos(ang) * R, 0, Math.sin(ang) * R);
+    b.spin.rotation.y += dt / 1000 * 0.15;
+    for (const mo of b.moons) {
+      const a2 = mo.m.ph + sv.t * 2.2 / (1 + mo.k * 0.6);
+      mo.mg.position.set(Math.cos(a2) * mo.orbit, Math.sin(a2) * mo.orbit * 0.12, Math.sin(a2) * mo.orbit);
+    }
+  }
+  S3.root.updateMatrixWorld(true);
+  for (const g of S3.globes) {
+    g.g.getWorldPosition(V3);
+    if (g.g.userData.sun) g.g.userData.sun.copy(V3).negate().normalize();
+  }
+  for (const f of S3.feat || []) {
+    if (f.f.kind === 'custos' && f.host) {
+      f.host.grp.getWorldPosition(V3); const dir = V3.clone().negate().normalize();
+      f.obj.position.copy(dir.clone().multiplyScalar(f.host.rad * 4.2));
+      if (f.obj.userData.tail) { const tail = f.obj.userData.tail; tail.position.copy(dir.clone().multiplyScalar(-f.host.rad * 4.2 - f.host.rad * 2.5)); tail.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); }
+    }
+  }
+  // follow the focused body, and ease the camera's distance when flying
+  if (S3.focus) { const b = bodyKeyRad(S3.focus); if (b) { b.obj.getWorldPosition(V3); V4.copy(V3).sub(S3.ctl.target); S3.ctl.target.add(V4); S3.cam.position.add(V4); } }
+  if (S3.fly) {
+    const k = Math.min(1, (performance.now() - S3.fly.t0) / S3.fly.d), e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    if (!S3.focus) S3.ctl.target.lerpVectors(S3.fly.fromT, V4.set(0, 0, 0), e);
+    const dir = V3.copy(S3.cam.position).sub(S3.ctl.target).normalize();
+    S3.cam.position.copy(S3.ctl.target).addScaledVector(dir, S3.fly.from + (S3.fly.to - S3.fly.from) * e);
+    if (k >= 1) S3.fly = null;
+  }
+  S3.ctl.update();
+  S3.r.render(S3.scene, S3.cam);
+  // labels, poster style, in the SVG over the canvas
+  const svg = $('#sv-svg'), hits = [], burnedList = burnedAt(sv.sys.id, t), names = !wrap.classList.contains('nonames');
+  const proj = (o) => { o.getWorldPosition(V3); const d = V3.distanceTo(S3.cam.position); V3.project(S3.cam); return { x: (V3.x + 1) / 2 * w, y: (1 - V3.y) / 2 * h, ok: V3.z < 1, d }; };
+  const pxR = (rad, d) => rad / (d * Math.tan(S3.cam.fov * Math.PI / 360)) * h / 2;
+  let out = '';
+  const queue = [];
+  const R0 = svR(sv.planets[sv.planets.length - 1].a) * PILLAI;
+  { V3.set(0, 0, -R0); const d = V3.distanceTo(S3.cam.position); V3.project(S3.cam); if (V3.z < 1 && names && d < 60) out += '<text class="lbl sb" x="' + ((V3.x + 1) / 2 * w) + '" y="' + ((1 - V3.y) / 2 * h - 8) + '" text-anchor="middle" font-size="10" letter-spacing="2" fill="#C9D6E5">PILLAI RADIUS · JUMP LIMIT</text>'; }
+  { V3.set(0, 0, 0); V3.project(S3.cam); if (V3.z < 1 && names) out += '<text class="lbl nm" x="' + ((V3.x + 1) / 2 * w + 14) + '" y="' + ((1 - V3.y) / 2 * h - 16) + '" font-size="15">' + esc(sv.sys.name) + '</text>'; }
+  const order = S3.bodies.map((b) => ({ b, s: proj(b.grp) })).sort((a, c) => c.s.d - a.s.d);
+  for (const { b, s } of order) {
+    if (!s.ok) continue;
+    const p = b.p, pi = b.pi, pr = Math.max(3, pxR(b.rad, s.d));
+    const settled = p.world && (p.settled === undefined || p.settled <= t);
+    const burnP = settled && burnedList.find((x) => x.name === p.world);
+    hits.push({ key: String(pi), x: s.x, y: s.y, r: Math.max(14, pr + 6) });
+    if (sv.pick === String(pi)) out += '<circle cx="' + s.x + '" cy="' + s.y + '" r="' + (pr + 9) + '" fill="none" stroke="#F2C14E" stroke-width="1.5" stroke-dasharray="3 3"/>';
+    if (settled) out += '<circle cx="' + s.x + '" cy="' + s.y + '" r="' + (pr + 4) + '" fill="none" stroke="#fff" stroke-opacity=".7"/>';
+    const near = s.d < b.rad * 40;
+    b.moons.forEach((mo, k) => {
+      const ms = proj(mo.mg); if (!ms.ok) return;
+      const mr = Math.max(2.5, pxR(mo.mr, ms.d));
+      hits.push({ key: pi + '.' + k, x: ms.x, y: ms.y, r: Math.max(8, mr + 4) });
+      if (sv.pick === pi + '.' + k) out += '<circle cx="' + ms.x + '" cy="' + ms.y + '" r="' + (mr + 6) + '" fill="none" stroke="#F2C14E" stroke-width="1.5" stroke-dasharray="3 3"/>';
+      const live = mo.m.world && (mo.m.settled === undefined || mo.m.settled <= t);
+      if (names && (near || live) && (near || sv.pick === String(pi) || live)) {
+        const burnM = live && burnedList.find((x) => x.name === mo.m.name);
+        if (near || live) {
+          const mf = live ? flagsAt(mo.m.name, t) : [];
+          let html = '<g class="lbl"><text x="' + (ms.x + mr + 5) + '" y="' + (ms.y + 4) + '"><tspan class="nm" data-b="' + pi + '.' + k + '" style="cursor:pointer" font-size="11">' + esc(mo.m.name) + '</tspan>' + (burnM ? '<tspan class="sb" font-size="10"> · burned ' + Math.floor(burnM.y) + '</tspan>' : '') + '</text>';
+          if (mf.length) html += flagRow(mf, ms.x + mr + 10 + mo.m.name.length * 7.6, ms.y - 5, 9);
+          html += '</g>';
+          const box = [ms.x + mr + 4, ms.y - 8, ms.x + mr + 8 + mo.m.name.length * 7.6 + mf.length * 16, ms.y + 6];
+          queue.push({ pri: (sv.pick === pi + '.' + k ? 9 : 0) + (live ? 2 : 1), box, html, hit: { key: pi + '.' + k, box } });
+        }
       }
     });
-    moonLines.forEach((ln, k) => {
-      const lx = x + p.size + 16 + p.moons.length * 7, ly = y + 4 + k * 15;
-      out += '<text class="lbl" x="' + lx + '" y="' + ly + '">' + ln + '</text>';
-      const mf = flagsAt(moonNames[k], t);
-      if (mf.length) out += '<g class="lbl">' + flagRow(mf, lx + moonNames[k].length * 8.4 + 48, ly - 9, 9) + '</g>';
-      if (!$('#sv-map').classList.contains('nonames')) hits.push({ key: pi + '.' + k, box: [lx, ly - 12, lx + p.moons[k].name.length * 8.5, ly + 3] });
-    });
+    if (!names) continue;
     const label = settled ? p.world : p.name;
     const bio = settled && biomeAt(worldByName(sv.sys.id, p.world), t);
     const sub = burnP ? 'Burned ' + Math.floor(burnP.y) : bio || p.type;
-    const lift = sv.planets.indexOf(p) % 2 ? 22 : 0;
-    if (!$('#sv-map').classList.contains('nonames')) hits.push({ key: String(pi), box: [x + 4, y - p.size - 38 - lift, x + 8 + label.length * (settled ? 11 : 9), y - p.size - 4 - lift] });
-    out += '<g class="lbl"><line x1="' + x + '" y1="' + (y - p.size - 2) + '" x2="' + x + '" y2="' + (y - p.size - 30 - lift) + '" stroke="#fff" stroke-width="1"/>' +
-      '<text class="nm" data-b="' + pi + '" style="cursor:pointer" x="' + (x + 6) + '" y="' + (y - p.size - 22 - lift) + '" font-size="' + (settled ? 17 : 13) + '">' + esc(label) + '</text>' +
-      '<text class="sb" x="' + (x + 6) + '" y="' + (y - p.size - 8 - lift) + '">' + esc(ROMAN[sv.planets.indexOf(p)] + ' · ' + sub) + '</text></g>';
     const pf = settled ? flagsAt(p.world, t) : [];
-    if (pf.length) out += '<g class="lbl">' + flagRow(pf, x + 12 + label.length * 9.6, y - p.size - 35 - lift - (pf.length > 6 ? 15 : 0), 12) + '</g>';
+    const subW = (ROMAN[pi] + ' · ' + sub).length * 6;
+    const mk = (ly, below) => {
+      const y0 = below ? s.y + pr + 2 : s.y - pr - 2, y1 = below ? ly - 15 : ly - 8;
+      const box = [s.x + 4, ly - 16, s.x + 8 + Math.max(label.length * (settled ? 11 : 9) + pf.length * 20, subW), ly + 18];
+      let html = '<g class="lbl"><line x1="' + s.x + '" y1="' + y0 + '" x2="' + s.x + '" y2="' + y1 + '" stroke="#fff" stroke-width="1"/>' +
+        '<text class="nm" data-b="' + pi + '" style="cursor:pointer" x="' + (s.x + 6) + '" y="' + ly + '" font-size="' + (settled ? 17 : 13) + '">' + esc(label) + '</text>' +
+        '<text class="sb" x="' + (s.x + 6) + '" y="' + (ly + 14) + '">' + esc(ROMAN[pi] + ' · ' + sub) + '</text></g>';
+      if (pf.length) html += '<g class="lbl">' + flagRow(pf, s.x + 12 + label.length * 9.6, ly - 13 - (pf.length > 6 ? 15 : 0), 12) + '</g>';
+      return { box, html, hit: { key: String(pi), box: [s.x + 4, ly - 16, s.x + 8 + label.length * (settled ? 11 : 9), ly + 2] } };
+    };
+    const up = s.y - pr - 22;
+    queue.push({ pri: (sv.pick === String(pi) ? 9 : 0) + (settled ? 5 : 3), alts: [mk(up, false), mk(up - 34, false), mk(s.y + pr + 30, true), mk(up - 68, false)] });
+  }
+  // feature labels: always for the Pillai radius's starforts and fleets, near bodies when zoomed in
+  if (names) for (const f of S3.feat || []) {
+    const s = proj(f.anchor); if (!s.ok) continue;
+    const close = !f.host || s.d < (f.host.rad || 0.2) * 30;
+    if (!close) continue;
+    const n = f.f.n && (f.f.kind === 'fleet' || f.f.kind === 'hulk') ? ' · ' + f.f.n + (f.f.kind === 'fleet' ? ' monoliths' : ' hulks') : '';
+    const txt = f.f.name + n;
+    queue.push({ pri: 0.5, box: [s.x + 6, s.y - 7, s.x + 8 + txt.length * 5.8, s.y + 6], html: '<g class="lbl"><text class="sb ft ft-' + f.f.kind + '" x="' + (s.x + 7) + '" y="' + (s.y + 4) + '" font-size="10.5">' + esc(txt) + '</text></g>' });
+  }
+  // place labels by priority; a label that would overlap one already placed is left out
+  const placed = [];
+  queue.sort((a, b) => b.pri - a.pri);
+  for (const q of queue) {
+    const c = (q.alts || [q]).find((a) => !placed.some((b) => a.box[0] < b[2] && a.box[2] > b[0] && a.box[1] < b[3] && a.box[3] > b[1]));
+    if (!c) continue;
+    placed.push(c.box); out += c.html; if (c.hit) hits.push(c.hit);
   }
   svg.innerHTML = out;
-  sv.hits = hits.reverse();   // labels and nearer bodies first
+  sv.hits = hits.reverse();
 }
 
 // ------------------------------------------------------------------ hash state
@@ -1019,7 +1284,7 @@ function writeHash() {
     const q = new URLSearchParams();
     q.set('year', year);
     if (selected) q.set('sys', selected.id);
-    if (sv.sys && !$('#sysview').hidden) q.set('view', 'system');
+    if (sv.sys && !$('#sysview').hidden) { q.set('view', 'system'); if (sv.pick) q.set('body', sv.pick); }
     window.history.replaceState(null, '', '#' + q.toString());
   }, 250);
 }
@@ -1089,6 +1354,9 @@ applyYear();
 drawTimeline();
 if (fromHash.get('sys') && byId[fromHash.get('sys')]) {
   select(fromHash.get('sys'), true);
-  if (fromHash.get('view') === 'system') openSystem(fromHash.get('sys'));
+  if (fromHash.get('view') === 'system') {
+    openSystem(fromHash.get('sys'));
+    if (fromHash.get('body')) { sv.pick = fromHash.get('body'); svFocus(sv.pick, true); renderSystemInfo(); }
+  }
 }
 requestAnimationFrame(frame);

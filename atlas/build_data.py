@@ -93,13 +93,16 @@ EXTRA = {
     'mardak': [('Ithren', 50, 14), ('Varrow', 57, 18), ("Calder's Reach", 63, 10), ('Ommen', 52, 4),
                ('Teluvar', 60, 1), ('Saskel', 66, -5), ('Nadir', 49, -6), ('Halloran', 56, -10),
                ('Wend', 63, -17), ('Isolde', 51, -19), ('Peregrine', 58, -24), ('Lastlight', 66, -26)],
+    # The four far peoples beyond the Ka-Dur, met by the Repatriation Authority in the 2460s
+    # (book 15.x): the Ossathi, the Veren, the Kal-Tam and the Dur-Esh. Star names invented.
+    'far': [('Ossa Theran', -138, -60), ('Verentis', -141, -71), ('Kal Tamar', -134, -79), ('Dur Eshen', -147, -66)],
 }
 for region, lst in EXTRA.items():
     if region == 'rubin':
         rng.random(); rng.random()    # the retired Sethen's March's draws, so later stars keep their depth
     for name, x, y in lst:
         s = {'id': slug(name), 'name': name, 'x': float(x), 'y': float(y), 'z': round(rng.uniform(-3.5, 3.5), 2),
-             'stars': 1 + (1 if rng.random() < 0.2 else 0), 'region2235': region, 'invented': True}
+             'stars': 1 + (1 if rng.random() < 0.2 else 0), 'region2235': 'none' if region == 'far' else region, 'invented': True}
         systems.append(s); by[s['id']] = s
 
 # ------------------------------------------------------------------ Lewis's colony sheet
@@ -461,6 +464,92 @@ for sid, w, y, sl, pl in [
     if w == 'Nomotar': d['biome'] = 'Barren world'
     if w == 'Talandra': d['biome'] = 'Dry temperate world'
     worlds.append(d)
+# ------------------------------------------------------------------ the other peoples' worlds
+# The book gives the Maweer "perhaps forty systems" of tended worlds, the Dwaii three worlds and
+# the Ka-Dur six systems, and names none of their worlds but Ossath. Everything here is invented
+# (Lewis's choices, 18 November 2026): Maweer core systems hold one to four tended worlds and the
+# frontier one or two, some visibly engineered, some kept wild, the frontier ones still being
+# made; the Dwaii's are cold mountain worlds; the Ka-Dur's are varied round a sakura homeworld.
+# 'gen' tells the planet generator what to draw.
+arng = random.Random(1857)
+MW_ON = ['Th', 'S', 'V', 'M', 'L', 'R', 'N', 'Qu', 'Ph', 'H', 'Sh', 'T', 'K', 'Ael', 'Or', 'Il']
+MW_NU = ['aa', 'a', 'e', 'i', 'o', 'u', 'ae', 'ue', 'ou', 'ia', 'ee']
+MW_MID = ['l', 'r', 'n', 'v', 'th', 'm', 's', 'ss', 'll', 'rr']
+MW_CO = ['n', 'r', 'th', 'l', 's', '', '', 'm']
+MW_USED = set()
+def maweer_name():
+    while True:
+        on = arng.choice(MW_ON)
+        nu = arng.choice(MW_NU) if on[-1] not in 'aeiou' and on not in ('Ael', 'Or', 'Il') else arng.choice(['a', 'e', 'i', 'o'])
+        n = on + nu + arng.choice(MW_MID) + arng.choice(['a', 'e', 'i', 'o', 'u', 'aa', 'ue', 'ia'])
+        if arng.random() < 0.35: n += arng.choice(MW_MID[:7]) + arng.choice(['a', 'e', 'i', 'o', 'u'])
+        n += arng.choice(MW_CO)
+        if 5 <= len(n) <= 10 and n not in MW_USED and not re.search(r'([aeiou])\1\1|[aeiou]{3}', n):
+            MW_USED.add(n); return n
+MW_LUSH = ['forest', 'megaflora', 'tepid', 'cascadian', 'lake', 'verdant', 'silvergrass', 'thunderstorm', 'mediterranean', 'prairie', 'boreal', 'archipelago']
+MW_BARE = ['ochre', 'colddesert', 'regolith', 'ironsand', 'basalt']
+maweer_sys = [x for x in systems if x['region2235'] == 'maweer']
+march_ids = {sid for sid in own if any(e['p'] == 'khanate' for e in own[sid])}
+MAWEER_BURNED = 'ovastiuum'
+for x in sorted(maweer_sys, key=lambda x: x['id']):
+    frontier = x['id'] in march_ids
+    n = arng.randint(1, 2) if frontier else arng.randint(1, 4)
+    pls = sorted(arng.sample(range(2, 7), n))
+    for k, pl in enumerate(pls):
+        home = x['id'] == 'maweer' and k == 0
+        name = 'Thaaluun' if home else maweer_name()
+        if home: MW_USED.add(name)
+        d = {'sys': x['id'], 'name': name, 'settled': 1800, 'native': True, 'pl': pl, 'moon': False, 'people': 'Maweer', 'invented': True}
+        if frontier:
+            d['biome'] = 'Garden world in the making'
+            d['gen'] = {'now': arng.choice(MW_BARE), 'after': arng.choice(MW_LUSH), 'cls': 'maweer', 'style': 'frontier',
+                        'start': arng.randint(2300, 2400), 'ty': arng.randint(2470, 2560)}
+        else:
+            style = 'engineered' if (home or arng.random() < 0.5) else 'wild'
+            d['biome'] = 'Engineered garden world' if style == 'engineered' else 'Wild garden world'
+            d['gen'] = {'now': 'verdant' if home else arng.choice(MW_LUSH), 'after': None, 'cls': 'maweer', 'style': style}
+        if home: d['capital'] = 'Ouvenarth'; d['homeworld'] = True
+        worlds.append(d)
+mb = [w for w in worlds if w['sys'] == MAWEER_BURNED][0]
+BURNED_EXTRA = [(MAWEER_BURNED, mb['name'], ym(2416, 8))]
+ALIEN = [
+    ('dwaimar', 'Dwaimar', 3, 'Dwaii', 'Alpine tundra world', 'tundra-alpine', True),
+    ('hwen', 'Hwen', 2, 'Dwaii', 'Fjord world', 'dwaii-fjord', False),
+    ('ellui', 'Ellui', 3, 'Dwaii', 'Highland tundra world', 'dwaii-tundra', False),
+    ('kadris', 'Kadris', 3, 'Ka-Dur', 'Sakura world', 'sakura', True),
+    ('ossath', 'Ossath', 2, 'Ka-Dur', 'Archipelago world', 'archipelago', False),
+    ('tamuur', 'Tamuur', 3, 'Ka-Dur', 'Prairie world', 'prairie', False),
+    ('dhur-ka', 'Dhur Ka', 2, 'Ka-Dur', 'Mesa world', 'mesa', False),
+    ('sarrek', 'Sarrek', 4, 'Ka-Dur', 'Swamp world', 'swamp', False),
+    ('imbal', 'Imbal', 3, 'Ka-Dur', 'Mediterranean world', 'mediterranean', False),
+    ('ossa-theran', 'Ossath Ul', 3, 'Ossathi', 'Jungle world', 'forest', True),
+    ('verentis', 'Veren', 2, 'Veren', 'Savanna world', 'semiarid', True),
+    ('kal-tamar', 'Kal-Tam', 3, 'Kal-Tam', 'Desert world', 'mesa-terra', True),
+    ('dur-eshen', 'Dur-Esh', 2, 'Dur-Esh', 'Ocean world', 'reef', True),
+]
+for sid, name, pl, people, biome, gtype, home in ALIEN:
+    d = {'sys': sid, 'name': name, 'settled': 1800, 'native': True, 'pl': pl, 'moon': False, 'people': people,
+         'biome': biome, 'invented': True, 'gen': {'now': gtype, 'after': None, 'cls': 'alien' if people in ('Dwaii', 'Ka-Dur') else 'alien-minor'}}
+    if home: d['homeworld'] = True
+    worlds.append(d)
+
+# Fevarian space has no living worlds of the clans' own: they live aboard the monoliths and hulks.
+# What the Veil and the freeholds do have: worlds the clans have stripped for metal, dead worlds
+# with golden-age ruins, and one shattered world the Voor take for the clans' lost homeworld.
+# Bodies are planets of note, not settled worlds; unnamed ones carry the system's numeral.
+ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
+BODIES = {}
+def body(sid, pl, kind, now, note):
+    nm = by[sid]['name'] + ' ' + ROMAN[pl]
+    BODIES.setdefault(sid, []).append({'pl': pl, 'name': nm, 'kind': kind, 'type': {'stripped': 'Stripped world', 'ruins': 'Ruin world', 'shattered': 'Shattered world'}[kind],
+                                       'note': note, 'gen': {'now': now, 'after': None, 'cls': 'dead', 'special': kind}, 'invented': True})
+for sid, pl, now in [('kasht', 2, 'ironsand'), ('vharr', 3, 'basalt'), ('drek-hul', 2, 'ochre'), ('ossek', 4, 'ironsand'),
+                     ('churassix', 3, 'basalt'), ('barban', 2, 'ochre'), ('maasym', 4, 'ironsand'), ('rhen-tal', 3, 'colddesert')]:
+    body(sid, pl, 'stripped', now, 'Mined to the mantle by the clans for metal')
+for sid, pl, now in [('ashan-dur', 3, 'ochre'), ('thul-ashra', 2, 'colddesert'), ('fevallion', 3, 'ochre')]:
+    body(sid, pl, 'ruins', now, 'Dead world with ruins of the Fevarian golden age')
+body('dhen-ossa', 4, 'shattered', 'obsidian', 'Shattered world; the Voor hold it to be the Fevarians\' lost homeworld')
+
 # Terraforming. A world keeps its found biome until its remaking is complete. The book dates
 # Mars (the Marineris Tent lifted, 14 April 2182); the rest are estimated: worlds that were
 # already living take about 60 years, the Second Wave's century plans about 100, the Third
@@ -487,6 +576,73 @@ BURNED = [('procyon', 'Landfall', ym(2441, 11, 26)), ('yildun', 'Dauntless', ym(
           ('nomotar', 'Nomotar', ym(2438, 8, 20)), ('talandra', 'Talandra', ym(2441, 5, 10)),
           ('haedus', 'Indata Mog', ym(2428, 11, 6)), ('ijax', 'Ijax', ym(2433, 6)),
           ('ciriban', 'Bounty', ym(2430, 5, 18))]
+
+
+# ------------------------------------------------------------------ system view features
+# Stations, yards, starforts, tethers, Mars's mirrors and Custos, and the Fevarian monoliths,
+# by year, for the 3D system view. 'at' is a planet number (or [planet, moon]), 'pillai' for the
+# system's jump limit, or 'l1' for a planet's sun-side Lagrange point. Dates from the book where
+# it gives them; the rest are estimates.
+FEATURES = {
+    'sol': [
+        {'name': 'Kitty Hawk Station', 'kind': 'station', 'at': 3, 'from': 2047},
+        {'name': 'Swarga tether', 'kind': 'tether', 'at': 3, 'lon': 73, 'from': 2078},
+        {'name': 'Quito tether', 'kind': 'tether', 'at': 3, 'lon': -78, 'from': 2095, 'gap': [2446.7, 2470]},
+        {'name': 'Singapore tether', 'kind': 'tether', 'at': 3, 'lon': 104, 'from': 2102, 'gap': [2446.7, 2470]},
+        {'name': 'Fortaleza tether', 'kind': 'tether', 'at': 3, 'lon': -38, 'from': 2110, 'gap': [2446.7, 2470]},
+        {'name': 'Nairobi tether', 'kind': 'tether', 'at': 3, 'lon': 37, 'from': 2130},
+        {'name': 'Tarawa tether', 'kind': 'tether', 'at': 3, 'lon': 173, 'from': 2150},
+        {'name': 'Xi Lunar Yards', 'kind': 'yard', 'at': [3, 0], 'from': 2290, 'gap': [2446.8, 2474]},
+        {'name': 'Helios array', 'kind': 'mirrors', 'at': 4, 'pole': 1, 'from': 2088, 'build': 2096, 'to': 2446.7},
+        {'name': 'Lumen array', 'kind': 'mirrors', 'at': 4, 'pole': -1, 'from': 2100, 'build': 2104, 'to': 2446.7},
+        {'name': 'Concordia array', 'kind': 'mirrors', 'at': 4, 'pole': 0, 'from': 2118, 'build': 2128, 'to': 2446.7},
+        {'name': 'Mars mirror array', 'kind': 'mirrors', 'at': 4, 'pole': 0, 'from': 2465, 'build': 2485},
+        {'name': 'Custos Station', 'kind': 'custos', 'at': 4, 'from': 2112, 'on': 2114},
+        {'name': 'Melas tether', 'kind': 'tether', 'at': 4, 'lon': -71, 'from': 2160, 'gap': [2446.7, 2470]},
+        {'name': 'New Rhine tether', 'kind': 'tether', 'at': [5, 1], 'lon': -94, 'from': 2150},
+        {'name': 'Da Gama tether', 'kind': 'tether', 'at': [5, 1], 'lon': -40, 'from': 2159},
+        {'name': 'Tycho City tether', 'kind': 'tether', 'at': [5, 1], 'lon': -125, 'from': 2167},
+        {'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 5, 'from': 2446.25, 'to': 2446.6, 'n': 106},
+        {'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 3, 'from': 2446.6, 'to': 2447.03, 'n': 73},
+    ],
+    'ciriban': [
+        {'name': 'The Exchange', 'kind': 'station', 'at': 'pillai', 'from': 2320, 'to': 2360},
+        {'name': 'Delambre', 'kind': 'starfort', 'at': 'pillai', 'from': 2324, 'to': 2429},
+        {'name': 'Hellas Gate', 'kind': 'starfort', 'at': 'pillai', 'from': 2324, 'to': 2429},
+        {'name': 'Pauldron', 'kind': 'starfort', 'at': 'pillai', 'from': 2324, 'to': 2429},
+        {'name': 'Bijou Nan Syèl La', 'kind': 'station', 'at': 4, 'from': 2352, 'to': 2429.27},
+        {'name': 'Monolith anchorage', 'kind': 'fleet', 'at': 4, 'from': 2429.05, 'to': 2440.3, 'n': 40},
+    ],
+    'nomotar': [{'name': n, 'kind': 'starfort', 'at': 'pillai', 'from': 2322, 'to': 2438.6} for n in ('Tethers', 'Manila', 'Chasma')] +
+               [{'name': 'Northern station', 'kind': 'station', 'at': 3, 'from': 2321, 'to': 2438.6}],
+    'saolea': [{'name': 'Rhine', 'kind': 'starfort', 'at': 'pillai', 'from': 2327, 'to': 2436.7},
+               {'name': 'Io', 'kind': 'starfort', 'at': 'pillai', 'from': 2329, 'to': 2436.7},
+               {'name': 'Hoplonka orbital', 'kind': 'station', 'at': 1, 'from': 2331, 'to': 2436.7}],
+    'haedus': [{'name': 'Naval Station Paldron', 'kind': 'starfort', 'at': 'pillai', 'from': 2424, 'to': 2428.68},
+               {'name': 'Naval Station Paldron', 'kind': 'starfort', 'at': 'pillai', 'from': 2453},
+               {'name': 'Monolith anchorage', 'kind': 'fleet', 'at': 3, 'from': 2428.6, 'to': 2451.4, 'n': 20},
+               {'name': 'D\'Mareth hulk', 'kind': 'hulk', 'at': 'pillai', 'from': 2474}],
+    'exedor': [{'name': 'Hiverion yards', 'kind': 'yard', 'at': 2, 'from': 1500, 'to': 2427.6},
+               {'name': 'Monolith anchorage', 'kind': 'fleet', 'at': 2, 'from': 2427.6, 'to': 2451.7, 'n': 30}],
+    'talandra': [{'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 2, 'from': 2441.3, 'to': 2441.5, 'n': 210},
+                 {'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 2, 'from': 2449.4, 'to': 2449.47, 'n': 61}],
+    'alpha-centauri': [{'name': 'The Khan\'s seat', 'kind': 'fleet', 'at': 1, 'from': 2442.3, 'to': 2446.13, 'n': 51}],
+    'procyon': [{'name': 'Monolith anchorage', 'kind': 'fleet', 'at': 2, 'from': 2441.9, 'to': 2448.2, 'n': 12}],
+    'bashpit': [{'name': 'Monolith garrison', 'kind': 'fleet', 'at': 2, 'from': 2441, 'to': 2449.84, 'n': 3}],
+}
+for x in systems:
+    if x['region2235'] == 'veil':
+        FEATURES.setdefault(x['id'], []).append({'name': 'Clan anchorage', 'kind': 'hulk', 'at': 'pillai', 'from': 1300, 'n': 6})
+        FEATURES[x['id']].append({'name': 'Monoliths', 'kind': 'fleet', 'at': 'pillai', 'from': 1300, 'to': 2405, 'n': 4})
+        FEATURES[x['id']].append({'name': 'Monoliths', 'kind': 'fleet', 'at': 'pillai', 'from': 2449.5, 'n': 2})
+    if x['region2235'] == 'fevarian':
+        FEATURES.setdefault(x['id'], []).append({'name': 'Freehold anchorage', 'kind': 'fleet', 'at': 'pillai', 'from': 1300, 'to': 2454.5, 'n': 4})
+        FEATURES[x['id']].append({'name': 'Hulks', 'kind': 'hulk', 'at': 'pillai', 'from': 1300, 'n': 4})
+    if x['region2235'] in ('dwaii', 'kadur'):
+        to = 2456.7 if x['region2235'] == 'dwaii' else (2457.5 if x['id'] in KADUR_FREED else None)
+        f = {'name': 'Garrison monoliths', 'kind': 'fleet', 'at': 'pillai', 'from': 2408 if x['region2235'] == 'dwaii' else 2412, 'n': 2}
+        if to: f['to'] = to
+        FEATURES.setdefault(x['id'], []).append(f)
 
 # ------------------------------------------------------------------ events
 def ev(y, label, sys, kind='battle', slug=None):
@@ -601,7 +757,9 @@ data = {
     'systems': [{**s, 'own': own[s['id']]} for s in systems],
     'worlds': worlds,
     'planetNames': PLANET_NAMES,
-    'burned': [{'sys': a, 'name': b, 'y': c} for a, b, c in BURNED],
+    'burned': [{'sys': a, 'name': b, 'y': c} for a, b, c in BURNED + BURNED_EXTRA],
+    'bodies': BODIES,
+    'features': FEATURES,
     'events': sorted(EVENTS, key=lambda e: e['y']),
     'captions': [{'from': a, 'to': b, 'text': t} for a, b, t in CAPTIONS],
     'regions': [

@@ -226,3 +226,6 @@ a:hover{text-decoration-color:var(--white)}
 .pm-lbl.inv{fill:#e2d3fa}
 .pm-lbl.site{font-size:13px;font-style:italic;fill:#cfe0ff}
 .pm-lbl.site.inv{fill:#e2d3fa}
+.pg-years input[type=range]{flex:1;accent-color:#fff}
+.pg-years output{font-size:12px;min-width:3em;text-align:right}
+.pm-wrap .pm-next{position:absolute;left:0;top:0;width:100%;height:100%}
