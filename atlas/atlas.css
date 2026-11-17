@@ -141,3 +141,4 @@ img.sw.flagkey{width:16px;height:16px;border-radius:50%;vertical-align:-3px}
 .sv-map [data-b]:hover{fill:#F2C14E}
 .sv-map circle[data-b]:hover{fill:rgba(242,193,78,.12)}
 img.secflag{width:21px;height:14px;vertical-align:-2px;border-radius:0;margin-right:2px}
+.k a{color:inherit;text-decoration:underline dotted;text-underline-offset:3px}

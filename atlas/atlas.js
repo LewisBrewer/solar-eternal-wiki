@@ -468,6 +468,10 @@ function sectorFlag(name) {
   const sec = (data.sectors || []).find((x) => x.name === name);
   return sec && sec.flag ? '<img class="flagkey secflag" src="assets/flags/' + sec.flag + '" alt=""> ' : '';
 }
+function secLink(name) {
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return hasArticle(slug) ? '<a href="' + wikiHref(slug) + '">' + esc(name) + '</a>' : esc(name);
+}
 function regionOf(s) {
   const sec = (data.sectors || []).find((x) => x.members.includes(s.id));
   if (sec) return sec.name;
@@ -502,7 +506,7 @@ function renderSelected() {
   const wHtml = ws.length ? '<ul>' + ws.map((w) => '<li>' + (hasArticle(w.slug) ? '<a href="' + wikiHref(w.slug) + '">' + esc(w.name) + '</a>' : esc(w.name)) + (w.native ? '' : ', ' + Math.floor(w.settled)) + '</li>').join('') + '</ul>' : '';
   $('#selected').innerHTML =
     '<div class="hd"><button type="button" class="x" aria-label="Close">×</button>' +
-    '<span class="k">' + (reg ? sectorFlag(reg) + esc(reg) + ' // ' : '') + esc(o ? polName(o.p) : 'Unclaimed') + '</span>' +
+    '<span class="k">' + (reg ? sectorFlag(reg) + secLink(reg) + ' // ' : '') + esc(o ? polName(o.p) : 'Unclaimed') + '</span>' +
     '<h1>' + esc(s.name) + '</h1><span class="ds">' + esc(desc) + '</span></div>' +
     '<dl><dt>Held by</dt><dd>' + held + '</dd>' +
     (wHtml ? '<dt>Worlds</dt><dd>' + wHtml + '</dd>' : '') +
@@ -874,7 +878,7 @@ function renderSystemInfo() {
   const evs = data.events.filter((e) => e.sys === s.id);
   const hist = ownHistory(s).filter((h) => h.y > 1950);
   const dist = Math.hypot(s.x, s.y, s.z);
-  let html = '<div class="hd"><span class="k">' + esc(o ? polName(o.p) : 'Unclaimed') + '</span><h1>' + esc(s.name) + '</h1><span>Star system' + (reg ? ' · ' + esc(reg) : '') + '</span></div>';
+  let html = '<div class="hd"><span class="k">' + esc(o ? polName(o.p) : 'Unclaimed') + '</span><h1>' + esc(s.name) + '</h1><span>Star system' + (reg ? ' · ' + sectorFlag(reg) + secLink(reg) : '') + '</span></div>';
   const body = bodyFor(sv.pick);
   if (body) html += bodyInfo(body, t, o);
   html += sec('Observation data · epoch ' + year, [
