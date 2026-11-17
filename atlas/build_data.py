@@ -508,7 +508,7 @@ for x in sorted(maweer_sys, key=lambda x: x['id']):
             style = 'engineered' if (home or arng.random() < 0.5) else 'wild'
             d['biome'] = 'Engineered garden world' if style == 'engineered' else 'Wild garden world'
             d['gen'] = {'now': 'verdant' if home else arng.choice(MW_LUSH), 'after': None, 'cls': 'maweer', 'style': style}
-        if home: d['capital'] = 'Ouvenarth'; d['homeworld'] = True
+        if home: d['capital'] = 'Ouvenarth'; d['homeworld'] = True; d['slug'] = 'thaaluun'
         worlds.append(d)
 mb = [w for w in worlds if w['sys'] == MAWEER_BURNED][0]
 BURNED_EXTRA = [(MAWEER_BURNED, mb['name'], ym(2416, 8))]
@@ -531,6 +531,7 @@ for sid, name, pl, people, biome, gtype, home in ALIEN:
     d = {'sys': sid, 'name': name, 'settled': 1800, 'native': True, 'pl': pl, 'moon': False, 'people': people,
          'biome': biome, 'invented': True, 'gen': {'now': gtype, 'after': None, 'cls': 'alien' if people in ('Dwaii', 'Ka-Dur') else 'alien-minor'}}
     if home: d['homeworld'] = True
+    if name in ('Dwaimar', 'Kadris'): d['slug'] = slug(name); d['capital'] = {'Dwaimar': 'Dwaithom', 'Kadris': 'Imaruk'}[name]
     worlds.append(d)
 
 # Fevarian space has no living worlds of the clans' own: they live aboard the monoliths and hulks.
@@ -586,22 +587,26 @@ BURNED = [('procyon', 'Landfall', ym(2441, 11, 26)), ('yildun', 'Dauntless', ym(
 FEATURES = {
     'sol': [
         {'name': 'Kitty Hawk Station', 'kind': 'station', 'at': 3, 'from': 2047},
-        {'name': 'Swarga tether', 'kind': 'tether', 'at': 3, 'lon': 73, 'from': 2078},
-        {'name': 'Quito tether', 'kind': 'tether', 'at': 3, 'lon': -78, 'from': 2095, 'gap': [2446.7, 2470]},
-        {'name': 'Singapore tether', 'kind': 'tether', 'at': 3, 'lon': 104, 'from': 2102, 'gap': [2446.7, 2470]},
-        {'name': 'Fortaleza tether', 'kind': 'tether', 'at': 3, 'lon': -38, 'from': 2110, 'gap': [2446.7, 2470]},
-        {'name': 'Nairobi tether', 'kind': 'tether', 'at': 3, 'lon': 37, 'from': 2130},
-        {'name': 'Tarawa tether', 'kind': 'tether', 'at': 3, 'lon': 173, 'from': 2150},
+        # six on Earth, two on Mars and three on Europa before the Solar War; four stood at its end
+        # (Singapore, Melas, and Quito and Nairobi re-spun in 2231 and 2232); Swarga re-spun 2241
+        {'name': 'Swarga tether', 'kind': 'tether', 'at': 3, 'lon': 73, 'from': 2078, 'gaps': [[2226, 2241]]},
+        {'name': 'Quito tether', 'kind': 'tether', 'at': 3, 'lon': -78, 'from': 2095, 'gaps': [[2226, 2231], [2446.7, 2470]]},
+        {'name': 'Singapore tether', 'kind': 'tether', 'at': 3, 'lon': 104, 'from': 2102, 'gaps': [[2446.7, 2470]]},
+        {'name': 'Fortaleza tether', 'kind': 'tether', 'at': 3, 'lon': -38, 'from': 2110, 'gaps': [[2226, 2300], [2446.7, 2470]]},
+        {'name': 'Nairobi tether', 'kind': 'tether', 'at': 3, 'lon': 37, 'from': 2130, 'gaps': [[2226, 2232]]},
+        {'name': 'Tarawa tether', 'kind': 'tether', 'at': 3, 'lon': 173, 'from': 2150, 'gaps': [[2226, 2300]]},
         {'name': 'Xi Lunar Yards', 'kind': 'yard', 'at': [3, 0], 'from': 2290, 'gap': [2446.8, 2474]},
         {'name': 'Helios array', 'kind': 'mirrors', 'at': 4, 'pole': 1, 'from': 2088, 'build': 2096, 'to': 2446.7},
         {'name': 'Lumen array', 'kind': 'mirrors', 'at': 4, 'pole': -1, 'from': 2100, 'build': 2104, 'to': 2446.7},
         {'name': 'Concordia array', 'kind': 'mirrors', 'at': 4, 'pole': 0, 'from': 2118, 'build': 2128, 'to': 2446.7},
         {'name': 'Mars mirror array', 'kind': 'mirrors', 'at': 4, 'pole': 0, 'from': 2465, 'build': 2485},
         {'name': 'Custos Station', 'kind': 'custos', 'at': 4, 'from': 2112, 'on': 2114},
-        {'name': 'Melas tether', 'kind': 'tether', 'at': 4, 'lon': -71, 'from': 2160, 'gap': [2446.7, 2470]},
-        {'name': 'New Rhine tether', 'kind': 'tether', 'at': [5, 1], 'lon': -94, 'from': 2150},
-        {'name': 'Da Gama tether', 'kind': 'tether', 'at': [5, 1], 'lon': -40, 'from': 2159},
-        {'name': 'Tycho City tether', 'kind': 'tether', 'at': [5, 1], 'lon': -125, 'from': 2167},
+        {'name': 'Melas tether', 'kind': 'tether', 'at': 4, 'lon': -71, 'from': 2160, 'gaps': [[2446.7, 2470]]},
+        # the Pavonis tether on Tharsis: lost in the Martian Revolution, re-spun, its anchor broken by Clades Mons in September 2276
+        {'name': 'Pavonis tether', 'kind': 'tether', 'at': 4, 'lon': -113.4, 'from': 2170, 'gaps': [[2225.9, 2240], [2276.7, 2300], [2446.7, 2470]]},
+        {'name': 'New Rhine tether', 'kind': 'tether', 'at': [5, 1], 'lon': -94, 'from': 2150, 'gaps': [[2250, 2270]]},
+        {'name': 'Da Gama tether', 'kind': 'tether', 'at': [5, 1], 'lon': -40, 'from': 2159, 'gaps': [[2250, 2272]]},
+        {'name': 'Tycho City tether', 'kind': 'tether', 'at': [5, 1], 'lon': -125, 'from': 2167, 'gaps': [[2250, 2275]]},
         {'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 5, 'from': 2446.25, 'to': 2446.6, 'n': 106},
         {'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 3, 'from': 2446.6, 'to': 2447.03, 'n': 73},
     ],

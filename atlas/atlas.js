@@ -1085,7 +1085,7 @@ function svFeatures(force) {
   S3.featYear = year;
   if (S3.feat) { for (const f of S3.feat) { f.obj.parent && f.obj.parent.remove(f.obj); disposeTree(f.obj); } }
   S3.feat = [];
-  const list = ((data.features || {})[sv.sys.id] || []).filter((f) => t >= f.from && !(f.to && t >= f.to) && !(f.gap && t >= f.gap[0] && t < f.gap[1]));
+  const list = ((data.features || {})[sv.sys.id] || []).filter((f) => t >= f.from && !(f.to && t >= f.to) && !(f.gap && t >= f.gap[0] && t < f.gap[1]) && !(f.gaps || []).some((g) => t >= g[0] && t < g[1]));
   const R = svR(sv.planets[sv.planets.length - 1].a) * PILLAI;
   let pillaiK = 0;
   const bodyAt = (at) => {
@@ -1103,26 +1103,19 @@ function svFeatures(force) {
     } else (f.kind === 'tether' ? host.spin : host.grp).add(obj);
     const rad = host ? host.rad : 0.15;
     if (f.kind === 'tether') {
-      const dir = latLon(THREE, 0, f.lon || 0, 1), len = rad * 1.9;
+      const dir = latLon(THREE, 0, f.lon || 0, 1), len = rad * 0.75;
       const g = new THREE.BufferGeometry().setFromPoints([dir.clone().multiplyScalar(rad), dir.clone().multiplyScalar(rad + len)]);
       obj.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0xe8eef6, transparent: true, opacity: 0.85 })));
-      const cw = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), steel); cw.scale.setScalar(rad * 0.08); cw.position.copy(dir.clone().multiplyScalar(rad + len)); obj.add(cw);
+      const cw = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), steel); cw.scale.setScalar(rad * 0.05); cw.position.copy(dir.clone().multiplyScalar(rad + len)); obj.add(cw);
       anchor = cw;
     } else if (f.kind === 'mirrors') {
-      const prog = Math.min(1, (t - f.from) / Math.max(0.5, (f.build || f.from + 1) - f.from)), n = Math.round(30 + 170 * prog), pts = [], r = seeded(f.name);
-      for (let k = 0; k < n; k++) {
-        if (f.pole) { const a = r() * 6.283, d = Math.sqrt(r()) * rad * 0.75; pts.push(Math.cos(a) * d, f.pole * rad * 1.7, Math.sin(a) * d); }
-        else { const a = r() * 6.283, d = rad * (1.95 + r() * 0.15); pts.push(Math.cos(a) * d, (r() - 0.5) * rad * 0.08, Math.sin(a) * d); }
-      }
-      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-      obj.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffe9b8, size: rad * 0.032, sizeAttenuation: true, transparent: true, opacity: 0.9 })));
-      anchor = new THREE.Object3D(); anchor.position.set(0, f.pole ? f.pole * rad * 1.7 : 0, f.pole ? 0 : rad * 2); obj.add(anchor);
+      const m = new THREE.Mesh(new THREE.CircleGeometry(1, 24), new THREE.MeshBasicMaterial({ color: 0xffe9b8, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
+      m.scale.setScalar(rad * 0.09);
+      if (f.pole) { m.position.set(0, f.pole * rad * 1.45, 0); m.rotation.x = Math.PI / 2; }
+      else m.position.set(0, rad * 0.3, rad * 1.5);
+      obj.add(m); anchor = m;
     } else if (f.kind === 'custos') {
       const st = new THREE.Mesh(new THREE.OctahedronGeometry(rad * 0.12), steel); obj.add(st); obj.userData.custos = { st, rad, on: t >= (f.on || f.from) };
-      if (t >= (f.on || f.from)) {
-        const tail = new THREE.Mesh(new THREE.ConeGeometry(rad * 1.2, rad * 6, 40, 1, true), new THREE.MeshBasicMaterial({ color: 0x7fb2ff, transparent: true, opacity: 0.022, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending }));
-        obj.userData.tail = tail; obj.add(tail);
-      }
       anchor = st;
     } else if (f.kind === 'fleet' || f.kind === 'hulk') {
       const n = Math.min(f.n || 4, 48), r = seeded(f.name + f.from);
@@ -1186,7 +1179,6 @@ function drawSystem(dt) {
     if (f.f.kind === 'custos' && f.host) {
       f.host.grp.getWorldPosition(V3); const dir = V3.clone().negate().normalize();
       f.obj.position.copy(dir.clone().multiplyScalar(f.host.rad * 4.2));
-      if (f.obj.userData.tail) { const tail = f.obj.userData.tail; tail.position.copy(dir.clone().multiplyScalar(-f.host.rad * 4.2 - f.host.rad * 2.5)); tail.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir); }
     }
   }
   // follow the focused body, and ease the camera's distance when flying
