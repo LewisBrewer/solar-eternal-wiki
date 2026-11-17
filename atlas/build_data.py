@@ -633,6 +633,10 @@ for r in data['regions']:
 RUBIN = {slug(n) for n, *_ in EXTRA['rubin']}
 for sid in RUBIN:
     by[sid]['hazard'] = 'Dark-matter masses move the Pillai radius. Jumps are unreliable.'
+# Ushar's Well, in the Veil, is a black hole. Its name is the prophetess Ushar Vel's.
+by['ushars-well']['blackhole'] = True
+by['ushars-well']['stars'] = 1
+by['ushars-well']['hazard'] = 'Black hole. Its well holds the Pillai radius far out, and no jump is charted inside it.'
 N = len(systems)
 parent = list(range(N))
 def find(i):
@@ -749,6 +753,8 @@ for k, pol in POLITIES.items():
     if pol.get('slug') in have: pol['flag'] = have[pol['slug']]
 data['roundFlags'] = ['voor-confederacy.svg']
 
+# refresh systems so later fields (hazards, black holes) reach the data
+data['systems'] = [{**s, 'own': own[s['id']]} for s in systems]
 out = HERE / 'atlas-data.json'
 json.dump(data, open(out, 'w'), separators=(',', ':'))
 print('systems', len(systems), 'worlds', len(worlds), 'events', len(EVENTS), '->', out, out.stat().st_size, 'bytes')

@@ -338,6 +338,27 @@ const starMat = new THREE.ShaderMaterial({
 });
 const stars = new THREE.Points(starGeo, starMat);
 scene.add(stars);
+// black holes: a dark core inside a bright accretion ring
+{
+  const bh = []; SYS.forEach((s) => { if (s.blackhole) { const v = W3(s); bh.push(v.x, v.y, v.z); } });
+  if (bh.length) {
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(bh, 3));
+    const m = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, uniforms: { uScale: { value: 1 } },
+      vertexShader: `uniform float uScale; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = 30.0 * uScale; gl_Position = projectionMatrix * mv; }`,
+      fragmentShader: `void main(){ vec2 p = gl_PointCoord*2.0-1.0; float d = length(vec2(p.x, p.y*2.2));
+        float r = length(p);
+        float disk = smoothstep(0.95,0.55,d) * smoothstep(0.30,0.42,d);
+        float ring = smoothstep(0.48,0.40,r) * smoothstep(0.30,0.36,r);
+        float glow = smoothstep(1.0,0.3,r)*0.18;
+        vec3 col = mix(vec3(1.0,0.55,0.18), vec3(1.0,0.92,0.75), ring);
+        float a = max(max(disk*0.9, ring), glow);
+        if (r < 0.31) { gl_FragColor = vec4(0.0,0.0,0.0,1.0); return; }
+        if (a < 0.01) discard; gl_FragColor = vec4(col, a); }`,
+    });
+    const pts = new THREE.Points(g, m); scene.add(pts); window.__bhMat = m;
+  }
+}
 // companions of binary and trinary systems
 {
   const cp = [];
@@ -408,7 +429,7 @@ function applyYear() {
   SYS.forEach((s, i) => {
     const o = ownerAt(s, t), w = worldsAt(s.id, t).length, burned = burnedAt(s.id, t).length;
     starSize[i] = w ? 13 : o ? 9 : 7.5;
-    starBright[i] = w ? 1 : o ? 0.85 : 0.55;
+    starBright[i] = s.blackhole ? 0 : w ? 1 : o ? 0.85 : 0.55;
     const l = labels[i];
     l.classList.toggle('on', !!w);
     l.classList.toggle('big', s.id === 'sol' || (w && worldsAt(s.id, t).length >= 2));
@@ -484,7 +505,7 @@ function renderSelected() {
     (s.catalogue ? '<dt>Catalogue</dt><dd>' + esc(s.catalogue) + '</dd>' : '') +
     (s.hazard ? '<dt>Hazard</dt><dd style="color:#F0B6A8">' + esc(s.hazard) + '</dd>' : '') +
     '<dt>From Sol</dt><dd>' + (s.id === 'sol' ? '—' : dist.toFixed(1) + ' light years') + '</dd>' +
-    '<dt>Stars</dt><dd>' + ['Single', 'Binary', 'Trinary'][s.stars - 1] + '</dd>' +
+    '<dt>Stars</dt><dd>' + (s.blackhole ? 'Black hole' : ['Single', 'Binary', 'Trinary'][s.stars - 1]) + '</dd>' +
     (evHtml ? '<dt>Events</dt><dd>' + evHtml + '</dd>' : '') + '</dl>' +
     (hasArticle(slug) ? '<a class="open" href="' + wikiHref(slug) + '">Read the article<span aria-hidden="true">→</span></a>' : '') +
     '<button type="button" class="open" id="open-sys">Open system view<span aria-hidden="true">→</span></button>' +
@@ -740,7 +761,7 @@ function makePlanets(s) {
   const hz = 1 + Math.floor(r() * 2);
   const out = []; let a = 0.25 + r() * 0.25;
   for (let i = 0; i < n; i++) {
-    const MID = s.region2235 === 'rubin' ? TYPES_DEAD : TYPES_MID;   // nothing habitable in the Rubin Void
+    const MID = (s.region2235 === 'rubin' || s.blackhole) ? TYPES_DEAD : TYPES_MID;   // nothing habitable in the Rubin Void or round a black hole
     const type = i < hz ? TYPES_IN[Math.floor(r() * TYPES_IN.length)] : i < hz + 2 ? MID[Math.floor(r() * MID.length)] : TYPES_OUT[Math.floor(r() * TYPES_OUT.length)];
     out.push({ name: names[i + 1] || s.name + ' ' + ROMAN[i], a, type, ph: r() * 6.28, world: null, moons: [] });
     a *= 1.5 + r() * 0.6;
@@ -853,7 +874,7 @@ function renderSystemInfo() {
   const body = bodyFor(sv.pick);
   if (body) html += bodyInfo(body, t, o);
   html += sec('Observation data · epoch ' + year, [
-    ['Stars', ['Single', 'Binary', 'Trinary'][s.stars - 1]],
+    ['Stars', s.blackhole ? 'Black hole' : ['Single', 'Binary', 'Trinary'][s.stars - 1]],
     ...(s.catalogue ? [['Catalogue name', esc(s.catalogue)]] : []),
     ...(s.hazard ? [['Hazard', '<span style="color:#F0B6A8">' + esc(s.hazard) + '</span>']] : []),
     ['Distance from Sol', s.id === 'sol' ? '—' : dist.toFixed(1) + ' ly'],
@@ -885,7 +906,11 @@ function drawSystem(dt) {
   out += '<ellipse cx="' + cxs + '" cy="' + cys + '" rx="' + (R(amax) * 1.18) + '" ry="' + (R(amax) * 1.18 * tilt) + '" fill="none" stroke="#fff" stroke-opacity=".35" stroke-dasharray="2 6"/>';
   out += '<text class="lbl sb" x="' + cxs + '" y="' + (cys - R(amax) * 1.18 * tilt - 8) + '" text-anchor="middle" font-size="10" letter-spacing="2" fill="#C9D6E5">PILLAI RADIUS · JUMP LIMIT</text>';
   for (const p of sv.planets) out += '<ellipse cx="' + cxs + '" cy="' + cys + '" rx="' + R(p.a) + '" ry="' + R(p.a) * tilt + '" fill="none" stroke="#fff" stroke-opacity="' + (p.world ? 0.55 : 0.22) + '"/>';
-  out += '<circle cx="' + cxs + '" cy="' + cys + '" r="22" fill="url(#sv-star)"/><circle cx="' + cxs + '" cy="' + cys + '" r="7" fill="#fff"/>';
+  if (sv.sys.blackhole) {
+    out = out.replace('</defs>', '<radialGradient id="sv-bh"><stop offset="0" stop-color="#FFE9C2"/><stop offset=".45" stop-color="#F28C38"/><stop offset="1" stop-color="#F28C38" stop-opacity="0"/></radialGradient></defs>');
+    out += '<ellipse cx="' + cxs + '" cy="' + cys + '" rx="46" ry="' + (46 * tilt) + '" fill="url(#sv-bh)" opacity=".9"/>';
+    out += '<circle cx="' + cxs + '" cy="' + cys + '" r="13" fill="none" stroke="#FFE9C2" stroke-width="2.5"/><circle cx="' + cxs + '" cy="' + cys + '" r="11.5" fill="#000"/>';
+  } else out += '<circle cx="' + cxs + '" cy="' + cys + '" r="22" fill="url(#sv-star)"/><circle cx="' + cxs + '" cy="' + cys + '" r="7" fill="#fff"/>';
   out += '<text class="lbl nm" x="' + (cxs + 14) + '" y="' + (cys - 16) + '" font-size="15">' + esc(sv.sys.name) + '</text>';
   const items = sv.planets.map((p) => {
     const ang = p.ph + sv.t * 0.6 / Math.pow(p.a, 1.5);
@@ -958,7 +983,7 @@ function writeHash() {
 function resize() {
   const w = canvas.clientWidth, h = canvas.clientHeight;
   renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
-  starMat.uniforms.uScale.value = Math.min(2, window.devicePixelRatio || 1);
+  starMat.uniforms.uScale.value = Math.min(2, window.devicePixelRatio || 1); if (window.__bhMat) window.__bhMat.uniforms.uScale.value = starMat.uniforms.uScale.value;
   drawTimeline();
 }
 window.addEventListener('resize', resize);
