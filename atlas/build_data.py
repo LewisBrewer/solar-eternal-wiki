@@ -135,6 +135,7 @@ SHEET_SECTOR['zarqon'] = 'Geronth Sector'
 SHEET_SECTOR['trab'] = 'Binami Sector'
 SHEET_SECTOR['esmyke'] = 'Saolea Sector'
 SHEET_SECTOR['golba'] = 'Saolea Sector'
+SHEET_SECTOR['talandra'] = 'Binami Sector'   # book 8.3: the Binami sector runs through Talandra
 
 # Systems on the sheet but not on the 2235 map get invented positions inside their sector,
 # at the emptiest spot among its other members.
