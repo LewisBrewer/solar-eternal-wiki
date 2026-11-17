@@ -416,7 +416,7 @@ for sid in own:
 # non-human worlds known from contact and the book's later settlements.
 BOOK_DATES = {'Mars': ym(2076, 7, 27), 'Luna': ym(2063, 3, 21), 'Io': ym(2114, 3, 1), 'Europa': ym(2116), 'Ganymede': ym(2118), 'Callisto': ym(2120),
               'Côte d\'Azur': ym(2342, 4, 21)}
-SPELL = {"Cote d'Azure": "Côte d'Azur", 'Nouveau Montreal': 'Nouveau Montréal', 'New Indata Mog': None, 'Earth': 'Earth'}
+SPELL = {"Cote d'Azure": "Côte d'Azur", 'New Caracas': 'Caldera', 'Nouveau Montreal': 'Nouveau Montréal', 'New Indata Mog': None, 'Earth': 'Earth'}
 SLUGS = {'Dauntless': 'dauntless', 'Mardak Vol': 'mardak-vol-planet', 'Theia': 'theia', 'Bounty': 'bounty',
          'Landfall': 'landfall', 'Circumstance': 'circumstance', 'Serenity': 'serenity', 'Hualapai': 'hualapai'}
 def biome_label(b):
