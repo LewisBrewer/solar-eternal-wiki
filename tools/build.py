@@ -67,6 +67,14 @@ def cut_sentences(s, n):
     return c[:i + 1] if i > 0 else c.rsplit(' ', 1)[0] + '…'
 
 
+def planet_slug(slug):
+    """the static/planets folder for an article, allowing for titles like 'Mardak Vol (planet)'"""
+    for cand in (slug, re.sub(r'-(planet|world|moon)$', '', slug)):
+        if os.path.isdir(os.path.join(STATIC, 'planets', cand)):
+            return cand
+    return None
+
+
 def slugify(t):
     t = html.unescape(t).lower().replace('’', "'")
     t = re.sub(r"[']", '', t)
@@ -578,9 +586,9 @@ class Site:
                            (self.root_for_infobox, art['slug'], ext, html.escape(art['title'])))
                 break
         # a generated globe for worlds with maps in static/planets/<slug>/
-        if os.path.isdir(os.path.join(STATIC, 'planets', art['slug'])):
+        if planet_slug(art['slug']):
             out.append('<figure class="ib-globe" data-planet="%s"><div class="pg"></div><div class="pg-years" role="group" aria-label="Year"></div>'
-                       '<figcaption>Drag to turn. City lights show on the night side.</figcaption></figure>' % art['slug'])
+                       '<figcaption>Drag to turn. City lights show on the night side.</figcaption></figure>' % planet_slug(art['slug']))
         # a company logo, kept in static/logos/<slug>.svg
         for ext in ('svg', 'png'):
             if os.path.exists(os.path.join(STATIC, 'logos', '%s.%s' % (art['slug'], ext))):
@@ -1047,7 +1055,7 @@ class Site:
              '<div class="tabs"><a href="#top" class="on">Article</a>%s</div></div>' % ('<a href="#sources">Book sources</a>' if art['sources'] else ''),
              '<div class="columns"><div class="prose">%s%s%s</div>%s</div>%s</main></div>' % (epi, body, src, side, series),
              '<script src="../assets/toc.js" defer></script>',
-             (PLANET_JS if os.path.isdir(os.path.join(STATIC, 'planets', art['slug'])) else ''),
+             (PLANET_JS if planet_slug(art['slug']) else ''),
              self.footer('../')]
         return ''.join(h)
 
