@@ -50,6 +50,8 @@ PATTERNS = [
     (r'Voor\b|\bhearths?\b|Kor-class', 'voor-confederacy'),
     (r'Jovian Free Colonies|League for Jovian Rule', 'league-for-jovian-rule'),
     (r'Caños|Guardia del Delta|outer delta|Moriche', 'dauntless'),
+    (r'Verhoeven|Triumph Squadron', 'circumstance'),
+    (r"Landfall's home guard", 'landfall'),
     (r'Marineris Coalition', 'mars'),
     (r'Martian-Jovian|Confederation|Jovian Militia|Jovian League|League for Jovian|\bSpark\b|Io Divisions?|Europa Divisions?|Valles (Command|Militia|Division)'
      r'|Tharsis (Command|Hover|Division)|Elysium Command|Copernicus Division|Hellenic|Free State|Red Hand|Robespierre|Daxian'
