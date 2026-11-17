@@ -921,7 +921,7 @@ function renderSystemInfo() {
     if (gEl.dataset.world) {
       const p = planetByName[gEl.dataset.world];
       const g = mountGlobe(THREE, gEl, { base: 'assets/planets/' + p.slug + '/', cities: p.cities, lon: (p.cities[0] || { lon: 0 }).lon, height: gEl.clientWidth });
-      g.set(planetState(p, t));
+      g.set(planetState(p, t), t);
     } else {
       const k = gEl.dataset.sol;
       const g = mountGlobe(THREE, gEl, { base: 'assets/planets/_sol/', cities: [], height: gEl.clientWidth });

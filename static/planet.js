@@ -72,6 +72,20 @@ export function latLon(THREE, lat, lon, r = 1) {
   return new THREE.Vector3(Math.cos(la) * Math.cos(lo) * r, Math.sin(la) * r, -Math.cos(la) * Math.sin(lo) * r);
 }
 
+// Whether a town or site stands in a given year: f founded, t lost, gap years with nothing on the surface.
+export function alive(c, y) {
+  if (y === undefined) return true;
+  if (c.f && y < c.f) return false;
+  if (c.t && y >= c.t) return false;
+  if (c.gap && y >= c.gap[0] && y < c.gap[1]) return false;
+  return true;
+}
+
+// Label order when names collide: capitals, then larger towns, then sites.
+function rank(cs) {
+  return cs.slice().sort((a, b) => (a.k ? 1 : 0) - (b.k ? 1 : 0) || (b.w || 0) - (a.w || 0));
+}
+
 // An interactive globe in a container: drag to turn, slow spin, city labels.
 export function mountGlobe(THREE, el, o) {
   const W = el.clientWidth || 320, H = o.height || W;
@@ -82,14 +96,17 @@ export function mountGlobe(THREE, el, o) {
   const sc = new THREE.Scene(); const cam = new THREE.PerspectiveCamera(30, W / H, 0.1, 100); cam.position.set(0, 0, o.dist || 4.1);
   let globe = null; const spin = new THREE.Group(); sc.add(spin);
   let rx = 0.25, ry = 0, drag = null, auto = true;
-  const set = (s) => {
+  const set = (s, year) => {
+    const yr = year === undefined ? s.y : year;
     if (globe) { spin.remove(globe); globe.traverse((m) => { if (m.material) { m.material.dispose(); m.geometry.dispose(); } }); }
     globe = makeGlobe(THREE, { day: o.base + s.k + '-day.webp', data: s.noData ? null : o.base + s.k + '-data.webp', atmo: s.atmo, glow: s.glow, sun: [0.8, 0.25, 0.55] });
     spin.add(globe);
     labels.innerHTML = '';
-    (o.cities || []).forEach((c) => {
-      if (!c.n) return;
-      const d = document.createElement('span'); d.textContent = c.n; d.dataset.lat = c.lat; d.dataset.lon = c.lon; labels.appendChild(d);
+    rank(o.cities || []).forEach((c) => {
+      if (!c.n || !alive(c, yr)) return;
+      const d = document.createElement('span'); d.textContent = c.n; d.dataset.lat = c.lat; d.dataset.lon = c.lon;
+      d.className = (c.k ? 'site site-' + c.k : c.w >= 1 ? 'cap' : '') + (c.inv ? ' inv' : '');
+      labels.appendChild(d);
     });
   };
   if (o.lon !== undefined) ry = -Math.PI / 2 - o.lon * Math.PI / 180;
@@ -104,11 +121,16 @@ export function mountGlobe(THREE, el, o) {
     spin.rotation.set(rx, ry, 0);
     if (globe && globe.userData.clouds) globe.userData.clouds.rotation.y += dt * 0.004;
     r.render(sc, cam);
+    const taken = [];
     for (const s of labels.children) {
       v.copy(latLon(THREE, +s.dataset.lat, +s.dataset.lon, 1.01)).applyEuler(spin.rotation);
       const front = v.z > 0.15; const p = v.clone().project(cam);
-      s.style.transform = 'translate(' + ((p.x + 1) / 2 * W) + 'px,' + ((1 - p.y) / 2 * H) + 'px)';
-      s.style.opacity = front ? 1 : 0;
+      const x = (p.x + 1) / 2 * W, y = (1 - p.y) / 2 * H;
+      s.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+      const box = [x, y - 7, x + 8 + s.textContent.length * 6.2, y + 7];
+      const free = front && !taken.some((b) => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1]);
+      if (free) taken.push(box);
+      s.style.opacity = free ? 1 : 0;
     }
     if (el.isConnected) requestAnimationFrame(tick); else r.dispose();
   };
@@ -118,17 +140,22 @@ export function mountGlobe(THREE, el, o) {
 
 // A flat map with city labels, from the same day map.
 export function flatMap(el, o) {
-  const s = o.state;
+  const s = o.state, yr = o.year === undefined ? s.y : o.year;
   el.innerHTML = '<div class="pm-wrap"><img alt="Map of ' + o.name + '" src="' + o.base + s.k + '-day.webp"><svg viewBox="0 0 1024 512" preserveAspectRatio="none"></svg></div>';
   const svg = el.querySelector('svg');
   let out = '';
   for (let lat = -60; lat <= 60; lat += 30) out += '<line x1="0" x2="1024" y1="' + (256 - lat / 90 * 256) + '" y2="' + (256 - lat / 90 * 256) + '" class="pm-grid"/>';
   for (let lon = -150; lon <= 150; lon += 30) out += '<line y1="0" y2="512" x1="' + (512 + lon / 180 * 512) + '" x2="' + (512 + lon / 180 * 512) + '" class="pm-grid"/>';
-  for (const c of o.cities || []) {
-    if (!c.n) continue;
-    const x = 512 + c.lon / 180 * 512, y = 256 - c.lat / 90 * 256;
-    out += '<circle cx="' + x + '" cy="' + y + '" r="' + (c.w >= 1 ? 5 : 3.5) + '" class="pm-city' + (c.w >= 1 ? ' cap' : '') + '"/>';
-    out += '<text x="' + (x + 8) + '" y="' + (y + 4) + '" class="pm-lbl' + (c.w >= 1 ? ' cap' : '') + '">' + c.n + '</text>';
+  const taken = [];
+  for (const c of rank(o.cities || [])) {
+    if (!c.n || !alive(c, yr)) continue;
+    const x = 512 + c.lon / 180 * 512, y = 256 - c.lat / 90 * 256, inv = c.inv ? ' inv' : '';
+    if (c.k) out += '<rect x="' + (x - 3) + '" y="' + (y - 3) + '" width="6" height="6" class="pm-site' + inv + '"/>';
+    else out += '<circle cx="' + x + '" cy="' + y + '" r="' + (c.w >= 1 ? 5 : 3.5) + '" class="pm-city' + (c.w >= 1 ? ' cap' : '') + inv + '"/>';
+    const box = [x + 6, y - 10, x + 10 + c.n.length * (c.k ? 7.2 : 8.6), y + 8];
+    if (taken.some((b) => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1])) continue;
+    taken.push(box);
+    out += '<text x="' + (x + 8) + '" y="' + (y + 4) + '" class="pm-lbl' + (c.k ? ' site' : c.w >= 1 ? ' cap' : '') + inv + '">' + c.n + '</text>';
   }
   svg.innerHTML = out;
 }

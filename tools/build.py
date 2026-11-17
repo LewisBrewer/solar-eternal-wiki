@@ -1239,7 +1239,7 @@ class Site:
                  '<p>The Solar Eternal Archive is an encyclopedia of a fictional future history, from the founding of the United Nations to the Reconstruction of the Second Republic. It is written in the voice of the Republic\'s own histories.</p>'
                  '<p>Its articles are drawn from <i>Solar Eternal</i>, a history by Lewis Brewer, and each article lists the sections of the book it is drawn from. Where the book is silent, the archive fills gaps in keeping with it.</p>'
                  '<p>The Atlas places every charted system of known space, after the reference chart of 2235, and lets you travel through the centuries to watch the borders move.</p>'
-                 '<h2>Planet maps</h2><p>The worlds of known space are generated for the archive. The real surfaces of Mercury, Venus, the Moon, Mars and the giant planets are Solar System Scope textures, based on NASA mission data and used under CC BY 4.0. Earth is NASA\'s Blue Marble and ETOPO1. Mars\'s terraformed coasts follow NASA\'s MOLA elevation data.</p></div>')
+                 '<h2>Planet maps</h2><p>The worlds of known space are generated for the archive. The real surfaces of Mercury, Venus, the Moon, Mars and the giant planets are Solar System Scope textures, based on NASA mission data and used under CC BY 4.0. Earth is NASA\'s Blue Marble and ETOPO1. Mars\'s terraformed coasts follow NASA\'s MOLA elevation data.</p><p>Town names in white come from the book. Names in lilac were invented for the maps. Square markers show yards, tethers, fortresses and research sites. Towns appear on the globes from their founding year and drop off when they are abandoned.</p></div>')
         return self.listing('About', inner, '', '')
 
     def home_page(self, updated):

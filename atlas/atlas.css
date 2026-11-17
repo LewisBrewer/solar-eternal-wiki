@@ -148,3 +148,10 @@ img.secflag{width:21px;height:14px;vertical-align:-2px;border-radius:0;margin-ri
 .pg-labels{position:absolute;inset:0;pointer-events:none}
 .pg-labels span{position:absolute;left:0;top:0;font-size:11px;color:#fff;text-shadow:0 0 4px #000;white-space:nowrap;margin:-7px 0 0 6px}
 .pg-labels span::before{content:'';position:absolute;left:-7px;top:5px;width:4px;height:4px;border-radius:50%;background:#ffd38a}
+
+.pg-labels span.cap{font-weight:600}
+.pg-labels span.inv{color:#e2d3fa}
+.pg-labels span.inv::before{background:#c9b2f0}
+.pg-labels span.site{font-size:10px;font-style:italic;color:#cfe0ff}
+.pg-labels span.site::before{border-radius:0;background:#9fc2ff}
+.pg-labels span.site.inv{color:#e2d3fa}

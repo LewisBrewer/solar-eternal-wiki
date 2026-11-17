@@ -13,7 +13,7 @@ if (fig) {
     g.set(cur);
     const yrs = fig.querySelector('.pg-years');
     const map = document.createElement('figure'); map.className = 'planet-map';
-    const draw = () => { flatMap(map, { base, state: cur, cities: p.cities, name: p.name }); map.insertAdjacentHTML('beforeend', '<figcaption>' + p.name + ' in ' + cur.y + '</figcaption>'); };
+    const draw = () => { flatMap(map, { base, state: cur, year: cur.y, cities: p.cities, name: p.name }); map.insertAdjacentHTML('beforeend', '<figcaption>' + p.name + ' in ' + cur.y + '</figcaption>'); };
     p.states.forEach((s) => {
       const b = document.createElement('button'); b.type = 'button'; b.textContent = s.y; if (s === cur) b.className = 'on';
       b.onclick = () => { cur = s; g.set(s); draw(); yrs.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b)); };
