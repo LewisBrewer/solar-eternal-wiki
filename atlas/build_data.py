@@ -654,6 +654,11 @@ for sid, name, pl, people, biome, gtype, home in ALIEN:
     if name in FAR: d['slug'], d['capital'] = FAR[name]
     worlds.append(d)
 
+# New Veren (Lewis, 18 November 2026): an empty plains world at Tem that the Veren in exile settle from 2468.
+worlds.append({'sys': 'tem', 'name': 'New Veren', 'settled': 2468, 'native': False, 'pl': 3, 'moon': False, 'people': 'Veren',
+               'biome': 'Savanna world', 'invented': True, 'slug': 'new-veren', 'capital': 'Ammarel Nova',
+               'gen': {'now': 'semiarid', 'after': None, 'cls': 'alien-minor', 'style': 'farcolony', 'start': 2468}})
+
 # Fevarian space has no living worlds of the clans' own: they live aboard the monoliths and hulks.
 # What the Veil and the freeholds do have: worlds the clans have stripped for metal, dead worlds
 # with golden-age ruins, and one shattered world the Voor take for the clans' lost homeworld.
