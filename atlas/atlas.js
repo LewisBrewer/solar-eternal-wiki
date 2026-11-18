@@ -861,11 +861,16 @@ function clanStatus(c, t) {
   return '<img class="sw flagkey" src="assets/flags/clans/' + c.id + '.png" alt=""> ' + esc(parts.join('; ') || 'stations');
 }
 // Fevarian features the system view lets you pick, and the card each one opens in the panel
-const PICKABLE = new Set(['fleet', 'clanfleet', 'clanhulk', 'clanbase', 'orbital', 'hulk', 'wreck']);
-const FEAT_KIND = { fleet: 'Monolith fleet', clanfleet: 'Clan anchorage', clanhulk: 'Clan hulks', clanbase: 'Clan hulks and stations', orbital: 'Fevarian orbital settlement', hulk: 'Hulk anchorage', wreck: 'Monolith wrecks' };
+const PICKABLE = new Set(['navy', 'fleet', 'clanfleet', 'clanhulk', 'clanbase', 'orbital', 'hulk', 'wreck']);
+const FEAT_KIND = { navy: 'Fleet', fleet: 'Monolith fleet', clanfleet: 'Clan anchorage', clanhulk: 'Clan hulks', clanbase: 'Clan hulks and stations', orbital: 'Fevarian orbital settlement', hulk: 'Hulk anchorage', wreck: 'Monolith wrecks' };
 const clanLink = (id) => hasArticle(id) ? '<a href="' + wikiHref(id) + '">' + esc(clanName(id)) + '</a>' : esc(clanName(id));
 const clanHead = (id, sz = 14) => '<img class="sw flagkey" src="assets/flags/clans/' + id + '.png" alt="" style="width:' + sz + 'px;height:' + sz + 'px">';
 function featInfo(f, t) {
+  if (f.kind === 'navy') {
+    const rows = [['Side', esc(f.side)], ['Strength', esc(f.strength)], ['Here', fmtDate(f.from) + ' to ' + fmtDate(f.to)]];
+    if (hasArticle(f.slug)) rows.push(['Article', '<a href="' + wikiHref(f.slug) + '">' + esc(typeof articles[f.slug] === 'string' ? articles[f.slug] : (articles[f.slug].title || f.slug)) + '</a>']);
+    return '<div class="sv-feat"><span class="k">Fleet</span><h2>' + esc(f.name) + '</h2></div>' + sec('Fleet', rows);
+  }
   if (f.kind === 'wreck') {
     const rows = [['Date', fmtDate(f.from)]];
     if (hasArticle(f.slug)) rows.push(['Article', '<a href="' + wikiHref(f.slug) + '">' + esc(f.title) + '</a>']);
@@ -1197,6 +1202,10 @@ function svFeatures(force) {
   const lanceM = new THREE.MeshBasicMaterial({ color: 0xc8322a });
   const ringM = new THREE.MeshStandardMaterial({ color: 0x3a3234, roughness: 0.85, metalness: 0.35, emissive: 0x2a0808, emissiveIntensity: 0.5 });
   const hearthM = new THREE.MeshStandardMaterial({ color: 0x5b3f7a, roughness: 0.6, metalness: 0.2, emissive: 0x2a1640, emissiveIntensity: 0.6 });
+  const NAVY_MAT = {
+    human: new THREE.MeshStandardMaterial({ color: 0xc9d2dc, roughness: 0.4, metalness: 0.6, emissive: 0x334455, emissiveIntensity: 0.6 }),
+    conf: new THREE.MeshStandardMaterial({ color: 0xc0704e, roughness: 0.5, metalness: 0.5, emissive: 0x401a0e, emissiveIntensity: 0.7 }),
+  };
   const WRECK_MAT = {
     mono: new THREE.MeshStandardMaterial({ color: 0x2c2829, roughness: 0.95, metalness: 0.3 }),
     human: new THREE.MeshStandardMaterial({ color: 0x8d959e, roughness: 0.7, metalness: 0.5, emissive: 0x262b31, emissiveIntensity: 1 }),
@@ -1325,6 +1334,21 @@ function svFeatures(force) {
           grp.position.set(Math.cos(a) * d, (r() - 0.5) * span * 0.35, Math.sin(a) * d); grp.rotation.set(r() * 6, r() * 6, r() * 6);
           obj.add(grp);
         }
+      }
+      obj.userData.span = span;
+      anchor = obj;
+    } else if (f.kind === 'navy') {
+      // a human fleet: wedge-hulled ships in loose formation, off to one side of the world it holds
+      const r = seeded('n' + f.name + f.from), span = host ? rad * 0.8 : 0.14;
+      if (host) { const a = r() * 6.283, d = rad * 2.2; obj.position.set(Math.cos(a) * d, (r() - 0.5) * rad * 0.3, Math.sin(a) * d); }
+      const mat = NAVY_MAT[f.style] || NAVY_MAT.human, sz = host ? rad * 0.05 : 0.05;
+      for (let k = 0; k < Math.min(f.n || 6, 40); k++) {
+        const big = k < Math.max(2, (f.n || 6) / 6);
+        const hull = new THREE.Mesh(new THREE.ConeGeometry(0.16, big ? 1.1 : 0.6, 4), mat); hull.rotation.z = -Math.PI / 2;
+        const grp = new THREE.Group(); grp.add(hull); grp.scale.setScalar(sz * (big ? 1.4 : 1));
+        const a = r() * 6.283, d = span * Math.sqrt(r());
+        grp.position.set(Math.cos(a) * d, (r() - 0.5) * span * 0.25, Math.sin(a) * d); grp.rotation.y = 0.4 + (r() - 0.5) * 0.3;
+        obj.add(grp);
       }
       obj.userData.span = span;
       anchor = obj;

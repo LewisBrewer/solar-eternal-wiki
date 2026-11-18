@@ -243,3 +243,9 @@ a:hover{text-decoration-color:var(--white)}
 .gallery.roll figure{display:flex;gap:8px;align-items:flex-start}
 .gallery.roll img{width:28px;height:28px;flex:none}
 .gallery.roll figcaption{margin-top:0}
+
+/* battle sites on the planet maps */
+.pg-labels span.site-battle{color:#F0B6A8}
+.pg-labels span.site-battle::before{background:#E07A5F;transform:rotate(45deg)}
+.pm-site.pm-battle{fill:#E07A5F}
+.pm-lbl.site-battle{fill:#F0B6A8}

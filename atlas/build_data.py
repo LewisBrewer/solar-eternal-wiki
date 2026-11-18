@@ -935,6 +935,9 @@ for sid, y, where, slug_, title, sides in BT.BATTLES:
     if not wr: fs.append(f)
     f.update({'title': title, 'name': title, 'battle': title, 'at': _at(sid, where), 'sides': out})
     if slug_: f['slug'] = slug_
+for nm, side, st, where, a, b, n, strength, slug_ in BT.FLEETS:
+    FEATURES.setdefault('sol', []).append({'name': nm, 'kind': 'navy', 'side': side, 'style': st, 'at': where, 'from': a, 'to': b,
+                                           'n': n, 'strength': strength, 'slug': slug_})
 for sid, fs in FEATURES.items():
     for f in fs:
         if f['kind'] == 'wreck' and not f.get('sides'):
@@ -1092,12 +1095,24 @@ EARTH_STATES = ['united-states-of-america.svg', 'peoples-republic-of-china.svg',
 CAC = 'central-african-confederation.svg'
 FLAGS = {
     'sol:Earth': [[1900, EARTH_STATES], [2057.62, EARTH_STATES[:6] + [CAC] + EARTH_STATES[6:]], [UNIFY, [FED]], [2341.0, [USR]]],
-    'sol:Luna': [[2063, ['peoples-republic-of-china.svg', 'european-federation.svg', 'united-states-of-america.svg']], [UNIFY, ['luna.png']]],
-    'sol:Mars': [[2076, ['european-federation.svg']], [2079.7, ['european-federation.svg', 'united-states-of-america.svg']], [UNIFY, ['mars.png']]],
-    'sol:Io': [[2100, ['republic-of-india.svg']], [UNIFY, ['io.png']]],
-    'sol:Europa': [[2100, ['european-federation.svg']], [UNIFY, ['europa.png']]],
-    'sol:Ganymede': [[2100, ['peoples-republic-of-china.svg']], [UNIFY, ['ganymede.png']]],
-    'sol:Callisto': [[2100, ['united-states-of-america.svg']], [UNIFY, ['callisto.png']]],
+    # the Solar War: who held each world (the wiki's articles). The Jovian Free Colonies from March 2220, the
+    # Martian-Jovian Confederation from September 2224, the Lunar Revolutionary Administration on the far side 2227 to
+    # 2233; the United Nations' provisional governments on the retaken worlds until the United Nations of Earth.
+    'sol:Luna': [[2063, ['peoples-republic-of-china.svg', 'european-federation.svg', 'united-states-of-america.svg']],
+                 [2227.84, ['peoples-republic-of-china.svg', 'european-federation.svg', 'united-states-of-america.svg', 'lunar-revolutionary-administration.svg']],
+                 [2233.1, ['peoples-republic-of-china.svg', 'european-federation.svg', 'united-states-of-america.svg']], [UNIFY, ['luna.png']]],
+    'sol:Mars': [[2076, ['european-federation.svg']], [2079.7, ['european-federation.svg', 'united-states-of-america.svg']],
+                 [2224.71, ['european-federation.svg', 'united-states-of-america.svg', 'martian-jovian-confederation.svg']],
+                 [2225.2, ['united-states-of-america.svg', 'martian-jovian-confederation.svg']],
+                 [2226.88, ['martian-jovian-confederation.svg', 'mars.png']], [2246.84, ['united-nations.svg']], [UNIFY, ['mars.png']]],
+    'sol:Io': [[2100, ['republic-of-india.svg']], [2220.17, ['free-io.svg', 'league-for-jovian-rule.png']],
+               [2224.71, ['free-io.svg', 'martian-jovian-confederation.svg']], [2249.99, ['united-nations.svg']], [UNIFY, ['io.png']]],
+    'sol:Europa': [[2100, ['european-federation.svg']], [2220.17, ['free-europa.svg', 'league-for-jovian-rule.png']],
+                   [2224.71, ['free-europa.svg', 'martian-jovian-confederation.svg']], [2252.3, ['united-nations.svg']], [UNIFY, ['europa.png']]],
+    'sol:Ganymede': [[2100, ['peoples-republic-of-china.svg']], [2220.17, ['free-ganymede.svg', 'league-for-jovian-rule.png']],
+                     [2224.71, ['free-ganymede.svg', 'martian-jovian-confederation.svg']], [2252.3, ['united-nations.svg']], [UNIFY, ['ganymede.png']]],
+    'sol:Callisto': [[2100, ['united-states-of-america.svg']], [2220.17, ['free-callisto.svg', 'league-for-jovian-rule.png']],
+                     [2224.71, ['free-callisto.svg', 'martian-jovian-confederation.svg']], [2251.7, ['united-nations.svg']], [UNIFY, ['callisto.png']]],
 }
 # any other world with its own flag file shows it from settlement
 FLAG_DIR = HERE.parent / 'static' / 'flags'

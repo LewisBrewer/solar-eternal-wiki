@@ -197,12 +197,13 @@ export function flatMap(el, o) {
   for (const c of rank(o.cities || [])) {
     if (!c.n || !alive(c, yr)) continue;
     const x = 512 + c.lon / 180 * 512, y = 256 - c.lat / 90 * 256, inv = c.inv ? ' inv' : '';
-    if (c.k) out += '<rect x="' + (x - 3) + '" y="' + (y - 3) + '" width="6" height="6" class="pm-site' + inv + '"/>';
+    if (c.k === 'battle') out += '<path d="M' + x + ' ' + (y - 4) + 'L' + (x + 4) + ' ' + y + 'L' + x + ' ' + (y + 4) + 'L' + (x - 4) + ' ' + y + 'Z" class="pm-site pm-battle' + inv + '"/>';
+    else if (c.k) out += '<rect x="' + (x - 3) + '" y="' + (y - 3) + '" width="6" height="6" class="pm-site' + inv + '"/>';
     else out += '<circle cx="' + x + '" cy="' + y + '" r="' + (c.w >= 1 ? 5 : 3.5) + '" class="pm-city' + (c.w >= 1 ? ' cap' : '') + inv + '"/>';
     const box = [x + 6, y - 10, x + 10 + c.n.length * (c.k ? 7.2 : 8.6), y + 8];
     if (taken.some((b) => box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1])) continue;
     taken.push(box);
-    out += '<text x="' + (x + 8) + '" y="' + (y + 4) + '" class="pm-lbl' + (c.k ? ' site' : c.w >= 1 ? ' cap' : '') + inv + '">' + c.n + '</text>';
+    out += '<text x="' + (x + 8) + '" y="' + (y + 4) + '" class="pm-lbl' + (c.k ? ' site site-' + c.k : c.w >= 1 ? ' cap' : '') + inv + '">' + c.n + '</text>';
   }
   svg.innerHTML = out;
 }

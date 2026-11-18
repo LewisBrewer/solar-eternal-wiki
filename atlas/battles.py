@@ -127,3 +127,20 @@ BATTLES = [
     ('ossath', 2457.17, 'Ossath', None, 'Battle of Ossath', [
         (USR, 'human', 30, '90 hulls; 2 Retributions')]),
 ]
+
+# Fleets of the Solar War in the Sun's system, by year: (name, side, style, where, from, to, hulls drawn, strength, article)
+FLEETS = [
+    ('Federal squadron', 'European Federation', 'human', 4, 2224.0, 2225.6, 10, 'Rear Admiral Ilse Vandermeer: 2 battleships and 8 cruisers', 'martian-revolt'),
+    ('Confederation fleet', CONF, 'conf', 4, 2224.71, 2227.65, 20, 'Rear Admiral Ilse Grünewald: from late 2224, 12 Yugantars and 8 Red Hand corvettes, growing with the Robespierres', 'martian-revolt'),
+    ('American battle group', 'United States', 'human', 4, 2226.35, 2226.45, 8, 'The battle group that fought at Eos Rift; the Hornet among it', 'battle-of-eos-rift'),
+    ('Confederation fleet', CONF, 'conf', [3, 0], 2227.65, 2229.95, 30, 'Rear Admiral Ilse Grünewald: 20 Robespierre-class cruisers, 60 Red Hand corvettes, 40 Trojan dropships, 150 Yugantars', 'first-lunar-campaign'),
+    ('Lunar command', 'United States', 'human', [3, 0], 2227.65, 2233.1, 24, 'Vice Admiral Alexander Raines: 8 Infinity-class battlecruisers, 4 Constitution-class battleships, 6 Liberty-class assault carriers, 60 cruisers and frigates', 'first-lunar-campaign'),
+    ('Home Fleet', COAL, 'human', 3, 2220.0, 2252.3, 36, 'Fleet Admiral Chen Wei-lun: 70 capital ships and 300 escorts (2229); the orbital grid of 400 platforms', 'battle-of-the-tethers'),
+    ('Operation Jovian Thunder', CONF, 'conf', 3, 2229.98, 2230.12, 40, 'Rear Admiral Ilse Grünewald: 36 Robespierre-class cruisers, 80 Red Hands, 60 Trojans, 260 Yugantars, 400 transports with 400,000 troops', 'operation-jovian-thunder'),
+    ('Confederation fleet', CONF, 'conf', [3, 0], 2230.12, 2232.18, 30, 'Rear Admiral Ilse Grünewald: the Robespierres and their refits over Luna', 'battle-for-lunar-orbit'),
+    ('Confederation fleet', CONF, 'conf', 4, 2232.18, 2246.0, 26, 'Rear Admiral Ilse Grünewald: the fleet withdrawn to Mars after Lunar Orbit; the Caspari Fleet of Daxians building at Bartolomeu', 'raid-on-bartolomeu'),
+    ('Coalition raid force', COAL, 'human', 4, 2239.26, 2239.3, 20, 'Fleet Admiral Chen Wei-lun: Infinities and Kunluns; 200 escorts; 21,600 RODs', 'raid-on-bartolomeu'),
+    ('Coalition Mars fleet', COAL, 'human', 4, 2246.0, 2246.85, 30, 'Fleet Admiral Chen Wei-lun: the fleet of Operation Blue Smoke and the Mars campaigns', 'operation-blue-smoke'),
+    ('Confederation fleet', CONF, 'conf', 5, 2246.0, 2252.28, 22, 'Vice Admiral Ilse Grünewald: Robespierres and Daxians covering the Jovian moons and the skimmer trade', 'jovian-campaign'),
+    ('Coalition Jovian fleet', COAL, 'human', 5, 2247.2, 2252.3, 30, 'Fleet Admiral Chen Wei-lun in the Kunlun: the Jovian Theatre, the Chinese group of 16 capital ships among it', 'jovian-campaign'),
+]
