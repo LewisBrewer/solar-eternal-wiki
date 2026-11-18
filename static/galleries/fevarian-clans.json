@@ -1,0 +1,197 @@
+{
+ "title": "Clan banners",
+ "items": [
+  {
+   "src": "flags/clans/drhen-banner.png",
+   "title": "D'Rhen",
+   "sub": "Thurva's clan",
+   "inv": false
+  },
+  {
+   "src": "flags/clans/ddhen-banner.png",
+   "title": "D'Dhen",
+   "sub": "the Golden Khan",
+   "inv": false
+  },
+  {
+   "src": "flags/clans/dvesh-banner.png",
+   "title": "D'Vesh",
+   "sub": "Ushar Vel's clan",
+   "inv": false
+  },
+  {
+   "src": "flags/clans/dashan-banner.png",
+   "title": "D'Ashan",
+   "sub": "the household division",
+   "inv": false
+  },
+  {
+   "src": "flags/clans/dkasht-banner.png",
+   "title": "D'Kasht",
+   "sub": "raiders, Triumph",
+   "inv": false
+  },
+  {
+   "src": "flags/clans/dmareth-banner.png",
+   "title": "D'Mareth",
+   "sub": "the far dust",
+   "inv": false
+  },
+  {
+   "src": "flags/clans/dhovar-banner.png",
+   "title": "D'Hovar",
+   "sub": "the Keeper",
+   "inv": false
+  },
+  {
+   "src": "flags/clans/dtarik-banner.png",
+   "title": "D'Tarik",
+   "sub": "khan of the Ka-Dur",
+   "inv": false
+  },
+  {
+   "src": "flags/clans/dsethen-banner.png",
+   "title": "D'Sethen",
+   "sub": "the western marches",
+   "inv": false
+  },
+  {
+   "src": "flags/clans/dossar-banner.png",
+   "title": "D'Ossar",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dvarek-banner.png",
+   "title": "D'Varek",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dthulen-banner.png",
+   "title": "D'Thulen",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dkharim-banner.png",
+   "title": "D'Kharim",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dmorrek-banner.png",
+   "title": "D'Morrek",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dselvar-banner.png",
+   "title": "D'Selvar",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dunnar-banner.png",
+   "title": "D'Unnar",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dzhaal-banner.png",
+   "title": "D'Zhaal",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/drasken-banner.png",
+   "title": "D'Rasken",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dvolun-banner.png",
+   "title": "D'Volun",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dashtor-banner.png",
+   "title": "D'Ashtor",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dgarron-banner.png",
+   "title": "D'Garron",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dishul-banner.png",
+   "title": "D'Ishul",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dkeleth-banner.png",
+   "title": "D'Keleth",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dyeshar-banner.png",
+   "title": "D'Yeshar",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dnemar-banner.png",
+   "title": "D'Nemar",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dakhul-banner.png",
+   "title": "D'Akhul",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dsorrah-banner.png",
+   "title": "D'Sorrah",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dthurr-banner.png",
+   "title": "D'Thurr",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dorsh-banner.png",
+   "title": "D'Orsh",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dbrahn-banner.png",
+   "title": "D'Brahn",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/dvahrel-banner.png",
+   "title": "D'Vahrel",
+   "sub": "",
+   "inv": true
+  },
+  {
+   "src": "flags/clans/desken-banner.png",
+   "title": "D'Esken",
+   "sub": "",
+   "inv": true
+  }
+ ]
+}

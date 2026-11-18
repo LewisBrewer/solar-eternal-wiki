@@ -30,6 +30,8 @@ TAGS = {
     'none': '',
     'mars': 'mars', 'io': 'free-io', 'europa': 'free-europa', 'ganymede': 'free-ganymede',
     'callisto': 'free-callisto', 'luna': 'free-luna', 'league': 'league-for-jovian-rule',
+    'khan': 'red-khanate', 'word': 'khanate-of-the-word', 'dashan': 'khanate-of-dashan', 'veilclans': 'the-veil-clans',
+    'dtarik': 'khanate-of-dtarik', 'dsethen': 'khanate-of-dsethen', 'dhovar': 'khanate-of-dhovar',
 }
 
 # polities whose units fly a bloc's flag
@@ -47,6 +49,7 @@ U = 'un'
 PATTERNS = [
     (r'Rapid Orbital Deployment|\bROD\b|Enforcement Directorate|United Nations|High Command\b|Unified Solar|Combined Chiefs|Grand Armada|\bUNS\b', U),
     (r'Central African|\bCADF\b|Great Lakes|Congolese|Kenyan', 'central-african-confederation'),
+    (r"Red Khan|Khanate|\bKhan\b|monoliths?\b|Fevarian|tributary|prowlers?|\bD'[A-Z][a-z]+|Acolytes?|Returning|Ushar's Word", 'red-khanate'),
     (r'Voor\b|\bhearths?\b|Kor-class', 'voor-confederacy'),
     (r'Jovian Free Colonies|League for Jovian Rule', 'league-for-jovian-rule'),
     (r'Caños|Guardia del Delta|outer delta|Moriche', 'dauntless'),

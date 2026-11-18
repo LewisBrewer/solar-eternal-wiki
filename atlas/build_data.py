@@ -29,17 +29,17 @@ POLITIES = {
     'usr':      {'name': 'Unified Solar Republic', 'color': '#5B9BE0', 'slug': 'unified-solar-republic'},
     'voor':     {'name': 'Voor Confederacy', 'color': '#3FB3A6', 'slug': 'voor-confederacy'},
     'maweer':   {'name': 'Maweer Caretakers', 'color': '#62BF6E', 'slug': 'maweer'},
-    'freehold': {'name': 'Northern Fevarian Freeholds', 'color': '#A57BD6'},
-    'fevclans': {'name': 'Southern Fevarian Freeholds', 'color': '#8E5E78'},
+    'freehold': {'name': 'Northern Fevarian Freeholds', 'color': '#A57BD6', 'slug': 'northern-fevarian-freeholds'},
+    'fevclans': {'name': 'Southern Fevarian Freeholds', 'color': '#8E5E78', 'slug': 'southern-fevarian-freeholds'},
     'khanate':  {'name': 'Red Khanate', 'color': '#D2493E', 'slug': 'red-khanate'},
-    'eight':    {'name': 'Council of the Eight Khans', 'color': '#E2733C'},
-    'remnant':  {'name': 'Khanate remnants', 'color': '#A44F48'},
-    'word':     {'name': 'Khanate of the Word', 'color': '#B24C8F'},
-    'dashan':   {'name': 'Khanate of D\'Ashan', 'color': '#B93838'},
-    'veilclans': {'name': 'The Veil Clans', 'color': '#9A6650'},
-    'dtarik':   {'name': 'Khanate of D\'Tarik', 'color': '#D9667A'},
-    'dsethen':  {'name': 'Khanate of D\'Sethen', 'color': '#C9643C'},
-    'dhovar':   {'name': 'Khanate of D\'Hovar', 'color': '#D19A4A'},
+    'eight':    {'name': 'Council of the Eight Khans', 'color': '#E2733C', 'slug': 'council-of-the-eight-khans'},
+    'remnant':  {'name': 'Khanate remnants', 'color': '#A44F48', 'slug': 'khanate-remnants'},
+    'word':     {'name': 'Khanate of the Word', 'color': '#B24C8F', 'slug': 'khanate-of-the-word'},
+    'dashan':   {'name': 'Khanate of D\'Ashan', 'color': '#B93838', 'slug': 'khanate-of-dashan'},
+    'veilclans': {'name': 'The Veil Clans', 'color': '#9A6650', 'slug': 'the-veil-clans'},
+    'dtarik':   {'name': 'Khanate of D\'Tarik', 'color': '#D9667A', 'slug': 'khanate-of-dtarik'},
+    'dsethen':  {'name': 'Khanate of D\'Sethen', 'color': '#C9643C', 'slug': 'khanate-of-dsethen'},
+    'dhovar':   {'name': 'Khanate of D\'Hovar', 'color': '#D19A4A', 'slug': 'khanate-of-dhovar'},
     'dwaii':    {'name': 'Dwaii', 'color': '#E2C65C', 'slug': 'dwaii'},
     'kadur':    {'name': 'Ka-Dur League', 'color': '#E58CC2', 'slug': 'ka-dur'},
     'ossathi':  {'name': 'Ossathi', 'color': '#7FCF9A', 'slug': 'ossathi'},
@@ -1023,6 +1023,8 @@ for k, pol in POLITIES.items():
     if k in ('earth', 'une', 'usr'): continue
     if pol.get('slug') in have: pol['flag'] = have[pol['slug']]
 data['roundFlags'] = ['voor-confederacy.svg']
+# the Fevarian powers fly tall hanging banners; their square heads stand in for them on the map and in legends
+data['squareFlags'] = sorted(pol['flag'] for pol in POLITIES.values() if pol.get('flag') and os.path.exists(FLAG_DIR / (pol['flag'].rsplit('.', 1)[0] + '-banner.png')))
 
 # refresh systems so later fields (hazards, black holes) reach the data
 data['systems'] = [{**s, 'own': own[s['id']]} for s in systems]

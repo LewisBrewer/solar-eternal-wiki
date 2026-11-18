@@ -579,8 +579,13 @@ class Site:
         head_small = art['part_of'] and ('Part of ' + BeautifulSoup(self.links(art['part_of'], ''), 'html.parser').get_text()) or art['type']
         out = ['<aside class="infobox" aria-label="Summary"><div class="ib-head"><small>%s</small><b>%s</b></div>' %
                (html.escape(head_small), html.escape(art['title']))]
+        # a Fevarian power's hanging banner, kept in static/flags/<slug>-banner.png
+        if os.path.exists(os.path.join(STATIC, 'flags', '%s-banner.png' % art['slug'])):
+            out.append('<figure class="ib-flag ib-banner"><img src="%sassets/flags/%s-banner.png" alt="Banner of the %s"></figure>' %
+                       (self.root_for_infobox, art['slug'], html.escape(art['title'])))
         # a flag or emblem drawn for the article, kept in static/flags/<slug>.svg
-        for ext in ('svg', 'png'):
+        else:
+          for ext in ('svg', 'png'):
             if os.path.exists(os.path.join(STATIC, 'flags', '%s.%s' % (art['slug'], ext))):
                 out.append('<figure class="ib-flag"><img src="%sassets/flags/%s.%s" alt="Flag of the %s"></figure>' %
                            (self.root_for_infobox, art['slug'], ext, html.escape(art['title'])))
@@ -1042,6 +1047,16 @@ class Site:
         epi = ''
         if art['quote']:
             epi = '<figure class="epigraph"><q>%s</q><cite>%s</cite></figure>' % (self.links(art['quote'], ''), self.links(art['quote_src'] or '', ''))
+        # a gallery drawn for the article, kept in static/galleries/<slug>.json (the Fevarian clans' banners)
+        gal = ''
+        gp = os.path.join(STATIC, 'galleries', '%s.json' % art['slug'])
+        if os.path.exists(gp):
+            G = json.load(open(gp))
+            items = ''.join('<figure><img src="../assets/%s" alt="%s" loading="lazy"><figcaption><b%s>%s</b>%s</figcaption></figure>' %
+                            (it['src'], html.escape(it['title']), ' class="inv"' if it.get('inv') else '', html.escape(it['title']),
+                             ('<small>%s</small>' % html.escape(it['sub'])) if it.get('sub') else '') for it in G['items'])
+            gal = '<section class="gallery" id="gallery"><h2>%s</h2><div class="gal">%s</div></section>' % (html.escape(G['title']).upper(), items)
+            tocs.insert(len(tocs) - (1 if art['sources'] else 0), '<a href="#gallery">%s</a>' % html.escape(G['title']))
         src = ''
         if art['sources']:
             src = '<section class="sources" id="sources"><h2>BOOK SOURCES</h2><ol>%s</ol></section>' % ''.join('<li>%s</li>' % s for s in art['sources'])
@@ -1053,7 +1068,7 @@ class Site:
              '<div class="page"><nav class="toc" aria-label="Contents"><p class="label">Contents</p>%s</nav>' % ''.join(tocs),
              '<main class="article" id="top"><div class="title-block"><p class="crumbs">%s</p><h1>%s</h1>' % (' / '.join(crumbs), html.escape(art['title'])),
              '<div class="tabs"><a href="#top" class="on">Article</a>%s</div></div>' % ('<a href="#sources">Book sources</a>' if art['sources'] else ''),
-             '<div class="columns"><div class="prose">%s%s%s</div>%s</div>%s</main></div>' % (epi, body, src, side, series),
+             '<div class="columns"><div class="prose">%s%s%s%s</div>%s</div>%s</main></div>' % (epi, body, gal, src, side, series),
              '<script src="../assets/toc.js" defer></script>',
              (PLANET_JS if planet_slug(art['slug']) else ''),
              self.footer('../')]

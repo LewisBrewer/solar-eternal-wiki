@@ -748,7 +748,10 @@ function flagRow(fs, x, y, h) {
   fs.forEach((f, k) => {
     if (k && k % per === 0) fx = x;
     const fy = y + Math.floor(k / per) * (h + 3);
-    if (isRound(f)) {
+    if ((data.squareFlags || []).includes(f)) {
+      out += '<image href="assets/flags/' + f + '" x="' + fx + '" y="' + fy + '" width="' + h + '" height="' + h + '"/>';
+      fx += h + 3;
+    } else if (isRound(f)) {
       const d = h * 1.35, cy = fy + h / 2;
       out += '<image href="assets/flags/' + f + '" x="' + fx + '" y="' + (cy - d / 2) + '" width="' + d + '" height="' + d + '"/>';
       fx += d + 3;
