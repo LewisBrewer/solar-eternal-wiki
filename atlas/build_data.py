@@ -216,6 +216,8 @@ for sid, sec in SHEET_SECTOR.items():
 MOVED = {'cygni': (-30.7, -10.4, -2.5), 'daranma': (17.5, 6.5, None)}   # Daranma sits at the Rubin Void's edge
 for sid, (x, y, z) in MOVED.items():
     by[sid].update(x=x, y=y, z=by[sid]['z'] if z is None else z)
+import heights as HT
+HT.apply(systems)   # heights above the plane: real stars' galactic latitudes, the rest smoothed between them
 # catalogue names from the sheet's designations (Teegarden for Targon and so on)
 CATALOGUE = {}
 for r in sheet:
