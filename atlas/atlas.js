@@ -18,6 +18,8 @@ const [data, articles, PLANETS] = await Promise.all([
   fetch('assets/articles.json').then((r) => r.json()).catch(() => ({})),
   fetch('assets/planets/planets.json').then((r) => r.json()).catch(() => ({})),
 ]);
+// generated surfaces for planets nobody has mapped, by type
+const GENLIB = await fetch('assets/planets/_gen/index.json').then((r) => r.json()).catch(() => ({}));
 // generated planet maps, found by world name
 const planetByName = Object.fromEntries(Object.entries(PLANETS).map(([slug, p]) => [p.name, Object.assign({ slug }, p)]));
 const SOL_BODIES = { Mercury: 'mercury', Venus: 'venus', Jupiter: 'jupiter', Saturn: 'saturn', Uranus: 'uranus', Neptune: 'neptune', Titan: 'titan' };
@@ -1010,6 +1012,14 @@ function svSurface(name, type, rad, t) {
     const { a, b, k } = statesAt(pg, t), base = 'assets/planets/' + pg.slug + '/';
     const g = makeGlobe(THREE, { day: base + a.k + '-day.webp', data: a.noData ? null : base + a.k + '-data.webp', day2: base + b.k + '-day.webp', data2: (a.noData || b.noData) ? null : base + b.k + '-data.webp', atmo: a.atmo, atmo2: b.atmo, k, glow: a.glow, clouds: true });
     g.scale.setScalar(rad); S3.globes.push({ g, pg, name }); return g;
+  }
+  const lib = GENLIB[type];
+  if (lib && lib.length && !SOL_BODIES[name]) {
+    const r = seeded(name), key = lib[Math.floor(r() * lib.length)], base = 'assets/planets/_gen/' + key;
+    const g = makeGlobe(THREE, { day: base + '-day.webp', data: base + '-data.webp', clouds: false, relief: 3,
+      atmo: /Ocean|Steppe/.test(type) ? '#8fb8ff' : /Hot cloud/.test(type) ? '#f0d9a0' : /giant/.test(type) ? '#c8d8f0' : null,
+      glow: /Molten/.test(type) ? '#ff7a2a' : '#000000' });
+    g.scale.setScalar(rad); S3.globes.push({ g, name }); return g;
   }
   const sk = SOL_BODIES[name] || (sv.sys.id === 'sol' && { Earth: null }[name]);
   const mat = new THREE.MeshStandardMaterial({ roughness: 0.95, metalness: 0 });

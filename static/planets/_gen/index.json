@@ -1,0 +1,88 @@
+{
+"Molten world": [
+"molten-world-0",
+"molten-world-1",
+"molten-world-2",
+"molten-world-3"
+],
+"Tidally locked rock": [
+"tidally-locked-rock-0",
+"tidally-locked-rock-1",
+"tidally-locked-rock-2",
+"tidally-locked-rock-3"
+],
+"Hot cloud world": [
+"hot-cloud-world-0",
+"hot-cloud-world-1",
+"hot-cloud-world-2",
+"hot-cloud-world-3"
+],
+"Barren rock": [
+"barren-rock-0",
+"barren-rock-1",
+"barren-rock-2",
+"barren-rock-3",
+"barren-rock-4"
+],
+"Barren world": [
+"barren-world-0",
+"barren-world-1",
+"barren-world-2",
+"barren-world-3",
+"barren-world-4"
+],
+"Frozen desert": [
+"frozen-desert-0",
+"frozen-desert-1",
+"frozen-desert-2",
+"frozen-desert-3"
+],
+"Ocean world": [
+"ocean-world-0",
+"ocean-world-1",
+"ocean-world-2",
+"ocean-world-3"
+],
+"Steppe world": [
+"steppe-world-0",
+"steppe-world-1",
+"steppe-world-2",
+"steppe-world-3"
+],
+"Frozen world": [
+"frozen-world-0",
+"frozen-world-1",
+"frozen-world-2",
+"frozen-world-3"
+],
+"Frozen dwarf": [
+"frozen-dwarf-0",
+"frozen-dwarf-1",
+"frozen-dwarf-2"
+],
+"Irradiated rock": [
+"irradiated-rock-0",
+"irradiated-rock-1",
+"irradiated-rock-2"
+],
+"Gas giant": [
+"gas-giant-0",
+"gas-giant-1",
+"gas-giant-2",
+"gas-giant-3",
+"gas-giant-4",
+"gas-giant-5"
+],
+"Ringed gas giant": [
+"ringed-gas-giant-0",
+"ringed-gas-giant-1",
+"ringed-gas-giant-2",
+"ringed-gas-giant-3"
+],
+"Ice giant": [
+"ice-giant-0",
+"ice-giant-1",
+"ice-giant-2",
+"ice-giant-3"
+]
+}

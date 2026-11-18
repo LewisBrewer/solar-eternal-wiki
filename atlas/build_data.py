@@ -486,11 +486,25 @@ def maweer_name():
         n += arng.choice(MW_CO)
         if 5 <= len(n) <= 10 and n not in MW_USED and not re.search(r'([aeiou])\1\1|[aeiou]{3}', n):
             MW_USED.add(n); return n
-MW_LUSH = ['forest', 'megaflora', 'tepid', 'cascadian', 'lake', 'verdant', 'silvergrass', 'thunderstorm', 'mediterranean', 'prairie', 'boreal', 'archipelago']
+MW_FOREST = ['forest', 'megaflora', 'boreal', 'lake', 'cascadian', 'verdant', 'taiga', 'thunderstorm']
 MW_BARE = ['ochre', 'colddesert', 'regolith', 'ironsand', 'basalt']
 maweer_sys = [x for x in systems if x['region2235'] == 'maweer']
 march_ids = {sid for sid in own if any(e['p'] == 'khanate' for e in own[sid])}
 MAWEER_BURNED = 'ovastiuum'
+# Lewis's choices (18 November 2026): five garden arcologies, Thaaluun, the Fejantris world and three
+# spread through the core; every other Maweer world a forest world with two or three small ring-cities;
+# two march worlds, one north and one west, still being made in 2510.
+note = lambda sid: ([e.get('note') or '' for e in own[sid] if e['p'] == 'khanate'] or [''])[0]
+core = sorted([x for x in maweer_sys if x['id'] not in march_ids], key=lambda x: x['id'])
+pick = ['maweer', 'fejantris']
+while len(pick) < 5:
+    far = max((x for x in core if x['id'] not in pick), key=lambda x: min(math.dist((x['x'], x['y']), (by[p]['x'], by[p]['y'])) for p in pick))
+    pick.append(far['id'])
+ARC_SYS = set(pick)
+north = sorted(x['id'] for x in maweer_sys if x['id'] in march_ids and 'northern' in note(x['id']))
+west = sorted(x['id'] for x in maweer_sys if x['id'] in march_ids and 'western' in note(x['id']))
+MAKING = {north[0], west[0]}
+srng = random.Random(4417)   # styles drawn apart from names, so the names stay put
 for x in sorted(maweer_sys, key=lambda x: x['id']):
     frontier = x['id'] in march_ids
     n = arng.randint(1, 2) if frontier else arng.randint(1, 4)
@@ -500,14 +514,16 @@ for x in sorted(maweer_sys, key=lambda x: x['id']):
         name = 'Thaaluun' if home else maweer_name()
         if home: MW_USED.add(name)
         d = {'sys': x['id'], 'name': name, 'settled': 1800, 'native': True, 'pl': pl, 'moon': False, 'people': 'Maweer', 'invented': True}
-        if frontier:
-            d['biome'] = 'Garden world in the making'
-            d['gen'] = {'now': arng.choice(MW_BARE), 'after': arng.choice(MW_LUSH), 'cls': 'maweer', 'style': 'frontier',
-                        'start': arng.randint(2300, 2400), 'ty': arng.randint(2470, 2560)}
+        forest = srng.choice(MW_FOREST); bare = srng.choice(MW_BARE)
+        if x['id'] in ARC_SYS and k == 0:
+            d['biome'] = 'Garden city-world' if x['id'] in ('maweer', 'fejantris') else 'Garden arcology'
+            d['gen'] = {'now': 'verdant' if home else forest, 'after': None, 'cls': 'maweer', 'style': 'arcology'}
+        elif x['id'] in MAKING and k == 0:
+            d['biome'] = 'Forest world in the making'
+            d['gen'] = {'now': bare, 'after': forest, 'cls': 'maweer', 'style': 'frontier', 'start': srng.randint(2300, 2400), 'ty': srng.randint(2540, 2580)}
         else:
-            style = 'engineered' if (home or arng.random() < 0.5) else 'wild'
-            d['biome'] = 'Engineered garden world' if style == 'engineered' else 'Wild garden world'
-            d['gen'] = {'now': 'verdant' if home else arng.choice(MW_LUSH), 'after': None, 'cls': 'maweer', 'style': style}
+            d['biome'] = 'Forest world'
+            d['gen'] = {'now': forest, 'after': None, 'cls': 'maweer', 'style': 'forest'}
         if home: d['capital'] = 'Ouvenarth'; d['homeworld'] = True; d['slug'] = 'thaaluun'
         worlds.append(d)
 mb = [w for w in worlds if w['sys'] == MAWEER_BURNED][0]
