@@ -15,6 +15,10 @@ CANON = {  # name: (home system, monoliths, notes)
     "D'Kasht": ('kasht', 2), "D'Mareth": ('mareth-vel', 2), "D'Hovar": ('vharr', 2), "D'Tarik": ('sel-tarik', 7),
     "D'Sethen": ('ul-sethen', 2),
 }
+# clans the wiki's battle articles name: the six of Hiverion's garrison destroyed at Exedor in 2451 (with their
+# monoliths), and the four of the Yildun garrison that settled the Canopy Islands in 2444
+ARTICLE = {"D'Ravek": 'The Ninth Fire', "D'Sarum": "Dhen's Promise", "D'Varra": 'The Long Hunt', "D'Kaal": 'Iron Mother',
+           "D'Okhet": 'The Unanswered', "D'Imar": 'Silence Before Rain', "D'Ressa": None, "D'Amul": None, "D'Vorrin": None, "D'Kael": None}
 DESIGNED = ["D'Ossar", "D'Varek", "D'Thulen", "D'Kharim", "D'Morrek", "D'Selvar", "D'Unnar", "D'Zhaal", "D'Rasken",
             "D'Volun", "D'Ashtor", "D'Garron", "D'Ishul", "D'Keleth", "D'Yeshar", "D'Nemar", "D'Akhul", "D'Sorrah",
             "D'Thurr", "D'Orsh", "D'Brahn", "D'Vahrel", "D'Esken"]
@@ -30,12 +34,13 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
     north_homes = list(FREEHOLDS)
     veil_homes = list(VEIL_IDS)
     # ---------------------------------------------------------------- the clans
-    taken = set(CANON) | set(DESIGNED)
+    taken = set(CANON) | set(DESIGNED) | set(ARTICLE)
     names = []
     while len(names) < 300 - len(CANON) - len(DESIGNED):
         n = "D'" + rng.choice(ON) + rng.choice(VO) + rng.choice(EN) + rng.choice(EN2)
         if len(n) > 11 or n in taken: continue
         taken.add(n); names.append(n)
+    names[-len(ARTICLE):] = list(ARTICLE)   # the article clans take the last generated places, so nothing else moves
     clans = []
     for n, (home, m) in CANON.items():
         clans.append({'name': n, 'home': home, 'm': m, 'canon': True})
@@ -59,6 +64,7 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
     for i, (n, m) in enumerate(zip(veil_names, counts(len(veil_names), 425 - canon_m))):
         clans.append({'name': n, 'home': veil_homes[i % len(veil_homes)], 'm': m})
     for c in clans:
+        if c['name'] in ARTICLE: c['m'] = max(c['m'], 1)
         c['id'] = slug(c['name']); c['north'] = c['home'] in north_homes
         c['inv'] = not c.get('canon')
     # ---------------------------------------------------------------- the monoliths
@@ -80,6 +86,8 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
            ('dvesh', 0, 'saolea', 2434.2, 'Saolea', None), ('dvesh', 1, 'ciriban', 2450.37, "Bounty's orbit", None),
            ('dhovar', 0, 'omaggus', 2457.7, 'Omaggus', None), ('dhovar', 1, 'beta-aquilae', 2458.79, 'the last monolith outside the Veil', None),
            ('dtarik', 3, 'ossath', 2457.17, 'Ossath', None), ('dtarik', 4, 'ossath', 2457.17, 'Ossath', None)]
+    for n, mn in ARTICLE.items():
+        if mn: FIX.append((slug(n), 0, 'exedor', 2451.73, 'Exedor', mn))
     fixed_ms = []
     for cid, k, sys_, y, lbl, nm in FIX:
         m = byclan[cid][k]
@@ -98,16 +106,17 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
         ('saolea', 2436.7, 4, 'war', 'Theia'), ('veyer', 2437.5, 3, 'war', 'Hualapai'), ('nomotar', 2438.6, 9, 'war', 'Nomotar'),
         ('binami', 2440.28, 5, 'war', 'Binami'),
         ('talandra', 2441.35, 33, 'war', 'First Talandra'), ('procyon', 2441.87, 19, 'war', 'Procyon'),
-        ('sirius', 2444.45, 4, 'war', 'Sirius'), ('yildun', 2444.93, 3, 'war', 'Dauntless'),
-        ('sol', 2446.27, 40, 'war', 'Jupiter'), ('sol', 2446.9, 33, 'war', 'the Battle of Earth'),
-        ('alpha-centauri', 2447.8, 18, 'war', 'Alpha Centauri'), ('procyon', 2448.2, 4, 'war', 'Procyon'),
-        ('daranma', 2448.7, 3, 'war', 'Mardak Vol'), ('talandra', 2449.47, 43, 'war', 'Second Talandra'),
-        ('bashpit', 2449.87, 3, 'war', 'Bashpit'), ('haedus', 2451.36, 5, 'war', 'Third Haedius'), ('exedor', 2451.73, 9, 'war', 'Exedor'),
+        ('sirius', 2444.45, 4, 'war', 'Sirius'), ('yildun', 2444.44, 28, 'war', 'Yildun'),
+        ('sol', 2446.27, 40, 'war', 'Jupiter'), ('sol', 2446.47, 3, 'war', 'Vesta'), ('sol', 2446.75, 15, 'war', 'Mars'),
+        ('sol', 2446.9, 15, 'war', 'the Battle of Earth'),
+        ('alpha-centauri', 2447.8, 18, 'war', 'Alpha Centauri'), ('procyon', 2448.35, 14, 'war', 'Second Procyon'),
+        ('daranma', 2448.7, 3, 'war', 'Mardak Vol'), ('talandra', 2449.47, 37, 'war', 'Second Talandra'),
+        ('bashpit', 2449.87, 3, 'war', 'Bashpit'), ('haedus', 2451.36, 5, 'war', 'Third Haedius'), ('exedor', 2451.73, 6, 'war', 'Exedor'), ('media', 2451.12, 4, 'war', 'Media'),
         ('faenov', 2452.4, 3, 'war', 'Faenov'), ('hoeddim', 2452.7, 2, 'war', 'Hoeddim'), ('azak', 2453.1, 3, 'war', 'Azak'),
         ('aethos', 2453.79, 2, 'war', 'Second Aethos'), ('kuma', 2455.5, 3, 'war', 'the Long Siege'), ('omaggus', 2455.5, 3, 'war', 'Omaggus'), ('omaggus', 2457.7, 1, 'war', 'Omaggus'),
         ('ijaagin', 2457.6, 3, 'war', 'the Long Siege'),
         ('churassix', 2454.3, 2, 'home', 'the freeholds'), ('barban', 2454.45, 2, 'home', 'the freeholds'), ('matar', 2454.45, 2, 'home', 'the freeholds'),
-        ('daarasta', 2454.6, 3, 'home', 'the freeholds'), ('fevallion', 2454.85, 6, 'home', 'Fevallion'), ('mecura', 2454.95, 1, 'home', 'the freeholds'),
+        ('daarasta', 2454.6, 3, 'home', 'the freeholds'), ('fevallion', 2454.85, 11, 'home', 'Fevallion'), ('mecura', 2454.95, 1, 'home', 'the freeholds'),
         ('japhon', 2455.05, 1, 'home', 'the freeholds'), ('maasym', 2455.05, 1, 'home', 'the freeholds'),
         (m6[1], 2455.4, 3, 'war', 'the marches'), (m6[3], 2455.8, 3, 'war', 'the marches'), (m6[4], 2456.0, 4, 'war', 'the marches'),
         ('hwen', 2456.2, 2, 'war', 'the Dwaii'), ('ellui', 2456.3, 2, 'war', 'the Dwaii'), ('dwaimar', 2456.4, 2, 'war', 'the Dwaii'),

@@ -873,6 +873,40 @@ for sid, fs in FEATURES.items():
         ws_ = sorted((w for w in worlds if w['sys'] == sid and w.get('pl') and w['settled'] < f['from']), key=lambda w: (not w.get('native'), w['settled']))
         if ws_: f['at'] = ws_[0]['pl']
 
+# every battle's wreckage, each side's losses, and the article it opens (atlas/battles.py)
+import battles as BT
+def _at(sid, where):
+    if where == 'pillai' or isinstance(where, (int, list)): return where
+    w = next((w for w in worlds if w['sys'] == sid and w['name'] == where and w.get('pl')), None)
+    return w['pl'] if w else 'pillai'
+for sid, y, where, slug_, title, sides in BT.BATTLES:
+    fs = FEATURES.setdefault(sid, [])
+    wr = next((f for f in fs if f['kind'] == 'wreck' and not f.get('title') and abs(f['from'] - y) < 0.15), None)
+    if not slug_:
+        ev = next((e for e in EVENTS if e["sys"] == sid and abs(e['y'] - y) < 0.5 and e.get('slug')), None)
+        slug_ = ev['slug'] if ev else None
+    out = []
+    mono = None
+    if wr:
+        mono = {'name': BT.KH, 'style': 'mono', 'n': wr['n'], 'lost': '%d monolith%s' % (wr['n'], 's' if wr['n'] > 1 else '') +
+                (' (%s)' % ', '.join(wr['named']) if wr.get('named') else ''), 'clans': wr['clans']}
+    for nm, st, n, lost in sides:
+        if st == 'fev' and mono:
+            mono['lost'] += '; ' + lost; mono['n2'] = n
+        else:
+            out.append({'name': nm, 'style': st, 'n': n, 'lost': lost})
+    if mono: out.append(mono)
+    f = wr or {'kind': 'wreck', 'from': y, 'n': 0}
+    if not wr: fs.append(f)
+    f.update({'title': title, 'name': title, 'battle': title, 'at': _at(sid, where), 'sides': out})
+    if slug_: f['slug'] = slug_
+for sid, fs in FEATURES.items():
+    for f in fs:
+        if f['kind'] == 'wreck' and not f.get('sides'):
+            f['title'] = 'Wrecks of ' + f['battle']
+            f['sides'] = [{'name': BT.KH, 'style': 'mono', 'n': f['n'], 'lost': '%d monolith%s' % (f['n'], 's' if f['n'] > 1 else '') +
+                           (' (%s)' % ', '.join(f['named']) if f.get('named') else ''), 'clans': f['clans']}]
+
 data = {
     'meta': {
         'source': 'Traced from Lewis Brewer\'s reference map 2235.12.10; 1 unit = 1 light year; Sol at origin.',

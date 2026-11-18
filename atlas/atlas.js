@@ -866,22 +866,28 @@ const FEAT_KIND = { fleet: 'Monolith fleet', clanfleet: 'Clan anchorage', clanhu
 const clanLink = (id) => hasArticle(id) ? '<a href="' + wikiHref(id) + '">' + esc(clanName(id)) + '</a>' : esc(clanName(id));
 const clanHead = (id, sz = 14) => '<img class="sw flagkey" src="assets/flags/clans/' + id + '.png" alt="" style="width:' + sz + 'px;height:' + sz + 'px">';
 function featInfo(f, t) {
+  if (f.kind === 'wreck') {
+    const rows = [['Date', fmtDate(f.from)]];
+    if (hasArticle(f.slug)) rows.push(['Article', '<a href="' + wikiHref(f.slug) + '">' + esc(f.title) + '</a>']);
+    const lost = (f.sides || []).map((sd) => [sd.name, esc(sd.lost)]);
+    let html = '<div class="sv-feat"><span class="k">Wreckage</span><h2>' + esc(f.title) + '</h2></div>' + sec('Battle', rows) + sec('Ships lost', lost);
+    if (hasArticle(f.slug)) html += '<a class="art" href="' + wikiHref(f.slug) + '">Read the article →</a>';
+    return html;
+  }
   const c = f.clan ? (data.clans || []).find((x) => x.id === f.clan) : null;
   const head = c ? '<img src="assets/flags/clans/' + c.id + '-banner.png" alt="" style="height:150px;display:block;margin:6px auto 2px" onerror="this.src=\'assets/flags/clans/' + c.id + '.png\';this.style.height=\'64px\'">' : '';
-  const title = f.kind === 'wreck' ? 'Wrecks of ' + f.battle : f.name;
   const rows = [['Kind', FEAT_KIND[f.kind] || f.kind]];
   if (c) {
     rows.push(['Clan', clanHead(c.id) + ' ' + clanLink(c.id)]);
     rows.push(['This year', clanStatus(c, t)]);
   }
   if (f.n && f.kind !== 'clanbase') rows.push([f.kind === 'clanhulk' || f.kind === 'hulk' ? 'Hulks' : f.kind === 'orbital' ? 'Rings' : 'Monoliths', String(f.n)]);
-  if (f.named && f.named.length) rows.push(['Named', f.named.map(esc).join(', ')]);
   if (f.hearths) rows.push(['Captured hearths', String(f.hearths)]);
-  if (f.kind === 'wreck') rows.push(['Destroyed', fmtDate(f.from)]);
-  else rows.push(['Here', (f.from < 1900 ? 'Since before the Khanate' : 'From ' + fmtDate(f.from)) + (f.to ? ' to ' + fmtDate(f.to) : '')]);
-  if (f.clans && f.clans.length) rows.push([f.kind === 'wreck' ? 'Clans lost' : 'Clans', f.clans.map((id) => clanHead(id) + ' ' + clanLink(id)).join('<br>')]);
-  if (hasArticle('fevarian-clans')) rows.push(['Article', '<a href="' + wikiHref('fevarian-clans') + '">Fevarian clans</a>']);
-  return '<div class="sv-feat">' + head + '<h2 style="margin:4px 0 6px;font-size:18px">' + esc(title) + '</h2></div>' + sec('Feature', rows);
+  rows.push(['Here', (f.from < 1900 ? 'Since before the Khanate' : 'From ' + fmtDate(f.from)) + (f.to ? ' to ' + fmtDate(f.to) : '')]);
+  if (f.clans && f.clans.length) rows.push(['Clans', f.clans.map((id) => clanHead(id) + ' ' + clanLink(id)).join('<br>')]);
+  if (c && hasArticle(c.id)) rows.push(['Article', '<a href="' + wikiHref(c.id) + '">' + esc(c.name) + '</a>']);
+  else if (hasArticle('fevarian-clans')) rows.push(['Article', '<a href="' + wikiHref('fevarian-clans') + '">Fevarian clans</a>']);
+  return '<div class="sv-feat">' + head + '<h2>' + esc(f.name) + '</h2></div>' + sec('Feature', rows);
 }
 function sec(title, rows) {
   return '<button type="button" class="sv-sec" aria-expanded="true">' + esc(title) + chev + '</button><table>' + rows.map(([k, v, later, rawKey]) => '<tr' + (later ? ' class="later"' : '') + '><th scope="row">' + (rawKey ? k : esc(k)) + '</th><td>' + v + '</td></tr>').join('') + '</table>';
@@ -962,8 +968,9 @@ function renderSystemInfo() {
   const visiting = [];
   for (const f of ((data.features || {})[s.id] || [])) if (f.clans && t >= f.from && !(f.to && t >= f.to)) for (const c of f.clans) if (!visiting.includes(c) && !clansHere.some((x) => x.id === c)) visiting.push(c);
   if (visiting.length) html += sec('Clans in the system', [[visiting.length + ' clans', visiting.slice(0, 40).map((c) => '<img class="sw flagkey" src="assets/flags/clans/' + c + '.png" alt="" title="' + esc(clanName(c)) + '">').join('')]]);
+  ((data.features || {})[s.id] || []).forEach((f, i) => { f._i = i; });
   const wrecks = ((data.features || {})[s.id] || []).filter((f) => f.kind === 'wreck' && f.from <= t);
-  if (wrecks.length) html += sec('Wrecks', wrecks.map((f) => [String(Math.floor(f.from)), esc(f.battle) + ' · ' + f.n + (f.n > 1 ? ' monoliths ' : ' monolith ') + f.clans.slice(0, 12).map((id) => clanHead(id, 12)).join('')]));
+  if (wrecks.length) html += sec('Wreckage', wrecks.map((f) => [String(Math.floor(f.from)), (hasArticle(f.slug) ? '<a href="' + wikiHref(f.slug) + '">' + esc(f.title) + '</a>' : esc(f.title)) + ' · <a href="#" class="pickf" data-k="f:' + f._i + '">show</a>']));
   if (ws.length) html += sec('Settled worlds', ws.map((w) => [w.name, (hasArticle(w.slug) ? '<a href="' + wikiHref(w.slug) + '">Article</a> · ' : '') + (w.native ? 'Native world' : fmtDate(w.settled))]));
   if (evs.length) html += sec('History', evs.map((e) => [fmtDate(e.y), hasArticle(e.slug) ? '<a href="' + wikiHref(e.slug) + '">' + esc(e.label) + '</a>' : esc(e.label), e.y > t]));
   if (hasArticle(s.id)) html += '<a class="art" href="' + wikiHref(s.id) + '">Read the article →</a>';
@@ -991,8 +998,9 @@ function renderSystemInfo() {
       PANEL_GLOBE = { key, el: gEl, g };
     }
   } else if (PANEL_GLOBE.g) { PANEL_GLOBE.g.destroy(); PANEL_GLOBE = {}; }
+  $('#sv-info').querySelectorAll('.pickf').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); sv.pick = a.dataset.k; svFocus(sv.pick); renderSystemInfo(); writeHash(); }));
   $('#sv-info').querySelectorAll('.sv-sec').forEach((b) => b.addEventListener('click', () => { const open = b.getAttribute('aria-expanded') === 'true'; b.setAttribute('aria-expanded', String(!open)); b.nextElementSibling.hidden = open; }));
-  $('#sv-title').textContent = (body ? body.label : pickedF ? (pickedF.kind === 'wreck' ? 'Wrecks of ' + pickedF.battle : pickedF.name) : s.name) + ' - ' + year;
+  $('#sv-title').textContent = (body ? body.label : pickedF ? (pickedF.title || pickedF.name) : s.name) + ' - ' + year;
   const last = evs.filter((e) => e.y <= t).pop();
   $('#sv-sub').textContent = last ? last.label + ', ' + fmtDate(last.y) : (o ? polName(o.p) : 'Unclaimed');
   $('#sv-legend').innerHTML = o ? '<span>' + polKey(o.p) + esc(polName(o.p)) + '</span>' : '';
@@ -1064,7 +1072,7 @@ function svInit() {
       if (d <= 0 && d < bd) { bd = d; best = h; }
     }
     sv.pick = best ? best.key : null;
-    if (!String(sv.pick).startsWith('f:')) svFocus(sv.pick);
+    svFocus(sv.pick);
     renderSystemInfo(); writeHash();
     if (sv.pick) $('#sv-info').scrollTop = 0;
   });
@@ -1189,7 +1197,15 @@ function svFeatures(force) {
   const lanceM = new THREE.MeshBasicMaterial({ color: 0xc8322a });
   const ringM = new THREE.MeshStandardMaterial({ color: 0x3a3234, roughness: 0.85, metalness: 0.35, emissive: 0x2a0808, emissiveIntensity: 0.5 });
   const hearthM = new THREE.MeshStandardMaterial({ color: 0x5b3f7a, roughness: 0.6, metalness: 0.2, emissive: 0x2a1640, emissiveIntensity: 0.6 });
-  const wreckM = new THREE.MeshStandardMaterial({ color: 0x2c2829, roughness: 0.95, metalness: 0.3 });
+  const WRECK_MAT = {
+    mono: new THREE.MeshStandardMaterial({ color: 0x2c2829, roughness: 0.95, metalness: 0.3 }),
+    human: new THREE.MeshStandardMaterial({ color: 0x8d959e, roughness: 0.7, metalness: 0.5, emissive: 0x262b31, emissiveIntensity: 1 }),
+    conf: new THREE.MeshStandardMaterial({ color: 0x9a6650, roughness: 0.75, metalness: 0.4, emissive: 0x2e1a12, emissiveIntensity: 1 }),
+    voor: new THREE.MeshStandardMaterial({ color: 0x6a4a8c, roughness: 0.8, metalness: 0.2, emissive: 0x24163a, emissiveIntensity: 1 }),
+    maweer: new THREE.MeshStandardMaterial({ color: 0x4f8a5c, roughness: 0.7, metalness: 0.3, emissive: 0x15301c, emissiveIntensity: 1 }),
+    alien: new THREE.MeshStandardMaterial({ color: 0x9a9470, roughness: 0.8, metalness: 0.3, emissive: 0x2a2818, emissiveIntensity: 1 }),
+    fev: new THREE.MeshStandardMaterial({ color: 0x5a4a40, roughness: 0.9, metalness: 0.3 }),
+  };
   for (const f of list) {
     // freehold settlements ring the system's largest body; everything else at the jump limit stays there
     const big = () => { let bi = 0; S3.bodies.forEach((b, i) => { if (b.rad > S3.bodies[bi].rad) bi = i; }); return bodyAt(bi + 1); };
@@ -1275,25 +1291,42 @@ function svFeatures(force) {
       }
       anchor = obj;
     } else if (f.kind === 'wreck') {
-      // broken monoliths: each slab snapped in two, the halves drifting apart, cold, with a spray of debris
-      const n = Math.min(f.n || 1, 40), r = seeded('w' + f.name + f.from), base = host ? rad * 2.3 : 0.32;
-      const sz = host ? rad * 0.08 : 0.085;
-      for (let k = 0; k < n; k++) {
-        const grp = new THREE.Group();
-        for (const sgn of [-1, 1]) {
-          const half = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.72 + r() * 0.2, 0.14), wreckM);
-          half.position.set(sgn * (0.05 + r() * 0.12), sgn * (0.42 + r() * 0.2), (r() - 0.5) * 0.2);
-          half.rotation.set((r() - 0.5) * 0.8, (r() - 0.5) * 0.8, sgn * (0.2 + r() * 0.5)); grp.add(half);
+      // a battle's wreckage: each side's dead hulls in its own build, broken and cold, in one drifting field.
+      // By a world the field sits off to one side in the world's orbit, so the camera can centre on it.
+      const r = seeded('w' + f.name + f.from), span = host ? rad * 0.9 : 0.16;
+      if (host) { const a = r() * 6.283, d = rad * 2.6; obj.position.set(Math.cos(a) * d, (r() - 0.5) * rad * 0.4, Math.sin(a) * d); }
+      for (const side of f.sides || []) {
+        const n = Math.min(side.n || 1, side.style === 'mono' ? 40 : 30), mat = WRECK_MAT[side.style] || WRECK_MAT.human;
+        const sz = (host ? rad * 0.07 : 0.07) * (side.style === 'mono' ? 1 : side.style === 'voor' ? 0.9 : 0.55);
+        for (let k = 0; k < n; k++) {
+          const grp = new THREE.Group();
+          if (side.style === 'mono') {
+            for (const sgn of [-1, 1]) {
+              const half = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.72 + r() * 0.2, 0.14), mat);
+              half.position.set(sgn * (0.05 + r() * 0.12), sgn * (0.42 + r() * 0.2), (r() - 0.5) * 0.2);
+              half.rotation.set((r() - 0.5) * 0.8, (r() - 0.5) * 0.8, sgn * (0.2 + r() * 0.5)); grp.add(half);
+            }
+          } else if (side.style === 'voor') {
+            const hm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.13, 0.8 + r() * 0.5, 7), mat); hm.rotation.z = Math.PI / 2 + (r() - 0.5); grp.add(hm);
+            const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.06, 0.5, 6), mat); tail.position.set(0.6 + r() * 0.3, (r() - 0.5) * 0.3, 0); tail.rotation.z = r() * 3; grp.add(tail);
+          } else {
+            const len = 0.5 + r() * 0.6;
+            for (const sgn of [-1, 1]) {
+              const part = new THREE.Mesh(new THREE.BoxGeometry(len * 0.5, 0.12, 0.16), mat);
+              part.position.set(sgn * (len * 0.28 + r() * 0.1), (r() - 0.5) * 0.12, (r() - 0.5) * 0.12); part.rotation.set(r(), r(), (r() - 0.5) * 0.9); grp.add(part);
+            }
+          }
+          for (let h = 0; h < 3; h++) {
+            const d = new THREE.Mesh(new THREE.TetrahedronGeometry(0.04 + r() * 0.05, 0), mat);
+            d.position.set((r() - 0.5) * 0.9, (r() - 0.5) * 0.9, (r() - 0.5) * 0.9); d.rotation.set(r() * 3, r() * 3, r() * 3); grp.add(d);
+          }
+          grp.scale.setScalar(sz);
+          const a = r() * 6.283, d = span * Math.sqrt(r());
+          grp.position.set(Math.cos(a) * d, (r() - 0.5) * span * 0.35, Math.sin(a) * d); grp.rotation.set(r() * 6, r() * 6, r() * 6);
+          obj.add(grp);
         }
-        for (let h = 0; h < 5; h++) {
-          const d = new THREE.Mesh(new THREE.TetrahedronGeometry(0.05 + r() * 0.07, 0), wreckM);
-          d.position.set((r() - 0.5) * 0.9, (r() - 0.5) * 1.4, (r() - 0.5) * 0.9); d.rotation.set(r() * 3, r() * 3, r() * 3); grp.add(d);
-        }
-        grp.scale.setScalar(sz);
-        const a = r() * 6.283, d = base * (0.6 + r() * 0.8);
-        grp.position.set(Math.cos(a) * d, (r() - 0.5) * 0.14, Math.sin(a) * d); grp.rotation.set(r() * 6, r() * 6, r() * 6);
-        obj.add(grp);
       }
+      obj.userData.span = span;
       anchor = obj;
     } else if (f.kind === 'hulk') {
       const n = Math.min(f.n || 4, 48), r = seeded(f.name + f.from);
@@ -1335,6 +1368,8 @@ function svFeatures(force) {
     }
     S3.feat.push({ f, obj, anchor: anchor || obj, host });
   }
+  // a feature picked from a link or the hash before its scene existed: fly to it now
+  if (String(S3.focus || '').startsWith('f:') && S3.flownF !== S3.focus && bodyKeyRad(S3.focus)) { S3.flownF = S3.focus; svFocus(S3.focus); }
 }
 // fly the camera to a body (or back to the whole system)
 function svFocus(key, instant) {
@@ -1346,6 +1381,10 @@ function svFocus(key, instant) {
   S3.fly = { t0: performance.now(), d: instant ? 1 : 1100, from: S3.cam.position.distanceTo(S3.ctl.target), to: toDist, fromT: S3.ctl.target.clone() };
 }
 function bodyKeyRad(key) {
+  if (String(key).startsWith('f:')) {
+    const e = (S3.feat || []).find((x) => 'f:' + x.f._i === key);
+    return e ? { obj: e.anchor, rad: Math.max(0.03, (e.anchor.userData.span || 0.1) / 3) } : null;
+  }
   const [pi, mi] = String(key).split('.').map(Number), b = S3.bodies[pi];
   if (!b) return null;
   if (mi === undefined || Number.isNaN(mi)) return { obj: b.grp, rad: b.rad };
@@ -1456,13 +1495,13 @@ function drawSystem(dt) {
     if (pickable) hits.push({ key: fkey, x: s.x, y: s.y, r: 11 });
     if (f.f.kind === 'clanbase') continue;
     let txt = f.f.name + n;
-    if (f.f.kind === 'wreck') txt = 'Wrecks · ' + f.f.n + ' · ' + Math.floor(f.f.from);
+    if (f.f.kind === 'wreck') txt = (f.f.title || f.f.name) + ' · ' + Math.floor(f.f.from);
     if (f.f.kind === 'clanfleet') txt = f.f.name + (f.f.n > 1 ? ' · ' + f.f.n + ' monoliths' : '');
     if (f.f.kind === 'clanhulk') txt = f.f.name + (f.f.n > 1 ? ' · ' + f.f.n + ' hulks' : ' hulk');
     let pre = '', dx = 0;
     if (f.f.clan) { pre = '<image href="assets/flags/clans/' + f.f.clan + '.png" x="' + (s.x + 6) + '" y="' + (s.y - 6) + '" width="12" height="12"/>'; dx = 15; }
     let post = '', tw = txt.length * 5.8;
-    if (f.f.clans && f.f.clans.length) {
+    if (f.f.clans && f.f.clans.length && f.f.kind !== 'wreck') {
       const show = f.f.clans.slice(0, f.f.kind === 'wreck' ? 4 : 10);
       show.forEach((c, k) => { post += '<image href="assets/flags/clans/' + c + '.png" x="' + (s.x + 12 + tw + k * 12) + '" y="' + (s.y - 5) + '" width="11" height="11"/>'; });
       if (f.f.clans.length > show.length) post += '<text class="sb ft" x="' + (s.x + 14 + tw + show.length * 12) + '" y="' + (s.y + 4) + '" font-size="9.5">+' + (f.f.clans.length - show.length) + '</text>';
