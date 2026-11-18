@@ -904,22 +904,34 @@ function renderSystemInfo() {
   $('#sv-info').innerHTML = html;
   const gEl = $('#sv-info .sv-globe');
   if (gEl) {
-    if (gEl.dataset.world) {
-      const p = planetByName[gEl.dataset.world];
-      const g = mountGlobe(THREE, gEl, { base: 'assets/planets/' + p.slug + '/', cities: p.cities, lon: (p.cities[0] || { lon: 0 }).lon, height: gEl.clientWidth });
-      g.setYear(p, t);
+    // one globe per world, kept across year changes: a new WebGL context on every tick of the year slider
+    // ran the browser out of contexts and it dropped the Atlas's own
+    const key = gEl.dataset.world || ('sol:' + gEl.dataset.sol);
+    const keep = PANEL_GLOBE.key === key ? PANEL_GLOBE : null;
+    if (keep) {
+      gEl.replaceWith(keep.el);
+      if (gEl.dataset.world) keep.g.setYear(planetByName[gEl.dataset.world], t);
     } else {
-      const k = gEl.dataset.sol;
-      const g = mountGlobe(THREE, gEl, { base: 'assets/planets/_sol/', cities: [], height: gEl.clientWidth });
-      g.set({ k, atmo: null, glow: '#000000', noData: true });
+      if (PANEL_GLOBE.g) PANEL_GLOBE.g.destroy();
+      let g;
+      if (gEl.dataset.world) {
+        const p = planetByName[gEl.dataset.world];
+        g = mountGlobe(THREE, gEl, { base: 'assets/planets/' + p.slug + '/', cities: p.cities, lon: (p.cities[0] || { lon: 0 }).lon, height: gEl.clientWidth });
+        g.setYear(p, t);
+      } else {
+        g = mountGlobe(THREE, gEl, { base: 'assets/planets/_sol/', cities: [], height: gEl.clientWidth });
+        g.set({ k: gEl.dataset.sol, atmo: null, glow: '#000000', noData: true });
+      }
+      PANEL_GLOBE = { key, el: gEl, g };
     }
-  }
+  } else if (PANEL_GLOBE.g) { PANEL_GLOBE.g.destroy(); PANEL_GLOBE = {}; }
   $('#sv-info').querySelectorAll('.sv-sec').forEach((b) => b.addEventListener('click', () => { const open = b.getAttribute('aria-expanded') === 'true'; b.setAttribute('aria-expanded', String(!open)); b.nextElementSibling.hidden = open; }));
   $('#sv-title').textContent = (body ? body.label : s.name) + ' - ' + year;
   const last = evs.filter((e) => e.y <= t).pop();
   $('#sv-sub').textContent = last ? last.label + ', ' + fmtDate(last.y) : (o ? polName(o.p) : 'Unclaimed');
   $('#sv-legend').innerHTML = o ? '<span>' + polKey(o.p) + esc(polName(o.p)) + '</span>' : '';
 }
+let PANEL_GLOBE = {};
 // ------------------------------------------------------------------ system view, in 3D
 // Drag to orbit and tilt, wheel or pinch to zoom, right-drag to pan. Clicking a planet or moon
 // selects it and flies the camera to it; the camera then follows it round its orbit. Orbits use a

@@ -167,10 +167,17 @@ export function mountGlobe(THREE, el, o) {
       if (free) taken.push(box);
       s.style.opacity = free ? 1 : 0;
     }
-    if (el.isConnected) requestAnimationFrame(tick); else r.dispose();
+    if (dead) return;
+    if (el.isConnected) requestAnimationFrame(tick); else destroy();
+  };
+  let dead = false;
+  const destroy = () => {
+    if (dead) return; dead = true;
+    if (globe) globe.traverse((m) => { if (m.material) { m.material.dispose(); m.geometry.dispose(); } });
+    r.dispose(); r.forceContextLoss();
   };
   requestAnimationFrame(tick);
-  return { set, setYear };
+  return { set, setYear, destroy };
 }
 
 // A flat map with city labels, from the same day map.
