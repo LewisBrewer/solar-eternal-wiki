@@ -42,6 +42,10 @@ POLITIES = {
     'dhovar':   {'name': 'Khanate of D\'Hovar', 'color': '#D19A4A'},
     'dwaii':    {'name': 'Dwaii', 'color': '#E2C65C', 'slug': 'dwaii'},
     'kadur':    {'name': 'Ka-Dur League', 'color': '#E58CC2', 'slug': 'ka-dur'},
+    'ossathi':  {'name': 'Ossathi', 'color': '#7FCF9A', 'slug': 'ossathi'},
+    'veren':    {'name': 'Veren', 'color': '#D8B46A', 'slug': 'veren'},
+    'kaltam':   {'name': 'Kal-Tam', 'color': '#C9825A', 'slug': 'kal-tam'},
+    'duresh':   {'name': 'Dur-Esh', 'color': '#5FB8C8', 'slug': 'dur-esh'},
 }
 
 def human_polity(y):
@@ -95,7 +99,8 @@ EXTRA = {
                ('Wend', 63, -17), ('Isolde', 51, -19), ('Peregrine', 58, -24), ('Lastlight', 66, -26)],
     # The four far peoples beyond the Ka-Dur, met by the Repatriation Authority in the 2460s
     # (book 15.x): the Ossathi, the Veren, the Kal-Tam and the Dur-Esh. Star names invented.
-    'far': [('Ossa Theran', -138, -60), ('Verentis', -141, -71), ('Kal Tamar', -134, -79), ('Dur Eshen', -147, -66)],
+    # Lewis's placement (18 November 2026): three south of the Dwaii, Dur Eshen east by Mareth Vel.
+    'far': [('Ossa Theran', -109, -103), ('Verentis', -100, -109), ('Kal Tamar', -112, -112), ('Dur Eshen', -47, -97)],
 }
 for region, lst in EXTRA.items():
     if region == 'rubin':
@@ -104,6 +109,51 @@ for region, lst in EXTRA.items():
         s = {'id': slug(name), 'name': name, 'x': float(x), 'y': float(y), 'z': round(rng.uniform(-3.5, 3.5), 2),
              'stars': 1 + (1 if rng.random() < 0.2 else 0), 'region2235': 'none' if region == 'far' else region, 'invented': True}
         systems.append(s); by[s['id']] = s
+
+# Filler stars (Lewis, 18 November 2026): named and mostly unclaimed, in the southern band below the
+# Ka-Dur, the Dwaii and the Veil, east of Ushar's Well, along the Nythran Void's western edge, and in
+# the Veil's empty patches (those join the Veil). Drawn from their own generator so the stars above
+# keep their depths. All names invented.
+frng = random.Random(9071)
+FILL_SYL = {
+    'south': (['Ae', 'Bri', 'Cael', 'Dun', 'Esk', 'Fal', 'Gor', 'Hal', 'Ith', 'Kel', 'Lum', 'Mor', 'Nis', 'Orr', 'Pel', 'Ruv', 'Syl', 'Tav', 'Ur', 'Vey', 'Wyn', 'Yss'],
+              ['ane', 'eth', 'ion', 'ara', 'ok', 'is', 'enn', 'avar', 'ul', 'ira', 'osk', 'eda']),
+    'veil': (['Vesh', 'Dhar', 'Kol', 'Ash', 'Mar', 'Thul', 'Rhen', 'Kesh', 'Drath', 'Ul', 'Var', 'Hask', 'Zhar', 'Tor', 'Orr', 'Sev'],
+             ['Tal', 'Khet', 'Dur', 'Vel', 'Mar', 'Ossa', 'Hul', 'Ash', 'Dhaan', 'Rek', 'Thar', 'Mol']),
+    'east': (['Tey', 'Fol', 'Um', 'Ban', 'Ija', 'Kum', 'Nith', 'Bet', 'Ceye', 'Om', 'Vor', 'Ak'],
+             ['tera', 'ingar', 'ik', 'agho', 'agin', 'asca', 'arro', 'aggus', 'eth', 'ul', 'ani']),
+    'nythran': (['Dho', 'Ka', 'Sar', 'Im', 'Kod', 'Ell', 'Gal', 'Bral', 'Pon', 'Thom', 'Ur'],
+                ['thom', 'rek', 'bal', 'uus', 'ith', 'ok', 'el', 'amir', 'urum', 'ix', 'ell']),
+}
+FILL_AREAS = [   # (style, x0, x1, y0, y1, count, region, keep out of the void)
+    ('south', -165, -15, -128, -100, 18, 'none'),
+    ('east', -48, -5, -92, -52, 9, 'none'),
+    ('nythran', -168, -140, -56, -22, 7, 'none'),
+    ('veil', -96, -50, -104, -60, 6, 'veil'),
+]
+VOID = (-115.0, -38.0, 15.0)
+names_taken = {s['name'] for s in systems}
+FILLED = []
+for style, x0, x1, y0, y1, n, region in FILL_AREAS:
+    pre, suf = FILL_SYL[style]
+    got = 0
+    for attempt in range(4000):
+        if got >= n: break
+        x, y = frng.uniform(x0, x1), frng.uniform(y0, y1)
+        if math.hypot(x - VOID[0], y - VOID[1]) < VOID[2]: continue
+        gap = 7.0 if region == 'veil' else 5.5
+        if min(math.hypot(o['x'] - x, o['y'] - y) for o in systems) < gap: continue
+        if style in ('veil',):
+            nm = frng.choice(pre) + ' ' + frng.choice(suf)
+        else:
+            nm = frng.choice(pre) + frng.choice(suf)
+        nm = {'Aeeth': 'Aeline', 'Ceyearro': 'Ceyarro', 'Dhoith': 'Dhorith'}.get(nm, nm)
+        if nm in names_taken or slug(nm) in by: continue
+        names_taken.add(nm)
+        s = {'id': slug(nm), 'name': nm, 'x': round(x, 1), 'y': round(y, 1), 'z': round(frng.uniform(-3.5, 3.5), 2),
+             'stars': 1 + (1 if frng.random() < 0.2 else 0), 'region2235': region, 'invented': True, 'fill': True}
+        systems.append(s); by[s['id']] = s; FILLED.append(s); got += 1
+        if region == 'veil': EXTRA['veil'].append((nm, s['x'], s['y']))
 
 # ------------------------------------------------------------------ Lewis's colony sheet
 # atlas/trace/colonies.tsv: sectors, claim years and the settled worlds. The book is canon;
@@ -362,6 +412,9 @@ for i, (name, *_) in enumerate(EXTRA['kadur']):
     set_owner(slug(name), 1900, 'kadur')
     set_owner(slug(name), round(2410.3 + i * 0.5, 1), 'khanate', 'tributary', derived=True)
 KADUR_FREED = {'ossath': ym(2457, 3, 4), 'kadris': ym(2457, 7), 'tamuur': ym(2457, 10)}
+# The four far peoples hold only their homeworlds; the Khanate raided them and never held them.
+for sid, p in (('ossa-theran', 'ossathi'), ('verentis', 'veren'), ('kal-tamar', 'kaltam'), ('dur-eshen', 'duresh')):
+    set_owner(sid, 1900, p)
 
 # The sheet's new systems share the wartime fate of their nearest charted neighbour.
 for sid in placed:
@@ -809,7 +862,7 @@ data = {
     'polities': POLITIES,
     # Powers fade in when humanity learns of them: the Voor at contact in 1 October 2317's
     # approach, the Maweer and (through the Voor) the Fevarians by 2320.
-    'contact': {'voor': 2317.75, 'maweer': 2320.5, 'freehold': 2320.5, 'fevclans': 2320.5, 'dwaii': 2320.5, 'kadur': 2320.5},
+    'contact': {'voor': 2317.75, 'maweer': 2320.5, 'freehold': 2320.5, 'fevclans': 2320.5, 'dwaii': 2320.5, 'kadur': 2320.5, 'ossathi': 2457.0, 'veren': 2457.0, 'kaltam': 2456.3, 'duresh': 2457.0},
     'systems': [{**s, 'own': own[s['id']]} for s in systems],
     'worlds': worlds,
     'planetNames': PLANET_NAMES,
