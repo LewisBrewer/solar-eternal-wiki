@@ -702,7 +702,7 @@ PLANET_NAMES = {'saolea': {2: 'Okeanos'}, 'ciriban': {3: 'Marigot', 5: 'Grand An
 BURNED = [('procyon', 'Landfall', ym(2441, 11, 26)), ('yildun', 'Dauntless', ym(2444, 12, 3)),
           ('saolea', 'Theia', ym(2436, 9, 12)), ('veyer', 'Hualapai', ym(2437, 3)),
           ('nomotar', 'Nomotar', ym(2438, 8, 20)), ('talandra', 'Talandra', ym(2441, 5, 10)),
-          ('haedus', 'Indata Mog', ym(2428, 11, 6)), ('ijax', 'Ijax', ym(2433, 6)),
+          ('haedus', 'Indata Mog', ym(2428, 11, 6)), ('ijax', 'Ijax', ym(2433, 6)), ('myrum', 'Myrum', ym(2428, 7, 4)),
           ('ciriban', 'Bounty', ym(2430, 5, 18))]
 
 
@@ -882,7 +882,8 @@ EVENTS = [
     ev(ym(2422, 6, 14), 'Fall of Vur Duri', 'aethos', 'battle'),
     ev(ym(2424, 6), 'Vi Simni submits', 'ximpok', 'battle'),
     ev(ym(2427, 8, 16), 'Fall of Hiverion', 'exedor', 'battle', 'hiverion'),
-    ev(ym(2428, 7, 9), 'Fall of Myrum', 'myrum', 'battle'),
+    ev(ym(2428, 7, 4), 'Myrum burned', 'myrum', 'burning', 'myrum'),
+    ev(ym(2428, 7, 9), 'Fall of Myrum', 'myrum', 'battle', 'myrum'),
     ev(ym(2428, 8, 6), 'First Battle of Haedius', 'haedus', 'battle'),
     ev(ym(2428, 9, 3), 'Second Battle of Haedius', 'haedus', 'battle'),
     ev(ym(2428, 11, 6), 'Indata Mog burned', 'haedus', 'burning'),
