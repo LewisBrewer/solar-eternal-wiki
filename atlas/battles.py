@@ -144,3 +144,20 @@ FLEETS = [
     ('Confederation fleet', CONF, 'conf', 5, 2246.0, 2252.28, 22, 'Vice Admiral Ilse Grünewald: Robespierres and Daxians covering the Jovian moons and the skimmer trade', 'jovian-campaign'),
     ('Coalition Jovian fleet', COAL, 'human', 5, 2247.2, 2252.3, 30, 'Fleet Admiral Chen Wei-lun in the Kunlun: the Jovian Theatre, the Chinese group of 16 capital ships among it', 'jovian-campaign'),
 ]
+
+# ---- the Maweer front (Lewis, 18 November 2026: battles with Maweer wreckage). The Maweer gave no losses, so the
+# figures are the Republic's estimates from the Maweer's charts and the Khanate's records.
+MAWEER = 'Maweer Caretakers'
+MAWEER_BATTLES = [
+    ('m0', 2413.6, 'Fall of Zosma', "The march's frontier squadron; its fortified orbitals", 14),
+    ('w0', 2413.7, 'Fall of Ellamir', 'The western march fleet, met at Ellamir from the Dothom road', 12),
+    ('n0', 2414.6, 'Fall of Fuye', 'The northern garrison and its stations', 8),
+    ('m2', 2414.8, 'Siege of Yirba', "The southern frontier fleet's second line", 16),
+    ('n2', 2415.3, 'Fall of Gamma Draconis', 'The northern garrison', 8),
+    ('m5', 2417.0, 'Fall of Craxima', "The last southern march's fleet, before the frontier was sealed", 18),
+    ('m5', 2447.5, 'Battle of Craxima', 'The first squadrons of the Maweer offensive', 10),
+    ('m3', 2448.1, 'Battle of Etheen', 'Two Maweer squadrons', 12),
+    ('m4', 2448.15, 'Khanate counterattack at Hydrobius', 'The Maweer garrison of Hydrobius', 10),
+    ('m0', 2449.2, 'Battle of Zosma', "The Maweer offensive's last fight in the south", 10),
+    ('m5', 2456.19, 'Battle of Kaldreth', 'Maweer pickets that fixed the last raiding monolith in its well', 4),
+]

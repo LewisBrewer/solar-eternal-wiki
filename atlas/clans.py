@@ -79,7 +79,7 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
     # of the clan D'Ashan aboard, and the D'Kasht monolith the Hearth broke, at Second Talandra; Orun D'Vesh's at Saolea;
     # D'Vesh and D'Kasht dead in Bounty's orbit, May 2450; two of D'Ashan's at Second Aethos; D'Hovar's last two
     fixed = {}
-    FIX = [('drhen', 0, 'sol', 2446.93, 'the Battle of Earth', 'the Returning'), ('drhen', 1, 'talandra', 2449.47, 'Second Talandra', None),
+    FIX = [('drhen', 0, 'sol', 2446.9, 'the Battle of Earth', 'the Returning'), ('drhen', 1, 'talandra', 2449.47, 'Second Talandra', None),
            ('dashan', 0, 'talandra', 2449.47, 'Second Talandra', "Ushar's Word"), ('dashan', 1, 'aethos', 2453.79, 'Second Aethos', None),
            ('dashan', 2, 'aethos', 2453.79, 'Second Aethos', None),
            ('dkasht', 0, 'talandra', 2449.47, 'Second Talandra', None), ('dkasht', 1, 'ciriban', 2450.37, "Bounty's orbit", None),
@@ -97,30 +97,32 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
     m6 = [s['id'] for s in marches]; wm = [s['id'] for s in west_marches]; nm = [s['id'] for s in north_m]
     EVENTS = [  # (system, year, count, pool, label)
         (nm[0] if nm else 'arausnyria', 2414.6, 4, 'north', 'the northern Maweer campaign'),
-        (nm[1] if len(nm) > 1 else 'thaaram', 2415.3, 3, 'north', 'the northern Maweer campaign'),
-        (nm[2] if len(nm) > 2 else 'aphris', 2416.8, 3, 'north', 'the northern Maweer campaign'),
-        (m6[0], 2413.6, 4, 'veil', 'the Maweer marches'), (m6[2], 2414.8, 3, 'veil', 'the Maweer marches'), (wm[0], 2415.5, 3, 'veil', 'the western marches'),
+        (nm[1] if len(nm) > 1 else 'thaaram', 2414.9, 3, 'north', 'the northern Maweer campaign'),
+        (nm[2] if len(nm) > 2 else 'aphris', 2415.3, 3, 'north', 'the northern Maweer campaign'),
+        (m6[0], 2413.6, 4, 'veil', 'the Maweer marches'), (m6[2], 2414.8, 3, 'veil', 'the Maweer marches'), (wm[0], 2413.7, 3, 'veil', 'the western marches'),
         ('aethos', 2422.45, 12, 'veil', 'Vur Duri'),
-        ('myrum', 2428.5, 4, 'war', 'Myrum'), ('haedus', 2428.62, 41, 'war', 'First Haedius'),
-        ('ciriban', 2429.3, 6, 'war', 'Bijou Nan Syèl La and Bounty'), ('ciriban', 2450.37, 4, 'war', "Bounty's orbit"), ('saolea', 2434.2, 28, 'war', 'Saolea'),
-        ('saolea', 2436.7, 4, 'war', 'Theia'), ('veyer', 2437.5, 3, 'war', 'Hualapai'), ('nomotar', 2438.6, 9, 'war', 'Nomotar'),
-        ('binami', 2440.28, 5, 'war', 'Binami'),
+        ('myrum', 2428.5, 1, 'war', 'Myrum'), ('haedus', 2428.62, 41, 'war', 'First Haedius'),
+        ('ciriban', 2429.3, 2, 'war', 'Bijou Nan Syèl La and Bounty'), ('ciriban', 2450.37, 4, 'war', "Bounty's orbit"), ('saolea', 2434.2, 28, 'war', 'Saolea'),
+        ('saolea', 2436.7, 1, 'war', 'Theia'), ('nomotar', 2438.6, 4, 'war', 'Nomotar'),
+        ('binami', 2440.28, 1, 'war', 'Binami'),
         ('talandra', 2441.35, 33, 'war', 'First Talandra'), ('procyon', 2441.87, 19, 'war', 'Procyon'),
-        ('sirius', 2444.45, 4, 'war', 'Sirius'), ('yildun', 2444.44, 28, 'war', 'Yildun'),
+        ('yildun', 2444.44, 28, 'war', 'Yildun'),
         ('sol', 2446.27, 40, 'war', 'Jupiter'), ('sol', 2446.47, 3, 'war', 'Vesta'), ('sol', 2446.75, 15, 'war', 'Mars'),
         ('sol', 2446.9, 15, 'war', 'the Battle of Earth'),
         ('alpha-centauri', 2447.8, 18, 'war', 'Alpha Centauri'), ('procyon', 2448.35, 14, 'war', 'Second Procyon'),
-        ('daranma', 2448.7, 3, 'war', 'Mardak Vol'), ('talandra', 2449.47, 37, 'war', 'Second Talandra'),
+        ('talandra', 2449.47, 37, 'war', 'Second Talandra'),
         ('bashpit', 2449.87, 3, 'war', 'Bashpit'), ('haedus', 2451.36, 5, 'war', 'Third Haedius'), ('exedor', 2451.73, 6, 'war', 'Exedor'), ('media', 2451.12, 4, 'war', 'Media'),
-        ('faenov', 2452.4, 3, 'war', 'Faenov'), ('hoeddim', 2452.7, 2, 'war', 'Hoeddim'), ('azak', 2453.1, 3, 'war', 'Azak'),
-        ('aethos', 2453.79, 2, 'war', 'Second Aethos'), ('kuma', 2455.5, 3, 'war', 'the Long Siege'), ('omaggus', 2455.5, 3, 'war', 'Omaggus'), ('omaggus', 2457.7, 1, 'war', 'Omaggus'),
-        ('ijaagin', 2457.6, 3, 'war', 'the Long Siege'),
+        ('faenov', 2452.4, 1, 'war', 'Faenov'), ('hoeddim', 2452.7, 1, 'war', 'Hoeddim'), ('azak', 2453.1, 2, 'war', 'Azak'),
+        ('aethos', 2453.79, 2, 'war', 'Second Aethos'), ('omaggus', 2457.7, 1, 'war', 'Omaggus'),
         ('churassix', 2454.3, 2, 'home', 'the freeholds'), ('barban', 2454.45, 2, 'home', 'the freeholds'), ('matar', 2454.45, 2, 'home', 'the freeholds'),
-        ('daarasta', 2454.6, 3, 'home', 'the freeholds'), ('fevallion', 2454.85, 11, 'home', 'Fevallion'), ('mecura', 2454.95, 1, 'home', 'the freeholds'),
-        ('japhon', 2455.05, 1, 'home', 'the freeholds'), ('maasym', 2455.05, 1, 'home', 'the freeholds'),
-        (m6[1], 2455.4, 3, 'war', 'the marches'), (m6[3], 2455.8, 3, 'war', 'the marches'), (m6[4], 2456.0, 4, 'war', 'the marches'),
+        ('daarasta', 2454.6, 3, 'home', 'the freeholds'), ('fevallion', 2454.85, 5, 'home', 'Fevallion'), ('fevallion', 2454.851, 6, 'war', 'Fevallion'),
+        # the Maweer offensive of 2447 to 2449 broke 14 of the tributary garrisons' monoliths, march by march
+        (m6[5], 2447.5, 2, 'war', 'the Maweer offensive'), (m6[4], 2447.8, 2, 'war', 'the Maweer offensive'), (m6[3], 2448.1, 3, 'war', 'the Maweer offensive'),
+        (m6[2], 2448.4, 2, 'war', 'the Maweer offensive'), (m6[1], 2448.7, 2, 'war', 'the Maweer offensive'), (m6[0], 2449.2, 3, 'war', 'the Maweer offensive'),
+        # the Hunt: four of the five raiding monoliths in the marches' wells broken, Kaldreth last, 9 March 2456
+        (m6[1], 2455.6, 1, 'war', 'the Hunt'), (m6[3], 2455.8, 1, 'war', 'the Hunt'), (m6[4], 2456.0, 1, 'war', 'the Hunt'), (m6[5], 2456.19, 1, 'war', 'Kaldreth'),
         ('hwen', 2456.2, 2, 'war', 'the Dwaii'), ('ellui', 2456.3, 2, 'war', 'the Dwaii'), ('dwaimar', 2456.4, 2, 'war', 'the Dwaii'),
-        ('ossath', 2457.17, 5, 'war', 'Ossath'), ('kadris', 2457.5, 2, 'war', 'Kadris'), ('tamuur', 2457.8, 2, 'war', 'Tamuur'),
+        ('ossath', 2457.17, 5, 'war', 'Ossath'), ('kadris', 2457.5, 2, 'war', 'Kadris'), ('tamuur', 2457.8, 1, 'war', 'Tamuur'),
         ('beta-aquilae', 2458.79, 1, 'war', 'the last monolith outside the Veil'),
     ]
     far_south = min((s for s in systems if s.get('fill') and s['y'] < -95), key=lambda s: math.hypot(s['x'] + 75, s['y'] + 112))['id']
@@ -234,7 +236,8 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
         if not f or f['sys'] == m['home']: continue
         seen.setdefault((f['sys'], f['y'], f['label']), []).append(m)
     for (s, y, lbl), ms in seen.items():
-        FEATURES.setdefault(s, []).append({'name': 'Monoliths at ' + lbl, 'kind': 'fleet', 'at': 'pillai', 'from': round(y - 0.08, 3), 'to': y,
+        FEATURES.setdefault(s, []).append({'name': ('Raiding monoliths' if lbl in ('the Hunt', 'Kaldreth') else 'Monoliths at ' + lbl), 'kind': 'fleet', 'at': 'pillai',
+                                           'from': 2450.4 if lbl in ('the Hunt', 'Kaldreth') else round(y - 0.08, 3), 'to': y,
                                            'n': len(ms), 'clans': sorted({m['clan'] for m in ms})})
     # the wrecks: every destroyed monolith stays where it died, broken, for good. The Returning fell to
     # Earth's surface over the Pacific and is not among them.

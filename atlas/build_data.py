@@ -47,6 +47,7 @@ POLITIES = {
     'veren':    {'name': 'Veren', 'color': '#D8B46A', 'slug': 'veren'},
     'kaltam':   {'name': 'Kal-Tam', 'color': '#C9825A', 'slug': 'kal-tam'},
     'duresh':   {'name': 'Dur-Esh', 'color': '#5FB8C8', 'slug': 'dur-esh'},
+    'raidzone': {'name': 'Fevarian raiding grounds', 'color': '#7A4E66', 'slug': 'fevarian-clans'},
 }
 
 def human_polity(y):
@@ -243,9 +244,10 @@ def dist(a, b):
 # ------------------------------------------------------------------ ownership
 own = {s['id']: [] for s in systems}   # list of [from, polity, note]
 
-def set_owner(sid, year, polity, note=None, derived=False):
+def set_owner(sid, year, polity, note=None, derived=False, vs=None):
     e = {'from': year, 'p': polity}
     if note: e['note'] = note
+    if vs: e['vs'] = vs
     if derived: e['derived'] = True
     own[sid].append(e)
 
@@ -319,15 +321,34 @@ west_marches = [by[k] for k in ('ellamir', 'guhur', 'osellus', 'hocry', 'kastra'
 north_m = [m for m in maweer if m['id'] not in core and m not in marches and m['id'] not in WEST_M
            and math.hypot(m['x'] - fx, m['y'] - fy) < 30]
 north_m.sort(key=lambda m: math.hypot(m['x'] - fx, m['y'] - fy))
-for lst, note in ((marches, 'the marches'), (north_m, 'northern conquest')):
-    for i, s in enumerate(lst):
-        set_owner(s['id'], round(2413 + 4 * i / max(1, len(lst) - 1), 1), 'khanate', note, derived=True)
-        back = round(2447.2 + 2 * i / max(1, len(lst) - 1), 1)
-        if note == 'northern conquest' and i >= len(lst) - 2:
-            back = ym(2449, 7, 15)      # the Word withdraws from the last two in July 2449
-        set_owner(s['id'], back, 'maweer', derived=True)
-for i, s in enumerate(west_marches):
-    set_owner(s['id'], round(2413.3 + 3 * i / max(1, len(west_marches) - 1), 1), 'khanate', 'the western marches', derived=True)
+# The front moves march by march (Lewis, 18 November 2026): each march is besieged before it falls (shown as
+# contested), the Maweer retake them one by one from March 2447, and the Khanate's counterattacks take some back.
+# (system order in each list: nearest the Veil or the freeholds first)
+def front(sid, siege, fall, note):
+    set_owner(sid, siege, 'maweer', 'besieged', derived=True, vs='khanate')
+    set_owner(sid, fall, 'khanate', note, derived=True)
+def retake(sid, attack, back, vs='khanate'):
+    set_owner(sid, attack, vs, 'contested', derived=True, vs='maweer')
+    set_owner(sid, back, 'maweer', derived=True)
+SOUTH_FALL = [(2413.25, 2413.6), (2413.4, 2414.3), (2413.8, 2414.8), (2414.5, 2415.9), (2415.2, 2416.6), (2416.1, 2417.0)]
+NORTH_FALL = [(2414.25, 2414.6), (2414.3, 2414.9), (2414.6, 2415.3), (2415.0, 2415.8), (2415.5, 2416.1), (2415.9, 2416.5), (2416.3, 2416.9)]
+WEST_FALL = [(2413.3, 2413.7), (2413.6, 2414.3), (2414.1, 2414.9), (2414.7, 2415.6), (2415.4, 2416.3)]
+for (sg, fl), s_ in zip(SOUTH_FALL, marches): front(s_['id'], sg, fl, 'the marches')
+for (sg, fl), s_ in zip(NORTH_FALL, north_m): front(s_['id'], sg, fl, 'northern conquest')
+for (sg, fl), s_ in zip(WEST_FALL, west_marches): front(s_['id'], sg, fl, 'the western marches')
+# the Maweer offensive, 2447 to 2449: the southern six from the far end inward, two lost again to counterattacks
+SOUTH_BACK = {5: (2447.17, 2447.5), 4: (2447.4, 2447.8), 3: (2447.7, 2448.1), 2: (2448.0, 2448.4), 1: (2448.3, 2448.7), 0: (2448.8, 2449.2)}
+for i, (a, b) in SOUTH_BACK.items(): retake(marches[i]['id'], a, b)
+for i, (lost, again, back) in {4: (2447.95, 2448.15, 2448.9), 2: (2448.55, 2448.7, 2449.3)}.items():
+    set_owner(marches[i]['id'], lost, 'maweer', 'besieged', derived=True, vs='khanate')
+    set_owner(marches[i]['id'], again, 'khanate', 'retaken by the Khanate', derived=True)
+    retake(marches[i]['id'], again + 0.4, back)
+# the north: five of seven retaken 2447 to 2449, the last two given up by the Word in July 2449
+NORTH_BACK = [(2448.6, 2449.0), (2448.2, 2448.6), (2447.9, 2448.3), (2447.5, 2447.9), (2447.3, 2447.7)]
+for (a, b), s_ in zip(NORTH_BACK, north_m[:5]): retake(s_['id'], a, b)
+for s_ in north_m[5:]:
+    set_owner(s_['id'], 2448.8, 'khanate', 'contested', derived=True, vs='maweer')
+    set_owner(s_['id'], ym(2449, 7, 15), 'maweer', derived=True)
 WEST_MARCH_IDS = {s['id'] for s in west_marches}
 
 # Part Twelve and Thirteen: the Khan in human space.
@@ -413,9 +434,12 @@ for i, (name, *_) in enumerate(EXTRA['kadur']):
     set_owner(slug(name), 1900, 'kadur')
     set_owner(slug(name), round(2410.3 + i * 0.5, 1), 'khanate', 'tributary', derived=True)
 KADUR_FREED = {'ossath': ym(2457, 3, 4), 'kadris': ym(2457, 7), 'tamuur': ym(2457, 10)}
-# The four far peoples hold only their homeworlds; the Khanate raided them and never held them.
-for sid, p in (('ossa-theran', 'ossathi'), ('verentis', 'veren'), ('kal-tamar', 'kaltam'), ('dur-eshen', 'duresh')):
-    set_owner(sid, 1900, p)
+# The four far peoples (Lewis, 18 November 2026): the clans' raiding grounds for centuries, the Red Khan's first and
+# easiest conquest straight after the Assembly of the Veil, and subject worlds of the khanates ever after.
+FAR_TAKEN = {'dur-eshen': 2405.6, 'kal-tamar': 2406.2, 'verentis': 2406.6, 'ossa-theran': 2407.0}
+for sid, y in FAR_TAKEN.items():
+    set_owner(sid, 1900, 'raidzone', 'raided by the clans')
+    set_owner(sid, y, 'khanate', 'tributary')
 
 # The sheet's new systems share the wartime fate of their nearest charted neighbour.
 for sid in placed:
@@ -465,6 +489,17 @@ for s in systems:
         if not nxt or min(e['from'] for e in nxt) > DISPERSAL:
             set_owner(sid, DISPERSAL, 'remnant', derived=True)
 
+# Folingar opens the southern road into the Dwaii and Ka-Dur holdings: the Legion takes it in late 2455, D'Hovar's raid of
+# February 2456 takes it back, and the Southern Command takes it again with Omaggus in September 2457
+set_owner('folingar', 2455.6, 'dhovar', 'besieged', vs='voor')
+set_owner('folingar', 2455.85, 'voor', 'taken by the Legion')
+set_owner('folingar', ym(2456, 2, 8), 'dhovar', 'retaken by D\'Hovar')
+set_owner('folingar', 2457.45, 'dhovar', 'besieged', vs='voor')
+set_owner('folingar', 2457.7, 'voor')
+# the far peoples stay under the khanates: D'Tarik's three, D'Mareth's Dur Eshen
+for sid in FAR_TAKEN:
+    own[sid] = [e for e in own[sid] if not (e['from'] >= DEATH - 0.01 and e['p'] in ('eight', 'remnant'))]
+    set_owner(sid, DEATH, 'dmareth' if sid == 'dur-eshen' else 'dtarik', 'subject world')
 # the clan D'Mareth keeps its home dust east of the Veil as its own khanate (book: one of the eight by 2455)
 set_owner('mareth-vel', ym(2449, 7), 'dmareth')
 # the clans D'Tarik and D'Sethen keep their home stars in the Veil; D'Tarik's khan withdraws into the
@@ -914,6 +949,9 @@ def _at(sid, where):
     if where == 'pillai' or isinstance(where, (int, list)): return where
     w = next((w for w in worlds if w['sys'] == sid and w['name'] == where and w.get('pl')), None)
     return w['pl'] if w else 'pillai'
+_mw = {'m': marches, 'w': west_marches, 'n': north_m}
+for key, y, title, lost, n in BT.MAWEER_BATTLES:
+    BT.BATTLES.append((_mw[key[0]][int(key[1:])]['id'], y, 'pillai', None, title, [(BT.MAWEER, 'maweer', n, lost)]))
 for sid, y, where, slug_, title, sides in BT.BATTLES:
     fs = FEATURES.setdefault(sid, [])
     wr = next((f for f in fs if f['kind'] == 'wreck' and not f.get('title') and abs(f['from'] - y) < 0.15), None)
@@ -953,7 +991,7 @@ data = {
     'polities': POLITIES,
     # Powers fade in when humanity learns of them: the Voor at contact in 1 October 2317's
     # approach, the Maweer and (through the Voor) the Fevarians by 2320.
-    'contact': {'voor': 2317.75, 'maweer': 2320.5, 'freehold': 2320.5, 'fevclans': 2320.5, 'dwaii': 2320.5, 'kadur': 2320.5, 'ossathi': 2457.0, 'veren': 2457.0, 'kaltam': 2456.3, 'duresh': 2457.0},
+    'contact': {'voor': 2317.75, 'maweer': 2320.5, 'freehold': 2320.5, 'fevclans': 2320.5, 'raidzone': 2320.5, 'dwaii': 2320.5, 'kadur': 2320.5, 'ossathi': 2457.0, 'veren': 2457.0, 'kaltam': 2456.3, 'duresh': 2457.0},
     'systems': [{**s, 'own': own[s['id']]} for s in systems],
     'worlds': worlds,
     'planetNames': PLANET_NAMES,

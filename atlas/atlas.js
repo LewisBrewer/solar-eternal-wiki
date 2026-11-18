@@ -54,7 +54,7 @@ function ownerAt(s, t) {
   if (!cur) return null;
   const p = cur.p === 'human' ? humanName(t) : cur.p;
   if (CONTACT[p] && t < CONTACT[p]) return null;   // not yet known to humanity
-  return { p, note: cur.note, derived: !!cur.derived, from: cur.from };
+  return { p, note: cur.note, derived: !!cur.derived, from: cur.from, vs: cur.vs };
 }
 // a world shows its found biome until its terraforming is complete
 const biomeAt = (w, t) => (w && w.becomes && w.terraformed && t >= w.terraformed ? w.becomes : w && w.biome);
@@ -88,7 +88,7 @@ controls.maxDistance = 420;
 controls.maxPolarAngle = Math.PI * 0.47;
 
 const W3 = (s) => new THREE.Vector3(s.x, s.z, -s.y); // map plane (x, y) -> three (x, -z); height is three's y
-const EXT = { x0: -160, x1: 75, y0: -115, y1: 90 };   // 235 x 205 ly, 10 px to the light year
+const EXT = { x0: -175, x1: 75, y0: -140, y1: 90 };   // 250 x 230 ly, about 10 px to the light year
 const HOME = { target: new THREE.Vector3(-64, 0, 18), pos: new THREE.Vector3(-64, 160, 140) };
 camera.position.copy(HOME.pos); controls.target.copy(HOME.target);
 
@@ -113,10 +113,10 @@ const grid = new THREE.Group();
 scene.add(grid);
 
 // territory canvas texture on the plane
-const TPX = 2048 / 205;
+const TPX = 2300 / 230;
 const terrCanvas = document.createElement('canvas');
 terrCanvas.width = Math.round((EXT.x1 - EXT.x0) * TPX);
-terrCanvas.height = 2048;
+terrCanvas.height = Math.round((EXT.y1 - EXT.y0) * TPX);
 const terrTex = new THREE.CanvasTexture(terrCanvas);
 terrTex.colorSpace = THREE.SRGBColorSpace;
 terrTex.anisotropy = 4;
@@ -151,6 +151,12 @@ const noise = (() => {
   return c;
 })();
 
+const STRIPES = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 24; const g = c.getContext('2d');
+  g.strokeStyle = '#000'; g.lineWidth = 7;
+  for (const o of [-24, 0, 24]) { g.beginPath(); g.moveTo(o, 24); g.lineTo(o + 24, 0); g.stroke(); }
+  return c;
+})();
 const blobR = Object.fromEntries(SYS.map((s, i) => [s.id, 6.2 + ((i * 7919) % 100) / 100 * 2.6]));
 const layer = document.createElement('canvas'); layer.width = terrCanvas.width; layer.height = terrCanvas.height;
 function paintTerritory(t) {
@@ -180,10 +186,22 @@ function paintTerritory(t) {
       const fade = CONTACT[p] ? Math.min(1, Math.max(0, (t - CONTACT[p]) / 3)) : 1;   // fade in over three years after contact
       g.globalAlpha = 0.62 * fade; g.drawImage(layer, 0, 0); g.globalAlpha = 1;
     }
+    // a besieged or contested system: the attacker's colour in diagonal stripes over the holder's
+    for (const p of Object.keys(groups)) for (const [s, o] of groups[p]) {
+      if (!o.vs) continue;
+      lg.globalCompositeOperation = 'source-over'; lg.clearRect(0, 0, layer.width, layer.height);
+      const r = blobR[s.id] * TPX * 0.95, x = cx(s.x), y = cy(s.y);
+      const gr = lg.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(0.5, 'rgba(0,0,0,.85)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      lg.fillStyle = gr; lg.beginPath(); lg.arc(x, y, r, 0, Math.PI * 2); lg.fill();
+      lg.globalCompositeOperation = 'destination-in'; lg.fillStyle = lg.createPattern(STRIPES, 'repeat'); lg.fillRect(x - r, y - r, r * 2, r * 2);
+      lg.globalCompositeOperation = 'source-in'; lg.fillStyle = polColor(o.vs); lg.fillRect(x - r, y - r, r * 2, r * 2);
+      g.globalAlpha = 0.75; g.drawImage(layer, 0, 0); g.globalAlpha = 1;
+    }
     // polity names at the centre of their holdings
     g.textAlign = 'center'; g.textBaseline = 'middle';
     for (const p of Object.keys(groups)) {
-      const list = groups[p]; if (list.length < 3) continue;
+      const list = groups[p]; if (list.length < 3 || p === 'raidzone') continue;
       const mx = list.reduce((a, [s]) => a + s.x, 0) / list.length, my = list.reduce((a, [s]) => a + s.y, 0) / list.length;
       const words = polName(p).toUpperCase().split(' ');
       const lines = words.length > 2 ? [words.slice(0, Math.ceil(words.length / 2)).join(' '), words.slice(Math.ceil(words.length / 2)).join(' ')] : [words.join(' ')];
