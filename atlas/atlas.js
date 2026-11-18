@@ -959,6 +959,19 @@ function bodyInfo(b, t, o) {
   if (pg) h += '<div class="sv-globe" data-world="' + esc(b.world) + '"></div>';
   else if (solName && SOL_BODIES[solName] && sv.sys.id === 'sol') h += '<div class="sv-globe" data-sol="' + SOL_BODIES[solName] + '"></div>';
   h += sec('Selected · ' + b.label, rows);
+  if (pg) {
+    // the world's towns in the year shown, with the far peoples' cities and the resettlement quarters marked
+    const QN = { ossathi: ['Ossathi', 'ossathi'], veren: ['Veren', 'veren'], kaltam: ['Kal-Tam', 'kal-tam'], duresh: ['Dur-Esh', 'dur-esh'], returnee: ['Returned refugees', null], voorret: ['Returned Voor', null] };
+    const towns = (pg.cities || []).filter((c) => c.n && (!c.k || c.k === 'quarter') && (!c.f || c.f <= t) && !(c.t && t >= c.t) && !(c.gap && t >= c.gap[0] && t < c.gap[1]));
+    if (towns.length) h += sec('Towns', towns.slice(0, 16).map((c) => {
+      let what = c.w >= 1 ? 'Capital' : 'Town';
+      if (c.q && QN[c.q]) {
+        const [nm, sl] = QN[c.q], ppl = sl && hasArticle(sl) ? '<a href="' + wikiHref(sl) + '">' + nm + '</a>' : nm;
+        what = c.k === 'quarter' ? ppl + (sl ? ' quarter in exile' : ' quarter') : ppl + (sl ? ' city' : ' town');
+      }
+      return [esc(c.n), what + (c.f && c.f > 1900 ? ', ' + Math.floor(c.f) : '')];
+    }));
+  }
   if (b.slug && hasArticle(b.slug) && live) h += '<a class="art" href="' + wikiHref(b.slug) + '">Read about ' + esc(b.label) + ' →</a>';
   return h;
 }
