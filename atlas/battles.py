@@ -12,6 +12,15 @@ USR = 'Unified Solar Republic'; VOOR = 'Voor Legion'; KH = 'Red Khanate'
 
 BATTLES = [
     # ---- the Solar War, in the Sun's system
+    ('sol', 2225.53, 4, 'battle-of-hellas-gate', 'Battle of Hellas Gate', [
+        ('European Federation', 'human', 4, '1 cruiser and 2 frigates destroyed; 1 battleship crippled; 30 strike craft'),
+        (CONF, 'conf', 1, 'The Marat and the Danton damaged; 1 Yugantar damaged')]),
+    ('sol', 2226.38, 4, 'battle-of-eos-rift', 'Battle of Eos Rift', [
+        ('United States', 'human', 1, 'The Hornet damaged, 60 dead aboard'),
+        (CONF, 'conf', 14, '5 cruisers destroyed and 2 disabled; 9 Yugantars')]),
+    ('sol', 2227.89, [3, 0], 'battle-of-farside', 'Battle of Farside', [
+        (COAL, 'human', 4, '4 escorts; Farside Station, with 3,000 aboard'),
+        (CONF, 'conf', 7, '1 cruiser and 6 Yugantars')]),
     ('sol', 2227.70, [3, 0], 'raid-on-delambre', 'Raid on Delambre', [
         (COAL, 'human', 26, 'Delambre\'s security squadron of 22 cruisers and frigates; 4 hulls in dock'),
         (CONF, 'conf', 7, '2 cruisers, 4 corvettes and 1 dropship')]),
