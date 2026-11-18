@@ -163,3 +163,7 @@ img.secflag{width:21px;height:14px;vertical-align:-2px;border-radius:0;margin-ri
 .pg-labels span.site{font-size:10px;font-style:italic;color:#cfe0ff}
 .pg-labels span.site::before{border-radius:0;background:#9fc2ff}
 .pg-labels span.site.inv{color:#e2d3fa}
+
+.sv-feat{padding:2px 16px 4px}
+.sv-feat h2{color:#fff;font-weight:500}
+.sv-map .ft.on{fill:#fff;font-weight:600}

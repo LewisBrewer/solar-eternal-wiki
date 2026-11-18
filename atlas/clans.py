@@ -227,6 +227,17 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
     for (s, y, lbl), ms in seen.items():
         FEATURES.setdefault(s, []).append({'name': 'Monoliths at ' + lbl, 'kind': 'fleet', 'at': 'pillai', 'from': round(y - 0.08, 3), 'to': y,
                                            'n': len(ms), 'clans': sorted({m['clan'] for m in ms})})
+    # the wrecks: every destroyed monolith stays where it died, broken, for good. The Returning fell to
+    # Earth's surface over the Pacific and is not among them.
+    wrecks = {}
+    for m in mons:
+        f = m.get('fate')
+        if not f or m.get('name') == 'the Returning': continue
+        wrecks.setdefault((f['sys'], f['y'], f['label']), []).append(m)
+    for (s, y, lbl), ms in wrecks.items():
+        FEATURES.setdefault(s, []).append({'name': 'Wrecks of ' + lbl, 'kind': 'wreck', 'at': 'pillai', 'from': y, 'n': len(ms),
+                                           'battle': lbl, 'clans': sorted({m['clan'] for m in ms}),
+                                           'named': sorted({m['name'] for m in ms if m.get('name')})})
     # ---------------------------------------------------------------- the roll for the panel and the article
     out = []
     for c in clans:

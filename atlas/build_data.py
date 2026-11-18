@@ -862,6 +862,17 @@ CAPTIONS = [
     (2510, 2516, 'The Apportionment Crisis. Chamber seats are recalculated for the first time since 2420.'),
 ]
 
+# wrecks of the Republic's well battles (from the Miracle at Sol on) lie by the world fought over;
+# the earlier battles at the edge leave theirs on the jump limit
+WRECK_AT = {('sol', 'the Battle of Earth'): 3, ('sol', 'Jupiter'): 5}
+for sid, fs in FEATURES.items():
+    for f in fs:
+        if f['kind'] != 'wreck': continue
+        if (sid, f['battle']) in WRECK_AT: f['at'] = WRECK_AT[(sid, f['battle'])]; continue
+        if f['from'] < 2446 or sid == 'sol': continue
+        ws_ = sorted((w for w in worlds if w['sys'] == sid and w.get('pl') and w['settled'] < f['from']), key=lambda w: (not w.get('native'), w['settled']))
+        if ws_: f['at'] = ws_[0]['pl']
+
 data = {
     'meta': {
         'source': 'Traced from Lewis Brewer\'s reference map 2235.12.10; 1 unit = 1 light year; Sol at origin.',
