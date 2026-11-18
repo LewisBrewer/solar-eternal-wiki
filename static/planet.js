@@ -56,7 +56,9 @@ export function makeGlobe(THREE, o) {
         vec3 v=normalize(cameraPosition-vW), h=normalize(sunDir+v);
         float spec=pow(max(dot(normalize(vN),h),0.),140.)*d.b*0.12;
         vec3 col=c*(0.01+lit*1.05)+vec3(1.,.95,.85)*spec*smoothstep(0.,0.2,dg);
-        col+=glowCol*d.r*((1.-smoothstep(-0.15,0.1,dg))*1.7+0.03);
+        // lights: drop the faint bleed that WebP compression carries over from the cloud channel, and keep them off the sea
+        float L=max(d.r-0.06,0.)/0.94*(1.-smoothstep(0.35,0.65,d.b));
+        col+=glowCol*L*((1.-smoothstep(-0.15,0.1,dg))*1.7+0.03);
         gl_FragColor=vec4(col,1.);
         #include <colorspace_fragment>
       }`,
