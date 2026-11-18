@@ -871,6 +871,11 @@ EVENTS = [
     ev(ym(2408), 'The Dwaii fleet destroyed', 'hwen', 'battle'),
     ev(ym(2413), 'The Ka-Dur fall', 'ossath', 'battle'),
     ev(ym(2417, 5), 'Romston submits', 'romston', 'battle'),
+    # the Maweer front (wiki articles, 18 November 2026)
+    ev(ym(2413, 4), 'The Khan strikes the Maweer marches', 'zosma', 'battle', 'fall-of-the-maweer-marches'),
+    ev(ym(2417, 1), 'The Maweer seal their frontier', 'craxima', 'battle', 'fall-of-the-maweer-marches'),
+    ev(ym(2447, 3, 2), 'The Maweer offensive', 'craxima', 'battle', 'maweer-offensive'),
+    ev(ym(2456, 3, 9), 'Battle of Kaldreth', 'craxima', 'battle', 'battle-of-kaldreth'),
     ev(ym(2419, 9), 'Cazzabius burned', 'cazzabius', 'burning'),
     ev(ym(2422, 6, 14), 'Fall of Vur Duri', 'aethos', 'battle'),
     ev(ym(2424, 6), 'Vi Simni submits', 'ximpok', 'battle'),
@@ -956,7 +961,8 @@ def _at(sid, where):
     return w['pl'] if w else 'pillai'
 _mw = {'m': marches, 'w': west_marches, 'n': north_m}
 for key, y, title, lost, n in BT.MAWEER_BATTLES:
-    BT.BATTLES.append((_mw[key[0]][int(key[1:])]['id'], y, 'pillai', None, title, [(BT.MAWEER, 'maweer', n, lost)]))
+    sl = 'fall-of-the-maweer-marches' if title.startswith(('Fall of', 'Siege of')) else slug(title)
+    BT.BATTLES.append((_mw[key[0]][int(key[1:])]['id'], y, 'pillai', sl, title, [(BT.MAWEER, 'maweer', n, lost)]))
 for sid, y, where, slug_, title, sides in BT.BATTLES:
     fs = FEATURES.setdefault(sid, [])
     wr = next((f for f in fs if f['kind'] == 'wreck' and not f.get('title') and abs(f['from'] - y) < 0.15), None)
@@ -985,6 +991,9 @@ for sid, fs in FEATURES.items():
     for f in fs:
         if f['kind'] == 'wreck' and not f.get('sides'):
             f['title'] = 'Wrecks of ' + f['battle']
+            WSLUG = {'the Maweer marches': 'fall-of-the-maweer-marches', 'the western marches': 'fall-of-the-maweer-marches',
+                     'the northern Maweer campaign': 'fall-of-the-maweer-marches', 'the Maweer offensive': 'maweer-offensive', 'the Hunt': 'hunt-in-the-marches'}
+            if f['battle'] in WSLUG: f['slug'] = WSLUG[f['battle']]
             f['sides'] = [{'name': BT.KH, 'style': 'mono', 'n': f['n'], 'lost': '%d monolith%s' % (f['n'], 's' if f['n'] > 1 else '') +
                            (' (%s)' % ', '.join(f['named']) if f.get('named') else ''), 'clans': f['clans']}]
 
