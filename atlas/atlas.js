@@ -1117,10 +1117,16 @@ function svFeatures(force) {
   const dark = new THREE.MeshStandardMaterial({ color: 0x2a2526, emissive: 0x5a1010, emissiveIntensity: 0.6, roughness: 0.6, metalness: 0.4 });
   const steel = new THREE.MeshStandardMaterial({ color: 0xc9d2dc, roughness: 0.4, metalness: 0.6, emissive: 0x223344, emissiveIntensity: 0.4 });
   const hulkM = new THREE.MeshStandardMaterial({ color: 0x6d655f, roughness: 0.9, metalness: 0.2 });
+  const monoM = new THREE.MeshStandardMaterial({ color: 0x0d0c0e, roughness: 0.75, metalness: 0.5, emissive: 0x140405, emissiveIntensity: 1 });
+  const lanceM = new THREE.MeshBasicMaterial({ color: 0xc8322a });
+  const ringM = new THREE.MeshStandardMaterial({ color: 0x3a3234, roughness: 0.85, metalness: 0.35, emissive: 0x2a0808, emissiveIntensity: 0.5 });
+  const hearthM = new THREE.MeshStandardMaterial({ color: 0x5b3f7a, roughness: 0.6, metalness: 0.2, emissive: 0x2a1640, emissiveIntensity: 0.6 });
   for (const f of list) {
-    const host = f.at === 'pillai' ? null : bodyAt(f.at);
+    // freehold settlements ring the system's largest body; everything else at the jump limit stays there
+    const big = () => { let bi = 0; S3.bodies.forEach((b, i) => { if (b.rad > S3.bodies[bi].rad) bi = i; }); return bodyAt(bi + 1); };
+    const host = f.kind === 'orbital' && f.at === 'pillai' ? big() : f.at === 'pillai' ? null : bodyAt(f.at);
     let obj = new THREE.Group(), anchor = null;
-    if (f.at === 'pillai' || !host) {
+    if (!host) {
       const a = 0.6 + pillaiK++ * 0.55; obj.position.set(Math.cos(a) * R, 0, Math.sin(a) * R); S3.root.add(obj); anchor = obj;
     } else (f.kind === 'tether' ? host.spin : host.grp).add(obj);
     const rad = host ? host.rad : 0.15;
@@ -1139,16 +1145,63 @@ function svFeatures(force) {
     } else if (f.kind === 'custos') {
       const st = new THREE.Mesh(new THREE.OctahedronGeometry(rad * 0.12), steel); obj.add(st); obj.userData.custos = { st, rad, on: t >= (f.on || f.from) };
       anchor = st;
-    } else if (f.kind === 'fleet' || f.kind === 'hulk') {
+    } else if (f.kind === 'fleet') {
+      // monoliths: tall black slabs, scarred, with a faint lance glow, each with its clan's hulks moored round it
+      const n = Math.min(f.n || 4, 40), r = seeded(f.name + f.from), base = host ? rad * 2.6 : 0.35;
+      const sz = host ? rad * 0.09 : 0.1;
+      for (let k = 0; k < n; k++) {
+        const grp = new THREE.Group();
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.6, 0.14), monoM); grp.add(slab);
+        const seam = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.3, 0.15), lanceM); seam.position.x = 0.12; grp.add(seam);
+        for (let h = 0, nh = 2 + Math.floor(r() * 4); h < nh; h++) {
+          const hk = new THREE.Mesh(new THREE.DodecahedronGeometry(0.16 + r() * 0.12, 0), hulkM);
+          const ha = r() * 6.283; hk.position.set(Math.cos(ha) * (0.45 + r() * 0.35), (r() - 0.5) * 1.3, Math.sin(ha) * (0.45 + r() * 0.35));
+          hk.scale.set(1 + r(), 0.6 + r() * 0.6, 0.8 + r()); hk.rotation.set(r() * 3, r() * 3, r() * 3); grp.add(hk);
+        }
+        grp.scale.setScalar(sz);
+        const a = r() * 6.283, d = base * (0.7 + r() * 0.6);
+        grp.position.set(Math.cos(a) * d, (r() - 0.5) * 0.12, Math.sin(a) * d); grp.rotation.set((r() - 0.5) * 0.4, r() * 6, (r() - 0.5) * 0.4);
+        obj.add(grp);
+      }
+      // the Voor hearths the Khan took: long tapering grown hulls among the slabs
+      for (let k = 0; k < (f.hearths || 0); k++) {
+        const hm = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.16, 1.9, 8), hearthM); hm.rotation.z = Math.PI / 2;
+        const grp = new THREE.Group(); grp.add(hm); grp.scale.setScalar(sz * 1.3);
+        const a = r() * 6.283, d = base * (0.6 + r() * 0.5); grp.position.set(Math.cos(a) * d, (r() - 0.5) * 0.08, Math.sin(a) * d); grp.rotation.y = r() * 6;
+        obj.add(grp);
+      }
+      anchor = obj;
+    } else if (f.kind === 'hulk') {
       const n = Math.min(f.n || 4, 48), r = seeded(f.name + f.from);
       for (let k = 0; k < n; k++) {
-        const m = f.kind === 'fleet' ? new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 1), dark) : new THREE.Mesh(new THREE.IcosahedronGeometry(0.5, 0), hulkM);
-        const sz = f.kind === 'fleet' ? 0.05 : 0.03 * (0.6 + r());
-        m.scale.multiplyScalar(sz);
+        const m = new THREE.Mesh(new THREE.DodecahedronGeometry(0.5, 0), hulkM);
+        m.scale.set(0.03 * (0.6 + r()) * (1 + r()), 0.03 * (0.6 + r()), 0.03 * (0.6 + r()));
         const a = r() * 6.283, d = (host ? rad * 2.6 : 0.35) * (0.7 + r() * 0.6);
         m.position.set(Math.cos(a) * d, (r() - 0.5) * 0.12, Math.sin(a) * d); m.rotation.set(r(), r() * 6, r());
         obj.add(m);
       }
+      anchor = obj;
+    } else if (f.kind === 'orbital') {
+      // Fevarian orbital settlements: a broken dark ring of hulls lashed together, hulks moored along it, faint red lights
+      const r = seeded(f.name + f.from), nring = f.n || 1;
+      for (let j = 0; j < nring; j++) {
+        const R0 = host ? rad * (1.32 + j * 0.12) : 0.14 + j * 0.06;
+        const segs = 18 + Math.floor(r() * 10);
+        const ring = new THREE.Group();
+        for (let k = 0; k < segs; k++) {
+          if (r() < 0.18) continue;
+          const a0 = k / segs * 6.283, w = 6.283 / segs * (0.55 + r() * 0.35);
+          const seg = new THREE.Mesh(new THREE.TorusGeometry(R0, R0 * 0.035, 4, 6, w), ringM); seg.rotation.z = a0; ring.add(seg);
+          if (r() < 0.45) {
+            const hk = new THREE.Mesh(new THREE.DodecahedronGeometry(R0 * 0.05, 0), hulkM);
+            hk.position.set(Math.cos(a0) * R0 * (1 + (r() - 0.5) * 0.1), Math.sin(a0) * R0 * (1 + (r() - 0.5) * 0.1), (r() - 0.5) * R0 * 0.05); ring.add(hk);
+          }
+          if (r() < 0.3) { const l = new THREE.Mesh(new THREE.SphereGeometry(R0 * 0.012, 4, 3), lanceM); l.position.set(Math.cos(a0) * R0, Math.sin(a0) * R0, 0); ring.add(l); }
+        }
+        ring.rotation.x = Math.PI / 2 + (r() - 0.5) * 0.3;
+        obj.add(ring);
+      }
+      if (!host) obj.position.y += 0;
       anchor = obj;
     } else {
       const geo = f.kind === 'starfort' ? new THREE.OctahedronGeometry(1) : f.kind === 'yard' ? new THREE.BoxGeometry(1.6, 0.4, 0.8) : new THREE.TorusGeometry(1, 0.28, 8, 24);
@@ -1274,7 +1327,7 @@ function drawSystem(dt) {
     const s = proj(f.anchor); if (!s.ok) continue;
     const close = !f.host || s.d < (f.host.rad || 0.2) * 30;
     if (!close) continue;
-    const n = f.f.n && (f.f.kind === 'fleet' || f.f.kind === 'hulk') ? ' · ' + f.f.n + (f.f.kind === 'fleet' ? ' monoliths' : ' hulks') : '';
+    const n = (f.f.n && (f.f.kind === 'fleet' || f.f.kind === 'hulk') ? ' · ' + f.f.n + (f.f.kind === 'fleet' ? ' monoliths' : ' hulks') : '') + (f.f.hearths ? ' · ' + f.f.hearths + ' captured hearths' : '');
     const txt = f.f.name + n;
     queue.push({ pri: 0.5, box: [s.x + 6, s.y - 7, s.x + 8 + txt.length * 5.8, s.y + 6], html: '<g class="lbl"><text class="sb ft ft-' + f.f.kind + '" x="' + (s.x + 7) + '" y="' + (s.y + 4) + '" font-size="10.5">' + esc(txt) + '</text></g>' });
   }

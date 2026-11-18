@@ -460,7 +460,10 @@ for sid, w, y, sl, pl in [
     if sl: d['slug'] = sl
     if pl: d['pl'], d['moon'] = pl[0], bool(pl[1])
     if w in ('Hiverion', 'Indata Mog', 'Vur Duri', 'Vi Simni', 'Binami II (Inari)'): d['native'] = True
-    if w == 'Indata Mog': d['biome'] = 'Steppe world'
+    if w in ('Indata Mog', 'Hiverion', 'Vur Duri'): d['biome'] = 'Steppe world'
+    if w == 'Vi Simni': d['biome'] = 'Mediterranean world'
+    if w == 'Binami II (Inari)': d['biome'] = 'Flood world'
+    if w == "Vel's Rest": d['biome'] = 'Tundra world'
     if w == 'Nomotar': d['biome'] = 'Barren world'
     if w == 'Talandra': d['biome'] = 'Dry temperate world'
     worlds.append(d)
@@ -664,6 +667,36 @@ for x in systems:
         f = {'name': 'Garrison monoliths', 'kind': 'fleet', 'at': 'pillai', 'from': 2408 if x['region2235'] == 'dwaii' else 2412, 'n': 2}
         if to: f['to'] = to
         FEATURES.setdefault(x['id'], []).append(f)
+
+# The Khanate's orbitals: 400 million Fevarians settled on the tributary worlds' orbitals from 2413, until each world
+# was retaken. Hiverion's Ring held 6 million and fell section by section to 30 November 2452.
+KHAN_RULE = {'khanate', 'eight', 'remnant', 'word', 'dashan', 'dtarik', 'dsethen', 'dhovar'}
+for x in systems:
+    ws_ = sorted([w for w in worlds if w['sys'] == x['id'] and w.get('pl') and not w.get('moon')], key=lambda w: -(w.get('native') or 0))
+    if not ws_: continue
+    hist = sorted(own[x['id']], key=lambda e: e['from'])
+    start = None
+    for e in hist + [{'from': 9999, 'p': None}]:
+        ruled = e['p'] in KHAN_RULE
+        if ruled and start is None: start = e['from']
+        elif not ruled and start is not None:
+            w0 = ws_[0]; end = e['from'] if e['from'] < 9999 else None
+            nm = 'Fevarian orbitals'
+            if w0['name'] == 'Hiverion': nm, end = "Hiverion's Ring", 2452.92
+            f = {'name': nm, 'kind': 'orbital', 'at': w0['pl'], 'from': max(start, 2413) + 0.3}
+            if end: f['to'] = end
+            if not end or end > f['from']: FEATURES.setdefault(x['id'], []).append(f)
+            start = None
+for x in systems:
+    if x['region2235'] == 'fevarian':
+        FEATURES.setdefault(x['id'], []).append({'name': 'Freehold settlement', 'kind': 'orbital', 'at': 'pillai', 'from': 1300,
+                                                 'to': 2454.87 if x['id'] == 'fevallion' else 2454.6, 'n': 3 if x['id'] == 'fevallion' else 1})
+# the six hearths the Khan took at Vi Simni and Hiverion sail with his fleet
+for f in FEATURES.get('exedor', []):
+    if f['name'] == 'Monolith anchorage': f['hearths'] = 6
+for sid in ('talandra', 'alpha-centauri'):
+    for f in FEATURES.get(sid, []):
+        if f['kind'] == 'fleet': f['hearths'] = 2
 
 # ------------------------------------------------------------------ events
 def ev(y, label, sys, kind='battle', slug=None):
