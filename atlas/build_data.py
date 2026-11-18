@@ -551,6 +551,8 @@ for sid, name, pl, people, biome, gtype, home in ALIEN:
          'biome': biome, 'invented': True, 'gen': {'now': gtype, 'after': None, 'cls': 'alien' if people in ('Dwaii', 'Ka-Dur') else 'alien-minor'}}
     if home: d['homeworld'] = True
     if name in ('Dwaimar', 'Kadris'): d['slug'] = slug(name); d['capital'] = {'Dwaimar': 'Dwaithom', 'Kadris': 'Imaruk'}[name]
+    FAR = {'Ossath Ul': ('ossathi', 'Theran Crown'), 'Veren': ('veren', 'Ammarel'), 'Kal-Tam': ('kal-tam', 'Tamar Deep'), 'Dur-Esh': ('dur-esh', 'Eshen Reef')}
+    if name in FAR: d['slug'], d['capital'] = FAR[name]
     worlds.append(d)
 
 # Fevarian space has no living worlds of the clans' own: they live aboard the monoliths and hulks.
@@ -722,7 +724,7 @@ EVENTS = [
     ev(ym(2333, 11, 6), 'First Battle of Media', 'media', 'battle', 'first-battle-of-media'),
     ev(ym(2334, 2, 2), 'Battle of the Mog', 'haedus', 'battle', 'battle-of-the-mog'),
     ev(ym(2334, 5, 14), 'Second Battle of Media', 'media', 'battle', 'second-battle-of-media'),
-    ev(ym(2334, 8, 20), 'Fall of New Indata Mog', 'haedus', 'battle', 'fall-of-new-indata-mog'),
+    ev(ym(2334, 9, 12), 'Fall of New Indata Mog', 'haedus', 'battle', 'fall-of-new-indata-mog'),
     ev(ym(2336, 3, 10), 'Battle of Exedor', 'exedor', 'battle', 'battle-of-exedor-2336'),
     ev(ym(2337, 4), 'Leesak', 'leesak', 'battle', 'siege-of-hiverion'),
     ev(ym(2338, 5, 3), 'Fall of the Krakre', 'exedor', 'battle', 'siege-of-hiverion'),
