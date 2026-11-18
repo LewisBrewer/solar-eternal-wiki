@@ -861,7 +861,7 @@ function clanStatus(c, t) {
   return '<img class="sw flagkey" src="assets/flags/clans/' + c.id + '.png" alt=""> ' + esc(parts.join('; ') || 'stations');
 }
 function sec(title, rows) {
-  return '<button type="button" class="sv-sec" aria-expanded="true">' + esc(title) + chev + '</button><table>' + rows.map(([k, v, later]) => '<tr' + (later ? ' class="later"' : '') + '><th scope="row">' + esc(k) + '</th><td>' + v + '</td></tr>').join('') + '</table>';
+  return '<button type="button" class="sv-sec" aria-expanded="true">' + esc(title) + chev + '</button><table>' + rows.map(([k, v, later, rawKey]) => '<tr' + (later ? ' class="later"' : '') + '><th scope="row">' + (rawKey ? k : esc(k)) + '</th><td>' + v + '</td></tr>').join('') + '</table>';
 }
 
 // a body key is "3" for planet III, or "3.1" for its second moon
@@ -930,7 +930,7 @@ function renderSystemInfo() {
     .concat(hist.map((h) => [String(Math.floor(h.y)), esc(polName(h.p)) + (h.note ? ', ' + esc(h.note) : '') + (h.derived ? '<sup class="drv" title="Date reconstructed">†</sup>' : ''), h.y > t])));
   const clansHere = (data.clans || []).filter((c) => c.home === s.id);
   if (clansHere.length) {
-    const rows = clansHere.map((c) => [c.name, clanStatus(c, t)]);
+    const rows = clansHere.map((c) => hasArticle(c.id) ? ['<a href="' + wikiHref(c.id) + '">' + esc(c.name) + '</a>', clanStatus(c, t), false, true] : [c.name, clanStatus(c, t)]);
     if (hasArticle('fevarian-clans')) rows.push(['Article', '<a href="' + wikiHref('fevarian-clans') + '">Fevarian clans</a>']);
     html += sec('Clans', rows);
   }

@@ -40,6 +40,7 @@ POLITIES = {
     'dtarik':   {'name': 'Khanate of D\'Tarik', 'color': '#D9667A', 'slug': 'khanate-of-dtarik'},
     'dsethen':  {'name': 'Khanate of D\'Sethen', 'color': '#C9643C', 'slug': 'khanate-of-dsethen'},
     'dhovar':   {'name': 'Khanate of D\'Hovar', 'color': '#D19A4A', 'slug': 'khanate-of-dhovar'},
+    'dmareth':  {'name': 'Khanate of D\'Mareth', 'color': '#5D6B76', 'slug': 'khanate-of-dmareth'},
     'dwaii':    {'name': 'Dwaii', 'color': '#E2C65C', 'slug': 'dwaii'},
     'kadur':    {'name': 'Ka-Dur League', 'color': '#E58CC2', 'slug': 'ka-dur'},
     'ossathi':  {'name': 'Ossathi', 'color': '#7FCF9A', 'slug': 'ossathi'},
@@ -464,8 +465,18 @@ for s in systems:
         if not nxt or min(e['from'] for e in nxt) > DISPERSAL:
             set_owner(sid, DISPERSAL, 'remnant', derived=True)
 
+# the clan D'Mareth keeps its home dust east of the Veil as its own khanate (book: one of the eight by 2455)
+set_owner('mareth-vel', ym(2449, 7), 'dmareth')
+# the clans D'Tarik and D'Sethen keep their home stars in the Veil; D'Tarik's khan withdraws into the
+# Veil's far reaches in the winter of 2457 (Syleth, where his last three monoliths settle)
+set_owner('sel-tarik', DEATH, 'dtarik', derived=True)
+set_owner('ul-sethen', DEATH, 'dsethen', derived=True)
+if 'syleth' in own: set_owner('syleth', ym(2457, 12), 'dtarik', 'the Veil\'s far reaches', derived=True)
+
 for sid in own:
     own[sid].sort(key=lambda e: e['from'])
+    # a later decision for the same moment replaces the earlier one
+    own[sid] = [e for i, e in enumerate(own[sid]) if not (i + 1 < len(own[sid]) and own[sid][i + 1]['from'] - e['from'] < 0.1)]
 
 # ------------------------------------------------------------------ worlds
 # Worlds: the sheet's settled worlds, with the book's dates where they differ, plus the
@@ -719,7 +730,7 @@ for x in systems:
 
 # The Khanate's orbitals: 400 million Fevarians settled on the tributary worlds' orbitals from 2413, until each world
 # was retaken. Hiverion's Ring held 6 million and fell section by section to 30 November 2452.
-KHAN_RULE = {'khanate', 'eight', 'remnant', 'word', 'dashan', 'dtarik', 'dsethen', 'dhovar'}
+KHAN_RULE = {'khanate', 'eight', 'remnant', 'word', 'dashan', 'dtarik', 'dsethen', 'dhovar', 'dmareth'}
 for x in systems:
     ws_ = sorted([w for w in worlds if w['sys'] == x['id'] and w.get('pl') and not w.get('moon')], key=lambda w: -(w.get('native') or 0))
     if not ws_: continue

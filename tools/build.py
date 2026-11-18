@@ -580,9 +580,11 @@ class Site:
         out = ['<aside class="infobox" aria-label="Summary"><div class="ib-head"><small>%s</small><b>%s</b></div>' %
                (html.escape(head_small), html.escape(art['title']))]
         # a Fevarian power's hanging banner, kept in static/flags/<slug>-banner.png
-        if os.path.exists(os.path.join(STATIC, 'flags', '%s-banner.png' % art['slug'])):
-            out.append('<figure class="ib-flag ib-banner"><img src="%sassets/flags/%s-banner.png" alt="Banner of the %s"></figure>' %
-                       (self.root_for_infobox, art['slug'], html.escape(art['title'])))
+        banner = next((b for b in ('%s-banner.png' % art['slug'], 'clans/%s-banner.png' % art['slug'])
+                       if os.path.exists(os.path.join(STATIC, 'flags', b))), None)
+        if banner:
+            out.append('<figure class="ib-flag ib-banner"><img src="%sassets/flags/%s" alt="Banner of the %s"></figure>' %
+                       (self.root_for_infobox, banner, html.escape(art['title'])))
         # a flag or emblem drawn for the article, kept in static/flags/<slug>.svg
         else:
           for ext in ('svg', 'png'):

@@ -69,14 +69,22 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
     rng.shuffle(mons)
     byclan = {}
     for m in mons: byclan.setdefault(m['clan'], []).append(m)
-    # canon monoliths: the Returning and Ushar's Word (D'Rhen); Orun D'Vesh's at Saolea; D'Kasht's at Alpha Centauri
+    # canon monoliths (book): the Returning (D'Rhen) at Earth; Ushar's Word, the household monolith with 1.5 million
+    # of the clan D'Ashan aboard, and the D'Kasht monolith the Hearth broke, at Second Talandra; Orun D'Vesh's at Saolea;
+    # D'Vesh and D'Kasht dead in Bounty's orbit, May 2450; two of D'Ashan's at Second Aethos; D'Hovar's last two
     fixed = {}
-    r = byclan["drhen"]; r[0]['name'] = 'the Returning'; r[1]['name'] = "Ushar's Word"
-    fixed[id(r[0])] = ('sol', 2446.93, 'the Battle of Earth'); fixed[id(r[1])] = ('talandra', 2449.47, 'Second Talandra')
-    fixed[id(byclan['dvesh'][0])] = ('saolea', 2434.2, 'Saolea')
-    fixed[id(byclan['dkasht'][0])] = ('alpha-centauri', 2447.8, 'Alpha Centauri')
-    fixed[id(byclan['dhovar'][0])] = ('kuma', 2455.5, 'the Long Siege')
-    fixed[id(byclan['dhovar'][1])] = ('far-south', 2458.79, 'the last monolith outside the Veil')
+    FIX = [('drhen', 0, 'sol', 2446.93, 'the Battle of Earth', 'the Returning'), ('drhen', 1, 'talandra', 2449.47, 'Second Talandra', None),
+           ('dashan', 0, 'talandra', 2449.47, 'Second Talandra', "Ushar's Word"), ('dashan', 1, 'aethos', 2453.79, 'Second Aethos', None),
+           ('dashan', 2, 'aethos', 2453.79, 'Second Aethos', None),
+           ('dkasht', 0, 'talandra', 2449.47, 'Second Talandra', None), ('dkasht', 1, 'ciriban', 2450.37, "Bounty's orbit", None),
+           ('dvesh', 0, 'saolea', 2434.2, 'Saolea', None), ('dvesh', 1, 'ciriban', 2450.37, "Bounty's orbit", None),
+           ('dhovar', 0, 'omaggus', 2457.7, 'Omaggus', None), ('dhovar', 1, 'beta-aquilae', 2458.79, 'the last monolith outside the Veil', None),
+           ('dtarik', 3, 'ossath', 2457.17, 'Ossath', None), ('dtarik', 4, 'ossath', 2457.17, 'Ossath', None)]
+    fixed_ms = []
+    for cid, k, sys_, y, lbl, nm in FIX:
+        m = byclan[cid][k]
+        if nm: m['name'] = nm
+        fixed[id(m)] = (sys_, y, lbl); fixed_ms.append(m)
     # ---------------------------------------------------------------- the losses, battle by battle
     m6 = [s['id'] for s in marches]; wm = [s['id'] for s in west_marches]; nm = [s['id'] for s in north_m]
     EVENTS = [  # (system, year, count, pool, label)
@@ -86,7 +94,7 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
         (m6[0], 2413.6, 4, 'veil', 'the Maweer marches'), (m6[2], 2414.8, 3, 'veil', 'the Maweer marches'), (wm[0], 2415.5, 3, 'veil', 'the western marches'),
         ('aethos', 2422.45, 12, 'veil', 'Vur Duri'),
         ('myrum', 2428.5, 4, 'war', 'Myrum'), ('haedus', 2428.62, 41, 'war', 'First Haedius'),
-        ('ciriban', 2429.3, 6, 'war', 'Bijou Nan Syèl La and Bounty'), ('saolea', 2434.2, 28, 'war', 'Saolea'),
+        ('ciriban', 2429.3, 6, 'war', 'Bijou Nan Syèl La and Bounty'), ('ciriban', 2450.37, 4, 'war', "Bounty's orbit"), ('saolea', 2434.2, 28, 'war', 'Saolea'),
         ('saolea', 2436.7, 4, 'war', 'Theia'), ('veyer', 2437.5, 3, 'war', 'Hualapai'), ('nomotar', 2438.6, 9, 'war', 'Nomotar'),
         ('binami', 2440.28, 5, 'war', 'Binami'),
         ('talandra', 2441.35, 33, 'war', 'First Talandra'), ('procyon', 2441.87, 19, 'war', 'Procyon'),
@@ -96,7 +104,7 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
         ('daranma', 2448.7, 3, 'war', 'Mardak Vol'), ('talandra', 2449.47, 43, 'war', 'Second Talandra'),
         ('bashpit', 2449.87, 3, 'war', 'Bashpit'), ('haedus', 2451.36, 5, 'war', 'Third Haedius'), ('exedor', 2451.73, 9, 'war', 'Exedor'),
         ('faenov', 2452.4, 3, 'war', 'Faenov'), ('hoeddim', 2452.7, 2, 'war', 'Hoeddim'), ('azak', 2453.1, 3, 'war', 'Azak'),
-        ('aethos', 2453.79, 2, 'war', 'Second Aethos'), ('kuma', 2455.5, 3, 'war', 'the Long Siege'), ('omaggus', 2456.2, 4, 'war', 'Omaggus'),
+        ('aethos', 2453.79, 2, 'war', 'Second Aethos'), ('kuma', 2455.5, 3, 'war', 'the Long Siege'), ('omaggus', 2455.5, 3, 'war', 'Omaggus'), ('omaggus', 2457.7, 1, 'war', 'Omaggus'),
         ('ijaagin', 2457.6, 3, 'war', 'the Long Siege'),
         ('churassix', 2454.3, 2, 'home', 'the freeholds'), ('barban', 2454.45, 2, 'home', 'the freeholds'), ('matar', 2454.45, 2, 'home', 'the freeholds'),
         ('daarasta', 2454.6, 3, 'home', 'the freeholds'), ('fevallion', 2454.85, 6, 'home', 'Fevallion'), ('mecura', 2454.95, 1, 'home', 'the freeholds'),
@@ -104,7 +112,7 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
         (m6[1], 2455.4, 3, 'war', 'the marches'), (m6[3], 2455.8, 3, 'war', 'the marches'), (m6[4], 2456.0, 4, 'war', 'the marches'),
         ('hwen', 2456.2, 2, 'war', 'the Dwaii'), ('ellui', 2456.3, 2, 'war', 'the Dwaii'), ('dwaimar', 2456.4, 2, 'war', 'the Dwaii'),
         ('ossath', 2457.17, 5, 'war', 'Ossath'), ('kadris', 2457.5, 2, 'war', 'Kadris'), ('tamuur', 2457.8, 2, 'war', 'Tamuur'),
-        ('far-south', 2458.79, 1, 'war', 'the last monolith outside the Veil'),
+        ('beta-aquilae', 2458.79, 1, 'war', 'the last monolith outside the Veil'),
     ]
     far_south = min((s for s in systems if s.get('fill') and s['y'] < -95), key=lambda s: math.hypot(s['x'] + 75, s['y'] + 112))['id']
     EVENTS = [((far_south if e[0] == 'far-south' else e[0]),) + e[1:] for e in EVENTS]
@@ -120,13 +128,14 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
     # 40 Veil monoliths fail and become hulks in the wells; 30 of them never left; 12 survive mobile
     for i, m in enumerate(veil):
         m['role'] = 'hulk-stay' if i < 30 else 'hulk-return' if i < 40 else 'mobile' if i < 52 else 'war'
-    for m in byclan['drhen'] + byclan['dvesh'][:1] + byclan['dkasht'][:1] + byclan['dhovar']:
+    for m in fixed_ms:
         m['role'] = 'war'
-    # the successors' twelve: D'Tarik 6 into the Veil's far reaches, D'Ashan 2, D'Mareth 1, D'Sethen 1, the Word 1, the Veil Clans 1
+    # the successors' twelve (book, 2460): D'Tarik 3 into the Veil's far reaches, D'Ashan 2, D'Mareth 1, D'Sethen 1,
+    # and five more among the Veil Clans and the Word
     mob = [m for m in veil if m['role'] == 'mobile']
-    want = [('dtarik', 6), ('dashan', 2), ('dmareth', 1), ('dsethen', 1)]
+    want = [('dtarik', 3), ('dashan', 2), ('dmareth', 1), ('dsethen', 1)]
     for cid, k in want:
-        for m in byclan[cid][:k]:
+        for m in [x for x in byclan[cid] if id(x) not in fixed][:k]:
             if m['role'] != 'mobile':
                 swap = next((x for x in mob if x['clan'] not in dict(want)), None)
                 if swap: swap['role'] = 'war'; mob.remove(swap)
