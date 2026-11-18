@@ -239,3 +239,7 @@ a:hover{text-decoration-color:var(--white)}
 .gallery figcaption b{display:block;font-weight:500}
 .gallery figcaption b.inv{color:#e2d3fa}
 .gallery figcaption small{display:block;opacity:.7;font-size:11px}
+.gallery.roll .gal{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 14px}
+.gallery.roll figure{display:flex;gap:8px;align-items:flex-start}
+.gallery.roll img{width:28px;height:28px;flex:none}
+.gallery.roll figcaption{margin-top:0}

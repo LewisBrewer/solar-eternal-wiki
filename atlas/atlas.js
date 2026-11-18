@@ -833,6 +833,33 @@ sv.hits = [];
 $('#sv-info').addEventListener('click', (e) => { const b = e.target.closest('[data-b]'); if (b) { sv.pick = b.dataset.b; svFocus(sv.pick); renderSystemInfo(); } });
 
 const chev = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#A9BBD0" stroke-width="1.6" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
+// a clan's monoliths in year t: at anchor, away with the fleets, failed into hulks, or lost (and where)
+const clanName = (id) => ((data.clans || []).find((c) => c.id === id) || { name: id }).name;
+function clanStatus(c, t) {
+  let home = 0, away = 0, hulks = 0; const lost = [];
+  for (const m of c.mon) {
+    if (m.fate && m.fate.y <= t) { lost.push(m); continue; }
+    const gone = m.depart && t >= m.depart && !(m.back && t >= m.back);
+    if (gone) away++;
+    else if (m.end && m.end !== c.home && m.back && t >= m.back) away++;
+    else if (m.hulk && t >= m.hulk) hulks++;
+    else home++;
+  }
+  const parts = [];
+  if (home) parts.push(home + (home > 1 ? ' monoliths' : ' monolith') + ' at anchor');
+  if (away) parts.push(away + ' with the fleets');
+  if (hulks) parts.push(hulks + (hulks > 1 ? ' hulks' : ' hulk'));
+  const lostAt = new Map();
+  lost.sort((a, b) => a.fate.y - b.fate.y);
+  for (const m of lost) {
+    if (m.name) { parts.push(m.name + ' lost at ' + m.fate.label + ', ' + Math.floor(m.fate.y)); continue; }
+    const k = m.fate.label + ', ' + Math.floor(m.fate.y);
+    lostAt.set(k, (lostAt.get(k) || 0) + 1);
+  }
+  for (const [k, n] of lostAt) parts.push((n > 1 ? n + ' ' : '') + 'lost at ' + k);
+  if (!home && !away && !hulks) parts.push(c.gone && t >= c.gone ? 'hulks and stations taken, ' + Math.floor(c.gone) : 'hulks and stations');
+  return '<img class="sw flagkey" src="assets/flags/clans/' + c.id + '.png" alt=""> ' + esc(parts.join('; ') || 'stations');
+}
 function sec(title, rows) {
   return '<button type="button" class="sv-sec" aria-expanded="true">' + esc(title) + chev + '</button><table>' + rows.map(([k, v, later]) => '<tr' + (later ? ' class="later"' : '') + '><th scope="row">' + esc(k) + '</th><td>' + v + '</td></tr>').join('') + '</table>';
 }
@@ -901,6 +928,15 @@ function renderSystemInfo() {
   ]);
   html += sec('Sovereignty', [['Held by', o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ', ' + esc(o.note) : '') : 'Unclaimed']]
     .concat(hist.map((h) => [String(Math.floor(h.y)), esc(polName(h.p)) + (h.note ? ', ' + esc(h.note) : '') + (h.derived ? '<sup class="drv" title="Date reconstructed">†</sup>' : ''), h.y > t])));
+  const clansHere = (data.clans || []).filter((c) => c.home === s.id);
+  if (clansHere.length) {
+    const rows = clansHere.map((c) => [c.name, clanStatus(c, t)]);
+    if (hasArticle('fevarian-clans')) rows.push(['Article', '<a href="' + wikiHref('fevarian-clans') + '">Fevarian clans</a>']);
+    html += sec('Clans', rows);
+  }
+  const visiting = [];
+  for (const f of ((data.features || {})[s.id] || [])) if (f.clans && t >= f.from && !(f.to && t >= f.to)) for (const c of f.clans) if (!visiting.includes(c) && !clansHere.some((x) => x.id === c)) visiting.push(c);
+  if (visiting.length) html += sec('Clans in the system', [[visiting.length + ' clans', visiting.slice(0, 40).map((c) => '<img class="sw flagkey" src="assets/flags/clans/' + c + '.png" alt="" title="' + esc(clanName(c)) + '">').join('')]]);
   if (ws.length) html += sec('Settled worlds', ws.map((w) => [w.name, (hasArticle(w.slug) ? '<a href="' + wikiHref(w.slug) + '">Article</a> · ' : '') + (w.native ? 'Native world' : fmtDate(w.settled))]));
   if (evs.length) html += sec('History', evs.map((e) => [fmtDate(e.y), hasArticle(e.slug) ? '<a href="' + wikiHref(e.slug) + '">' + esc(e.label) + '</a>' : esc(e.label), e.y > t]));
   if (hasArticle(s.id)) html += '<a class="art" href="' + wikiHref(s.id) + '">Read the article →</a>';
@@ -1129,7 +1165,11 @@ function svFeatures(force) {
     const big = () => { let bi = 0; S3.bodies.forEach((b, i) => { if (b.rad > S3.bodies[bi].rad) bi = i; }); return bodyAt(bi + 1); };
     const host = f.kind === 'orbital' && f.at === 'pillai' ? big() : f.at === 'pillai' ? null : bodyAt(f.at);
     let obj = new THREE.Group(), anchor = null;
-    if (!host) {
+    if (!host && f.clan) {
+      // a clan's monoliths, hulks and stations keep one place on the jump limit, its home anchorage
+      const cr = seeded('clan:' + f.clan), a = cr() * 6.283, rr = R * (0.9 + cr() * 0.2);
+      obj.position.set(Math.cos(a) * rr, (cr() - 0.5) * R * 0.06, Math.sin(a) * rr); S3.root.add(obj); anchor = obj;
+    } else if (!host) {
       const a = 0.6 + pillaiK++ * 0.55; obj.position.set(Math.cos(a) * R, 0, Math.sin(a) * R); S3.root.add(obj); anchor = obj;
     } else (f.kind === 'tether' ? host.spin : host.grp).add(obj);
     const rad = host ? host.rad : 0.15;
@@ -1148,6 +1188,32 @@ function svFeatures(force) {
     } else if (f.kind === 'custos') {
       const st = new THREE.Mesh(new THREE.OctahedronGeometry(rad * 0.12), steel); obj.add(st); obj.userData.custos = { st, rad, on: t >= (f.on || f.from) };
       anchor = st;
+    } else if (f.kind === 'clanbase') {
+      // the clan's hulks and stations, which never leave home
+      const r = seeded('base:' + f.clan);
+      for (let k = 0; k < (f.n || 4); k++) {
+        const m = new THREE.Mesh(new THREE.DodecahedronGeometry(0.5, 0), hulkM);
+        m.scale.set(0.022 * (1 + r()), 0.016 * (0.6 + r()), 0.02 * (0.6 + r()));
+        const a = r() * 6.283, d = 0.05 + r() * 0.07; m.position.set(Math.cos(a) * d, (r() - 0.5) * 0.04, Math.sin(a) * d); m.rotation.set(r(), r() * 6, r());
+        obj.add(m);
+      }
+      const st = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.007, 4, 10), ringM); st.position.set(0, 0.03, 0); st.rotation.x = 1.2; obj.add(st);
+      anchor = null;
+    } else if (f.kind === 'clanfleet' || f.kind === 'clanhulk') {
+      const r = seeded('mon:' + f.clan + f.from), dead = f.kind === 'clanhulk';
+      for (let k = 0; k < Math.min(f.n || 1, 6); k++) {
+        const grp = new THREE.Group();
+        grp.add(new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.6, 0.14), dead ? hulkM : monoM));
+        if (!dead) { const seam = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.3, 0.15), lanceM); seam.position.x = 0.12; grp.add(seam); }
+        for (let h = 0; h < 3; h++) {
+          const hk = new THREE.Mesh(new THREE.DodecahedronGeometry(0.15 + r() * 0.1, 0), hulkM);
+          const ha = r() * 6.283; hk.position.set(Math.cos(ha) * 0.5, (r() - 0.5) * 1.2, Math.sin(ha) * 0.5); grp.add(hk);
+        }
+        grp.scale.setScalar(0.07);
+        grp.position.set((k - (Math.min(f.n, 6) - 1) / 2) * 0.05, 0, (r() - 0.5) * 0.04); grp.rotation.set((r() - 0.5) * 0.3, r() * 6, dead ? 0.6 : 0);
+        obj.add(grp);
+      }
+      anchor = obj;
     } else if (f.kind === 'fleet') {
       // monoliths: tall black slabs, scarred, with a faint lance glow, each with its clan's hulks moored round it
       const n = Math.min(f.n || 4, 40), r = seeded(f.name + f.from), base = host ? rad * 2.6 : 0.35;
@@ -1331,8 +1397,20 @@ function drawSystem(dt) {
     const close = !f.host || s.d < (f.host.rad || 0.2) * 30;
     if (!close) continue;
     const n = (f.f.n && (f.f.kind === 'fleet' || f.f.kind === 'hulk') ? ' · ' + f.f.n + (f.f.kind === 'fleet' ? ' monoliths' : ' hulks') : '') + (f.f.hearths ? ' · ' + f.f.hearths + ' captured hearths' : '');
-    const txt = f.f.name + n;
-    queue.push({ pri: 0.5, box: [s.x + 6, s.y - 7, s.x + 8 + txt.length * 5.8, s.y + 6], html: '<g class="lbl"><text class="sb ft ft-' + f.f.kind + '" x="' + (s.x + 7) + '" y="' + (s.y + 4) + '" font-size="10.5">' + esc(txt) + '</text></g>' });
+    if (f.f.kind === 'clanbase') continue;
+    let txt = f.f.name + n;
+    if (f.f.kind === 'clanfleet') txt = f.f.name + (f.f.n > 1 ? ' · ' + f.f.n + ' monoliths' : '');
+    if (f.f.kind === 'clanhulk') txt = f.f.name + (f.f.n > 1 ? ' · ' + f.f.n + ' hulks' : ' hulk');
+    let pre = '', dx = 0;
+    if (f.f.clan) { pre = '<image href="assets/flags/clans/' + f.f.clan + '.png" x="' + (s.x + 6) + '" y="' + (s.y - 6) + '" width="12" height="12"/>'; dx = 15; }
+    let post = '', tw = txt.length * 5.8;
+    if (f.f.clans && f.f.clans.length) {
+      const show = f.f.clans.slice(0, 10);
+      show.forEach((c, k) => { post += '<image href="assets/flags/clans/' + c + '.png" x="' + (s.x + 12 + tw + k * 12) + '" y="' + (s.y - 5) + '" width="11" height="11"/>'; });
+      if (f.f.clans.length > show.length) post += '<text class="sb ft" x="' + (s.x + 14 + tw + show.length * 12) + '" y="' + (s.y + 4) + '" font-size="9.5">+' + (f.f.clans.length - show.length) + '</text>';
+      tw += show.length * 12 + 18;
+    }
+    queue.push({ pri: f.f.clan ? 0.35 : 0.5, box: [s.x + 6, s.y - 7, s.x + 8 + dx + tw, s.y + 6], html: '<g class="lbl">' + pre + '<text class="sb ft ft-' + f.f.kind + '" x="' + (s.x + 7 + dx) + '" y="' + (s.y + 4) + '" font-size="10.5">' + esc(txt) + '</text>' + post + '</g>' });
   }
   // place labels by priority; a label that would overlap one already placed is left out
   const placed = [];

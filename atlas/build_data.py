@@ -710,13 +710,7 @@ FEATURES = {
     'bashpit': [{'name': 'Monolith garrison', 'kind': 'fleet', 'at': 2, 'from': 2441, 'to': 2449.84, 'n': 3}],
 }
 for x in systems:
-    if x['region2235'] == 'veil':
-        FEATURES.setdefault(x['id'], []).append({'name': 'Clan anchorage', 'kind': 'hulk', 'at': 'pillai', 'from': 1300, 'n': 6})
-        FEATURES[x['id']].append({'name': 'Monoliths', 'kind': 'fleet', 'at': 'pillai', 'from': 1300, 'to': 2405, 'n': 4})
-        FEATURES[x['id']].append({'name': 'Monoliths', 'kind': 'fleet', 'at': 'pillai', 'from': 2449.5, 'n': 2})
-    if x['region2235'] == 'fevarian':
-        FEATURES.setdefault(x['id'], []).append({'name': 'Freehold anchorage', 'kind': 'fleet', 'at': 'pillai', 'from': 1300, 'to': 2454.5, 'n': 4})
-        FEATURES[x['id']].append({'name': 'Hulks', 'kind': 'hulk', 'at': 'pillai', 'from': 1300, 'n': 4})
+    # the Veil's and the freeholds' monoliths, hulks and stations are the clans' own (atlas/clans.py)
     if x['region2235'] in ('dwaii', 'kadur'):
         to = 2456.7 if x['region2235'] == 'dwaii' else (2457.5 if x['id'] in KADUR_FREED else None)
         f = {'name': 'Garrison monoliths', 'kind': 'fleet', 'at': 'pillai', 'from': 2408 if x['region2235'] == 'dwaii' else 2412, 'n': 2}
@@ -746,6 +740,9 @@ for x in systems:
     if x['region2235'] == 'fevarian':
         FEATURES.setdefault(x['id'], []).append({'name': 'Freehold settlement', 'kind': 'orbital', 'at': 'pillai', 'from': 1300,
                                                  'to': 2454.87 if x['id'] == 'fevallion' else 2454.6, 'n': 3 if x['id'] == 'fevallion' else 1})
+# the clans: every monolith with a home, a war and a fate; their hulks and stations stay home
+import clans as CL
+CLANS = CL.build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL_IDS)
 # the six hearths the Khan took at Vi Simni and Hiverion sail with his fleet
 for f in FEATURES.get('exedor', []):
     if f['name'] == 'Monolith anchorage': f['hearths'] = 6
@@ -869,6 +866,7 @@ data = {
     'burned': [{'sys': a, 'name': b, 'y': c} for a, b, c in BURNED + BURNED_EXTRA],
     'bodies': BODIES,
     'features': FEATURES,
+    'clans': CLANS,
     'events': sorted(EVENTS, key=lambda e: e['y']),
     'captions': [{'from': a, 'to': b, 'text': t} for a, b, t in CAPTIONS],
     'regions': [

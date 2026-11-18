@@ -1,197 +1,2002 @@
 {
- "title": "Clan banners",
- "items": [
-  {
-   "src": "flags/clans/drhen-banner.png",
-   "title": "D'Rhen",
-   "sub": "Thurva's clan",
-   "inv": false
-  },
-  {
-   "src": "flags/clans/ddhen-banner.png",
-   "title": "D'Dhen",
-   "sub": "the Golden Khan",
-   "inv": false
-  },
-  {
-   "src": "flags/clans/dvesh-banner.png",
-   "title": "D'Vesh",
-   "sub": "Ushar Vel's clan",
-   "inv": false
-  },
-  {
-   "src": "flags/clans/dashan-banner.png",
-   "title": "D'Ashan",
-   "sub": "the household division",
-   "inv": false
-  },
-  {
-   "src": "flags/clans/dkasht-banner.png",
-   "title": "D'Kasht",
-   "sub": "raiders, Triumph",
-   "inv": false
-  },
-  {
-   "src": "flags/clans/dmareth-banner.png",
-   "title": "D'Mareth",
-   "sub": "the far dust",
-   "inv": false
-  },
-  {
-   "src": "flags/clans/dhovar-banner.png",
-   "title": "D'Hovar",
-   "sub": "the Keeper",
-   "inv": false
-  },
-  {
-   "src": "flags/clans/dtarik-banner.png",
-   "title": "D'Tarik",
-   "sub": "khan of the Ka-Dur",
-   "inv": false
-  },
-  {
-   "src": "flags/clans/dsethen-banner.png",
-   "title": "D'Sethen",
-   "sub": "the western marches",
-   "inv": false
-  },
-  {
-   "src": "flags/clans/dossar-banner.png",
-   "title": "D'Ossar",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dvarek-banner.png",
-   "title": "D'Varek",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dthulen-banner.png",
-   "title": "D'Thulen",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dkharim-banner.png",
-   "title": "D'Kharim",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dmorrek-banner.png",
-   "title": "D'Morrek",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dselvar-banner.png",
-   "title": "D'Selvar",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dunnar-banner.png",
-   "title": "D'Unnar",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dzhaal-banner.png",
-   "title": "D'Zhaal",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/drasken-banner.png",
-   "title": "D'Rasken",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dvolun-banner.png",
-   "title": "D'Volun",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dashtor-banner.png",
-   "title": "D'Ashtor",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dgarron-banner.png",
-   "title": "D'Garron",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dishul-banner.png",
-   "title": "D'Ishul",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dkeleth-banner.png",
-   "title": "D'Keleth",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dyeshar-banner.png",
-   "title": "D'Yeshar",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dnemar-banner.png",
-   "title": "D'Nemar",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dakhul-banner.png",
-   "title": "D'Akhul",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dsorrah-banner.png",
-   "title": "D'Sorrah",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dthurr-banner.png",
-   "title": "D'Thurr",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dorsh-banner.png",
-   "title": "D'Orsh",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dbrahn-banner.png",
-   "title": "D'Brahn",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/dvahrel-banner.png",
-   "title": "D'Vahrel",
-   "sub": "",
-   "inv": true
-  },
-  {
-   "src": "flags/clans/desken-banner.png",
-   "title": "D'Esken",
-   "sub": "",
-   "inv": true
-  }
- ]
+"title": "Clan banners",
+"items": [
+{
+"src": "flags/clans/drhen-banner.png",
+"title": "D'Rhen",
+"sub": "Thurva's clan",
+"inv": false
+},
+{
+"src": "flags/clans/ddhen-banner.png",
+"title": "D'Dhen",
+"sub": "the Golden Khan",
+"inv": false
+},
+{
+"src": "flags/clans/dvesh-banner.png",
+"title": "D'Vesh",
+"sub": "Ushar Vel's clan",
+"inv": false
+},
+{
+"src": "flags/clans/dashan-banner.png",
+"title": "D'Ashan",
+"sub": "the household division",
+"inv": false
+},
+{
+"src": "flags/clans/dkasht-banner.png",
+"title": "D'Kasht",
+"sub": "raiders, Triumph",
+"inv": false
+},
+{
+"src": "flags/clans/dmareth-banner.png",
+"title": "D'Mareth",
+"sub": "the far dust",
+"inv": false
+},
+{
+"src": "flags/clans/dhovar-banner.png",
+"title": "D'Hovar",
+"sub": "the Keeper",
+"inv": false
+},
+{
+"src": "flags/clans/dtarik-banner.png",
+"title": "D'Tarik",
+"sub": "khan of the Ka-Dur",
+"inv": false
+},
+{
+"src": "flags/clans/dsethen-banner.png",
+"title": "D'Sethen",
+"sub": "the western marches",
+"inv": false
+},
+{
+"src": "flags/clans/dossar-banner.png",
+"title": "D'Ossar",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dvarek-banner.png",
+"title": "D'Varek",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dthulen-banner.png",
+"title": "D'Thulen",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dkharim-banner.png",
+"title": "D'Kharim",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dmorrek-banner.png",
+"title": "D'Morrek",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dselvar-banner.png",
+"title": "D'Selvar",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dunnar-banner.png",
+"title": "D'Unnar",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dzhaal-banner.png",
+"title": "D'Zhaal",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/drasken-banner.png",
+"title": "D'Rasken",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dvolun-banner.png",
+"title": "D'Volun",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dashtor-banner.png",
+"title": "D'Ashtor",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dgarron-banner.png",
+"title": "D'Garron",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dishul-banner.png",
+"title": "D'Ishul",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dkeleth-banner.png",
+"title": "D'Keleth",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dyeshar-banner.png",
+"title": "D'Yeshar",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dnemar-banner.png",
+"title": "D'Nemar",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dakhul-banner.png",
+"title": "D'Akhul",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dsorrah-banner.png",
+"title": "D'Sorrah",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dthurr-banner.png",
+"title": "D'Thurr",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dorsh-banner.png",
+"title": "D'Orsh",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dbrahn-banner.png",
+"title": "D'Brahn",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/dvahrel-banner.png",
+"title": "D'Vahrel",
+"sub": "",
+"inv": true
+},
+{
+"src": "flags/clans/desken-banner.png",
+"title": "D'Esken",
+"sub": "",
+"inv": true
+}
+],
+"roll": {
+"title": "Roll of the clans",
+"items": [
+{
+"src": "flags/clans/dashan.png",
+"title": "D'Ashan",
+"sub": "Ashan Dur \u00b7 5 monoliths",
+"inv": false
+},
+{
+"src": "flags/clans/ddhen.png",
+"title": "D'Dhen",
+"sub": "Dhen Ossa \u00b7 1 monolith",
+"inv": false
+},
+{
+"src": "flags/clans/dhovar.png",
+"title": "D'Hovar",
+"sub": "Vharr \u00b7 2 monoliths",
+"inv": false
+},
+{
+"src": "flags/clans/dkasht.png",
+"title": "D'Kasht",
+"sub": "Kasht \u00b7 2 monoliths",
+"inv": false
+},
+{
+"src": "flags/clans/dmareth.png",
+"title": "D'Mareth",
+"sub": "Mareth Vel \u00b7 2 monoliths",
+"inv": false
+},
+{
+"src": "flags/clans/drhen.png",
+"title": "D'Rhen",
+"sub": "Rhen Tal \u00b7 2 monoliths",
+"inv": false
+},
+{
+"src": "flags/clans/dsethen.png",
+"title": "D'Sethen",
+"sub": "Ul Sethen \u00b7 2 monoliths",
+"inv": false
+},
+{
+"src": "flags/clans/dtarik.png",
+"title": "D'Tarik",
+"sub": "Sel Tarik \u00b7 7 monoliths",
+"inv": false
+},
+{
+"src": "flags/clans/dvesh.png",
+"title": "D'Vesh",
+"sub": "Vesh Mar \u00b7 3 monoliths",
+"inv": false
+},
+{
+"src": "flags/clans/dakaedesh.png",
+"title": "D'Akaedesh",
+"sub": "Sel Tarik \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dakaessor.png",
+"title": "D'Akaessor",
+"sub": "Sev Ash \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dakaran.png",
+"title": "D'Akaran",
+"sub": "Ul Mar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dakaurnash.png",
+"title": "D'Akaurnash",
+"sub": "Tor Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dakeissuun.png",
+"title": "D'Akeissuun",
+"sub": "Ossek \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dakhul.png",
+"title": "D'Akhul",
+"sub": "Churassix \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dakovul.png",
+"title": "D'Akovul",
+"sub": "Sel Tarik \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dakureth.png",
+"title": "D'Akureth",
+"sub": "Sev Ossa \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/daraeketh.png",
+"title": "D'Araeketh",
+"sub": "Ul Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/daraunun.png",
+"title": "D'Araunun",
+"sub": "Vharr \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/darehtath.png",
+"title": "D'Arehtath",
+"sub": "Rhen Tal \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dareimoth.png",
+"title": "D'Areimoth",
+"sub": "Ul Sethen \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dariskor.png",
+"title": "D'Ariskor",
+"sub": "Ul Sethen \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/daroden.png",
+"title": "D'Aroden",
+"sub": "Churassix \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/daruvik.png",
+"title": "D'Aruvik",
+"sub": "Sev Ossa \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dashaanik.png",
+"title": "D'Ashaanik",
+"sub": "Ul Sethen \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dashaekal.png",
+"title": "D'Ashaekal",
+"sub": "Sev Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dasheishan.png",
+"title": "D'Asheishan",
+"sub": "Kasht \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dashessiel.png",
+"title": "D'Ashessiel",
+"sub": "Thul Ashra \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dashokuun.png",
+"title": "D'Ashokuun",
+"sub": "Sel Tarik \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dashoskir.png",
+"title": "D'Ashoskir",
+"sub": "Kasht \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dashtor.png",
+"title": "D'Ashtor",
+"sub": "Matar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dashussash.png",
+"title": "D'Ashussash",
+"sub": "Mareth Vel \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dbaakoth.png",
+"title": "D'Baakoth",
+"sub": "Kasht \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dbaaxash.png",
+"title": "D'Baaxash",
+"sub": "Drek Hul \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dbeihtath.png",
+"title": "D'Beihtath",
+"sub": "Dhen Ossa \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dbeivath.png",
+"title": "D'Beivath",
+"sub": "Varn Khet \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dbith.png",
+"title": "D'Bith",
+"sub": "Japhon \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dbodesh.png",
+"title": "D'Bodesh",
+"sub": "Dhen Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dborketh.png",
+"title": "D'Borketh",
+"sub": "Tor Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dbothar.png",
+"title": "D'Bothar",
+"sub": "Mareth Vel \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dbraarnesh.png",
+"title": "D'Braarnesh",
+"sub": "Dhen Ossa \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dbrahn.png",
+"title": "D'Brahn",
+"sub": "Daarasta \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dbraukir.png",
+"title": "D'Braukir",
+"sub": "Rhen Tal \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dbraurren.png",
+"title": "D'Braurren",
+"sub": "Tor Khet \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dbrekan.png",
+"title": "D'Brekan",
+"sub": "Kasht \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dbremeth.png",
+"title": "D'Bremeth",
+"sub": "Mareth Vel \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dbrirkoth.png",
+"title": "D'Brirkoth",
+"sub": "Drek Hul \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dbrokan.png",
+"title": "D'Brokan",
+"sub": "Ushar's Well \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dbrush.png",
+"title": "D'Brush",
+"sub": "Rhen Tal \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dbruvul.png",
+"title": "D'Bruvul",
+"sub": "Sel Tarik \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dbudar.png",
+"title": "D'Budar",
+"sub": "Ashan Dur \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/ddhadek.png",
+"title": "D'Dhadek",
+"sub": "Ashan Dur \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/ddhaekhesh.png",
+"title": "D'Dhaekhesh",
+"sub": "Drek Hul \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddhaekhik.png",
+"title": "D'Dhaekhik",
+"sub": "Barban \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/ddhaerken.png",
+"title": "D'Dhaerken",
+"sub": "Sel Tarik \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/ddhaukal.png",
+"title": "D'Dhaukal",
+"sub": "Zhar Mol \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddhaunuun.png",
+"title": "D'Dhaunuun",
+"sub": "Ushar's Well \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/ddheikhash.png",
+"title": "D'Dheikhash",
+"sub": "Sev Ash \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddheirk.png",
+"title": "D'Dheirk",
+"sub": "Zhar Mol \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/ddhethik.png",
+"title": "D'Dhethik",
+"sub": "Vharr \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddhinal.png",
+"title": "D'Dhinal",
+"sub": "Tor Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/ddhuxen.png",
+"title": "D'Dhuxen",
+"sub": "Ul Mar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddraasken.png",
+"title": "D'Draasken",
+"sub": "Ul Sethen \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/ddraerken.png",
+"title": "D'Draerken",
+"sub": "Dhenmar \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/ddrathor.png",
+"title": "D'Drathor",
+"sub": "Kasht \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddraushal.png",
+"title": "D'Draushal",
+"sub": "Sev Ash \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/ddrerkul.png",
+"title": "D'Drerkul",
+"sub": "Sel Tarik \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddreshun.png",
+"title": "D'Dreshun",
+"sub": "Drek Hul \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddrimul.png",
+"title": "D'Drimul",
+"sub": "Kasht \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/ddroskoth.png",
+"title": "D'Droskoth",
+"sub": "Tor Dhaan \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddrossesh.png",
+"title": "D'Drossesh",
+"sub": "Sev Ash \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/ddrushiel.png",
+"title": "D'Drushiel",
+"sub": "Ashan Dur \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/deskaadar.png",
+"title": "D'Eskaadar",
+"sub": "Mareth Vel \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/deskaaskar.png",
+"title": "D'Eskaaskar",
+"sub": "Tor Khet \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/deskanor.png",
+"title": "D'Eskanor",
+"sub": "Dhen Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/deskaskar.png",
+"title": "D'Eskaskar",
+"sub": "Vharr \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/deskehten.png",
+"title": "D'Eskehten",
+"sub": "Thul Ashra \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/deskemath.png",
+"title": "D'Eskemath",
+"sub": "Ushar's Well \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/desken.png",
+"title": "D'Esken",
+"sub": "Japhon \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/deskexesh.png",
+"title": "D'Eskexesh",
+"sub": "Sel Tarik \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/deskinir.png",
+"title": "D'Eskinir",
+"sub": "Ul Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/deskiriel.png",
+"title": "D'Eskiriel",
+"sub": "Zhar Mol \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/deskokhor.png",
+"title": "D'Eskokhor",
+"sub": "Dhenmar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dgaakor.png",
+"title": "D'Gaakor",
+"sub": "Mareth Vel \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dgaekhul.png",
+"title": "D'Gaekhul",
+"sub": "Vharr \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dgarron.png",
+"title": "D'Garron",
+"sub": "Fevallion \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dgaxoth.png",
+"title": "D'Gaxoth",
+"sub": "Ashan Dur \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dgerror.png",
+"title": "D'Gerror",
+"sub": "Thul Ashra \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dgexiel.png",
+"title": "D'Gexiel",
+"sub": "Drek Hul \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dghaaral.png",
+"title": "D'Ghaaral",
+"sub": "Thul Ashra \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dghaaxiel.png",
+"title": "D'Ghaaxiel",
+"sub": "Ashan Dur \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dghaerroth.png",
+"title": "D'Ghaerroth",
+"sub": "Vesh Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dgharnik.png",
+"title": "D'Gharnik",
+"sub": "Zhar Mol \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dgheren.png",
+"title": "D'Gheren",
+"sub": "Thul Ashra \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dghikek.png",
+"title": "D'Ghikek",
+"sub": "Vesh Mar \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dghinesh.png",
+"title": "D'Ghinesh",
+"sub": "Vharr \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dgholath.png",
+"title": "D'Gholath",
+"sub": "Thul Ashra \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dghuliel.png",
+"title": "D'Ghuliel",
+"sub": "Vesh Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dgorrul.png",
+"title": "D'Gorrul",
+"sub": "Ashan Dur \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dgukuun.png",
+"title": "D'Gukuun",
+"sub": "Varn Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dgurkuun.png",
+"title": "D'Gurkuun",
+"sub": "Ossek \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dhaelik.png",
+"title": "D'Haelik",
+"sub": "Ashan Dur \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dhaeskir.png",
+"title": "D'Haeskir",
+"sub": "Varn Khet \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dhaskuun.png",
+"title": "D'Haskuun",
+"sub": "Sev Ash \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dhassor.png",
+"title": "D'Hassor",
+"sub": "Sev Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dhathir.png",
+"title": "D'Hathir",
+"sub": "Orr Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dhauxoth.png",
+"title": "D'Hauxoth",
+"sub": "Dhen Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dhaxek.png",
+"title": "D'Haxek",
+"sub": "Ossek \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dheviel.png",
+"title": "D'Heviel",
+"sub": "Ul Sethen \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dhihtir.png",
+"title": "D'Hihtir",
+"sub": "Drek Hul \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dhixek.png",
+"title": "D'Hixek",
+"sub": "Sel Tarik \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/diraekhul.png",
+"title": "D'Iraekhul",
+"sub": "Dhenmar \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/diraerrek.png",
+"title": "D'Iraerrek",
+"sub": "Ashan Dur \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/diraskath.png",
+"title": "D'Iraskath",
+"sub": "Varn Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dirassash.png",
+"title": "D'Irassash",
+"sub": "Ul Sethen \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/direinar.png",
+"title": "D'Ireinar",
+"sub": "Vesh Mar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/direixik.png",
+"title": "D'Ireixik",
+"sub": "Orr Ossa \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/diressan.png",
+"title": "D'Iressan",
+"sub": "Varn Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dirihtor.png",
+"title": "D'Irihtor",
+"sub": "Vharr \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dirush.png",
+"title": "D'Irush",
+"sub": "Sel Tarik \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dishadal.png",
+"title": "D'Ishadal",
+"sub": "Dhen Ossa \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dishaed.png",
+"title": "D'Ishaed",
+"sub": "Ushar's Well \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dishathiel.png",
+"title": "D'Ishathiel",
+"sub": "Matar \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/disheimuun.png",
+"title": "D'Isheimuun",
+"sub": "Ul Mar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dishul.png",
+"title": "D'Ishul",
+"sub": "Daarasta \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkaanoth.png",
+"title": "D'Kaanoth",
+"sub": "Ushar's Well \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkaeskath.png",
+"title": "D'Kaeskath",
+"sub": "Varn Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkaussir.png",
+"title": "D'Kaussir",
+"sub": "Varn Khet \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkeleth.png",
+"title": "D'Keleth",
+"sub": "Mecura \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkeshesh.png",
+"title": "D'Keshesh",
+"sub": "Drek Hul \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkhaekheth.png",
+"title": "D'Khaekheth",
+"sub": "Dhen Ossa \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dkhaeviel.png",
+"title": "D'Khaeviel",
+"sub": "Dhen Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkharim.png",
+"title": "D'Kharim",
+"sub": "Fevallion \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkhessath.png",
+"title": "D'Khessath",
+"sub": "Rhen Tal \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkhomoth.png",
+"title": "D'Khomoth",
+"sub": "Rhen Tal \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkhossan.png",
+"title": "D'Khossan",
+"sub": "Sev Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkhud.png",
+"title": "D'Khud",
+"sub": "Sev Ash \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkhuhtik.png",
+"title": "D'Khuhtik",
+"sub": "Tor Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkhulan.png",
+"title": "D'Khulan",
+"sub": "Dhenmar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkraassik.png",
+"title": "D'Kraassik",
+"sub": "Ul Sethen \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkraavan.png",
+"title": "D'Kraavan",
+"sub": "Tor Dhaan \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkraeval.png",
+"title": "D'Kraeval",
+"sub": "Ul Mar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkrauht.png",
+"title": "D'Krauht",
+"sub": "Ul Sethen \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkraushul.png",
+"title": "D'Kraushul",
+"sub": "Orr Ossa \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dkreirir.png",
+"title": "D'Kreirir",
+"sub": "Thul Ashra \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dkreivek.png",
+"title": "D'Kreivek",
+"sub": "Ashan Dur \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkrirash.png",
+"title": "D'Krirash",
+"sub": "Dhen Ossa \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkrorr.png",
+"title": "D'Krorr",
+"sub": "Ossek \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dkukhun.png",
+"title": "D'Kukhun",
+"sub": "Sev Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkushik.png",
+"title": "D'Kushik",
+"sub": "Tor Dhaan \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dkussiel.png",
+"title": "D'Kussiel",
+"sub": "Vesh Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dlaahtun.png",
+"title": "D'Laahtun",
+"sub": "Sev Ossa \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dlaemiel.png",
+"title": "D'Laemiel",
+"sub": "Maasym \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dlaulik.png",
+"title": "D'Laulik",
+"sub": "Vesh Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dlaushor.png",
+"title": "D'Laushor",
+"sub": "Rhen Tal \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dlelek.png",
+"title": "D'Lelek",
+"sub": "Dhenmar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dleren.png",
+"title": "D'Leren",
+"sub": "Ushar's Well \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dlim.png",
+"title": "D'Lim",
+"sub": "Barban \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dmaerul.png",
+"title": "D'Maerul",
+"sub": "Ushar's Well \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dmanor.png",
+"title": "D'Manor",
+"sub": "Ul Sethen \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dmarkor.png",
+"title": "D'Markor",
+"sub": "Vharr \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dmaukhul.png",
+"title": "D'Maukhul",
+"sub": "Kasht \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dmeirek.png",
+"title": "D'Meirek",
+"sub": "Rhen Tal \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dmirrik.png",
+"title": "D'Mirrik",
+"sub": "Vharr \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dmodeth.png",
+"title": "D'Modeth",
+"sub": "Dhen Ossa \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dmorrek.png",
+"title": "D'Morrek",
+"sub": "Daarasta \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dmoval.png",
+"title": "D'Moval",
+"sub": "Tor Dhaan \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dmuht.png",
+"title": "D'Muht",
+"sub": "Ossek \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dnaarnik.png",
+"title": "D'Naarnik",
+"sub": "Ul Sethen \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dnaassir.png",
+"title": "D'Naassir",
+"sub": "Orr Ossa \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dnaathuun.png",
+"title": "D'Naathuun",
+"sub": "Ushar's Well \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dnaulash.png",
+"title": "D'Naulash",
+"sub": "Tor Dhaan \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dnek.png",
+"title": "D'Nek",
+"sub": "Dhenmar \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dnemar.png",
+"title": "D'Nemar",
+"sub": "Maasym \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dnevan.png",
+"title": "D'Nevan",
+"sub": "Mareth Vel \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dnirnan.png",
+"title": "D'Nirnan",
+"sub": "Kasht \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dnuhtoth.png",
+"title": "D'Nuhtoth",
+"sub": "Sev Ash \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/doraakhen.png",
+"title": "D'Oraakhen",
+"sub": "Tor Dhaan \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/doraelesh.png",
+"title": "D'Oraelesh",
+"sub": "Sev Ash \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/doraethan.png",
+"title": "D'Oraethan",
+"sub": "Tor Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/doreikun.png",
+"title": "D'Oreikun",
+"sub": "Churassix \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dorerar.png",
+"title": "D'Orerar",
+"sub": "Maasym \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dorsh.png",
+"title": "D'Orsh",
+"sub": "Fevallion \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dosaahtoth.png",
+"title": "D'Osaahtoth",
+"sub": "Orr Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dosaedor.png",
+"title": "D'Osaedor",
+"sub": "Ossek \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dosaerroth.png",
+"title": "D'Osaerroth",
+"sub": "Tor Dhaan \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dosaulun.png",
+"title": "D'Osaulun",
+"sub": "Tor Khet \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dosauman.png",
+"title": "D'Osauman",
+"sub": "Zhar Mol \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/doseiduun.png",
+"title": "D'Oseiduun",
+"sub": "Sev Ash \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/doseirnik.png",
+"title": "D'Oseirnik",
+"sub": "Zhar Mol \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dosihten.png",
+"title": "D'Osihten",
+"sub": "Rhen Tal \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dosilor.png",
+"title": "D'Osilor",
+"sub": "Ossek \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dosornik.png",
+"title": "D'Osornik",
+"sub": "Tor Dhaan \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dossar.png",
+"title": "D'Ossar",
+"sub": "Churassix \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dosuhtek.png",
+"title": "D'Osuhtek",
+"sub": "Orr Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dqaeskesh.png",
+"title": "D'Qaeskesh",
+"sub": "Zhar Mol \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dqarketh.png",
+"title": "D'Qarketh",
+"sub": "Tor Dhaan \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dqaulal.png",
+"title": "D'Qaulal",
+"sub": "Thul Ashra \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dqaurrir.png",
+"title": "D'Qaurrir",
+"sub": "Dhenmar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dqeikhash.png",
+"title": "D'Qeikhash",
+"sub": "Ossek \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dqeirar.png",
+"title": "D'Qeirar",
+"sub": "Zhar Mol \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dqessoth.png",
+"title": "D'Qessoth",
+"sub": "Sel Tarik \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dqirkash.png",
+"title": "D'Qirkash",
+"sub": "Sel Tarik \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dqirnan.png",
+"title": "D'Qirnan",
+"sub": "Tor Khet \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dqixath.png",
+"title": "D'Qixath",
+"sub": "Sev Ossa \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dqurreth.png",
+"title": "D'Qurreth",
+"sub": "Mecura \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/draeshir.png",
+"title": "D'Raeshir",
+"sub": "Ul Mar \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/drasken.png",
+"title": "D'Rasken",
+"sub": "Churassix \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/drekuun.png",
+"title": "D'Rekuun",
+"sub": "Thul Ashra \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/drharroth.png",
+"title": "D'Rharroth",
+"sub": "Vesh Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/drheithath.png",
+"title": "D'Rheithath",
+"sub": "Ul Mar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/drhileth.png",
+"title": "D'Rhileth",
+"sub": "Vharr \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/drhoxul.png",
+"title": "D'Rhoxul",
+"sub": "Ossek \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/drishek.png",
+"title": "D'Rishek",
+"sub": "Ossek \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/drosketh.png",
+"title": "D'Rosketh",
+"sub": "Ossek \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/drurkun.png",
+"title": "D'Rurkun",
+"sub": "Ul Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dsaevath.png",
+"title": "D'Saevath",
+"sub": "Drek Hul \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dsaman.png",
+"title": "D'Saman",
+"sub": "Kasht \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dsaushul.png",
+"title": "D'Saushul",
+"sub": "Tor Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dseiden.png",
+"title": "D'Seiden",
+"sub": "Ul Mar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dselvar.png",
+"title": "D'Selvar",
+"sub": "Mecura \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dsernash.png",
+"title": "D'Sernash",
+"sub": "Varn Khet \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dshaaresh.png",
+"title": "D'Shaaresh",
+"sub": "Rhen Tal \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dshaarkor.png",
+"title": "D'Shaarkor",
+"sub": "Dhen Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dshaketh.png",
+"title": "D'Shaketh",
+"sub": "Orr Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dshessik.png",
+"title": "D'Shessik",
+"sub": "Vharr \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dshivar.png",
+"title": "D'Shivar",
+"sub": "Tor Dhaan \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dshixash.png",
+"title": "D'Shixash",
+"sub": "Sev Ossa \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dshokhir.png",
+"title": "D'Shokhir",
+"sub": "Orr Ossa \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dshornik.png",
+"title": "D'Shornik",
+"sub": "Mareth Vel \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dsorkek.png",
+"title": "D'Sorkek",
+"sub": "Dhenmar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dsorrah.png",
+"title": "D'Sorrah",
+"sub": "Barban \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dsur.png",
+"title": "D'Sur",
+"sub": "Rhen Tal \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dtaalul.png",
+"title": "D'Taalul",
+"sub": "Ashan Dur \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dtaarreth.png",
+"title": "D'Taarreth",
+"sub": "Rhen Tal \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dtaehtun.png",
+"title": "D'Taehtun",
+"sub": "Mareth Vel \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dtaelar.png",
+"title": "D'Taelar",
+"sub": "Tor Dhaan \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dtaevoth.png",
+"title": "D'Taevoth",
+"sub": "Ossek \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dtaskuun.png",
+"title": "D'Taskuun",
+"sub": "Orr Ossa \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dtauresh.png",
+"title": "D'Tauresh",
+"sub": "Vesh Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dterir.png",
+"title": "D'Terir",
+"sub": "Dhen Ossa \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dthaevul.png",
+"title": "D'Thaevul",
+"sub": "Zhar Mol \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dthanul.png",
+"title": "D'Thanul",
+"sub": "Dhenmar \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dtharror.png",
+"title": "D'Tharror",
+"sub": "Dhenmar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dthaurrik.png",
+"title": "D'Thaurrik",
+"sub": "Varn Khet \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dthulen.png",
+"title": "D'Thulen",
+"sub": "Matar \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dthurr.png",
+"title": "D'Thurr",
+"sub": "Matar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dtoman.png",
+"title": "D'Toman",
+"sub": "Kasht \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dtudul.png",
+"title": "D'Tudul",
+"sub": "Orr Ossa \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dtuliel.png",
+"title": "D'Tuliel",
+"sub": "Sev Ash \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dtuvash.png",
+"title": "D'Tuvash",
+"sub": "Ushar's Well \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dulaeskash.png",
+"title": "D'Ulaeskash",
+"sub": "Sev Ossa \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dulamul.png",
+"title": "D'Ulamul",
+"sub": "Vesh Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dulauhtor.png",
+"title": "D'Ulauhtor",
+"sub": "Ushar's Well \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dulaurrek.png",
+"title": "D'Ulaurrek",
+"sub": "Vesh Mar \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dulixeth.png",
+"title": "D'Ulixeth",
+"sub": "Vharr \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dulurnar.png",
+"title": "D'Ulurnar",
+"sub": "Vesh Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dunnar.png",
+"title": "D'Unnar",
+"sub": "Japhon \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dvaekuun.png",
+"title": "D'Vaekuun",
+"sub": "Varn Khet \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dvahrel.png",
+"title": "D'Vahrel",
+"sub": "Mecura \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dvarek.png",
+"title": "D'Varek",
+"sub": "Barban \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dvashor.png",
+"title": "D'Vashor",
+"sub": "Ushar's Well \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dveilek.png",
+"title": "D'Veilek",
+"sub": "Vharr \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dvernik.png",
+"title": "D'Vernik",
+"sub": "Ul Sethen \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dveskul.png",
+"title": "D'Veskul",
+"sub": "Mareth Vel \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dvolun.png",
+"title": "D'Volun",
+"sub": "Barban \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dvoman.png",
+"title": "D'Voman",
+"sub": "Sev Ossa \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dyaadesh.png",
+"title": "D'Yaadesh",
+"sub": "Drek Hul \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dyaeshek.png",
+"title": "D'Yaeshek",
+"sub": "Mareth Vel \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dyalik.png",
+"title": "D'Yalik",
+"sub": "Rhen Tal \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dyaukhul.png",
+"title": "D'Yaukhul",
+"sub": "Ashan Dur \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dyeid.png",
+"title": "D'Yeid",
+"sub": "Ul Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dyeirrul.png",
+"title": "D'Yeirrul",
+"sub": "Varn Khet \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dyeshar.png",
+"title": "D'Yeshar",
+"sub": "Japhon \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dyirkesh.png",
+"title": "D'Yirkesh",
+"sub": "Sev Ash \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dyoreth.png",
+"title": "D'Yoreth",
+"sub": "Ashan Dur \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dyuxash.png",
+"title": "D'Yuxash",
+"sub": "Kasht \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dzaathar.png",
+"title": "D'Zaathar",
+"sub": "Tor Khet \u00b7 3 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dzaedoth.png",
+"title": "D'Zaedoth",
+"sub": "Varn Khet \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dzaerruun.png",
+"title": "D'Zaerruun",
+"sub": "Kasht \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dzahten.png",
+"title": "D'Zahten",
+"sub": "Thul Ashra \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dzashath.png",
+"title": "D'Zashath",
+"sub": "Vesh Mar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dzauthan.png",
+"title": "D'Zauthan",
+"sub": "Tor Dhaan \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dzaven.png",
+"title": "D'Zaven",
+"sub": "Thul Ashra \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dzeilir.png",
+"title": "D'Zeilir",
+"sub": "Zhar Mol \u00b7 4 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dzeiviel.png",
+"title": "D'Zeiviel",
+"sub": "Orr Ossa \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dzhaal.png",
+"title": "D'Zhaal",
+"sub": "Maasym \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dzhaarn.png",
+"title": "D'Zhaarn",
+"sub": "Fevallion \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dzhaarun.png",
+"title": "D'Zhaarun",
+"sub": "Sel Tarik \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dzhautheth.png",
+"title": "D'Zhautheth",
+"sub": "Mareth Vel \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dzheikhul.png",
+"title": "D'Zheikhul",
+"sub": "Daarasta \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dzhekesh.png",
+"title": "D'Zhekesh",
+"sub": "Ul Sethen \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dzhixor.png",
+"title": "D'Zhixor",
+"sub": "Drek Hul \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dzirkor.png",
+"title": "D'Zirkor",
+"sub": "Thul Ashra \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dziskal.png",
+"title": "D'Ziskal",
+"sub": "Dhenmar \u00b7 1 monolith",
+"inv": true
+},
+{
+"src": "flags/clans/dzoden.png",
+"title": "D'Zoden",
+"sub": "Mareth Vel \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dzorken.png",
+"title": "D'Zorken",
+"sub": "Ushar's Well \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dzorkesh.png",
+"title": "D'Zorkesh",
+"sub": "Zhar Mol \u00b7 hulks and stations",
+"inv": true
+},
+{
+"src": "flags/clans/dzorrath.png",
+"title": "D'Zorrath",
+"sub": "Drek Hul \u00b7 2 monoliths",
+"inv": true
+},
+{
+"src": "flags/clans/dzurketh.png",
+"title": "D'Zurketh",
+"sub": "Drek Hul \u00b7 1 monolith",
+"inv": true
+}
+]
+}
 }

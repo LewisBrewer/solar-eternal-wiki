@@ -1056,6 +1056,13 @@ class Site:
                             (it['src'], html.escape(it['title']), ' class="inv"' if it.get('inv') else '', html.escape(it['title']),
                              ('<small>%s</small>' % html.escape(it['sub'])) if it.get('sub') else '') for it in G['items'])
             gal = '<section class="gallery" id="gallery"><h2>%s</h2><div class="gal">%s</div></section>' % (html.escape(G['title']).upper(), items)
+            if G.get('roll'):
+                rl = G['roll']
+                cells = ''.join('<figure><img src="../assets/%s" alt="" loading="lazy"><figcaption><b%s>%s</b>%s</figcaption></figure>' %
+                                (it['src'], ' class="inv"' if it.get('inv') else '', html.escape(it['title']),
+                                 ('<small>%s</small>' % html.escape(it['sub'])) if it.get('sub') else '') for it in rl['items'])
+                gal += '<section class="gallery roll" id="roll"><h2>%s</h2><div class="gal">%s</div></section>' % (html.escape(rl['title']).upper(), cells)
+                tocs.insert(len(tocs) - (1 if art['sources'] else 0), '<a href="#roll">%s</a>' % html.escape(rl['title']))
             tocs.insert(len(tocs) - (1 if art['sources'] else 0), '<a href="#gallery">%s</a>' % html.escape(G['title']))
         src = ''
         if art['sources']:
