@@ -1106,7 +1106,7 @@ def pair(lane):
 # Lewis's hand edits to the network: lanes he wants and lanes he does not.
 EXTRA_LANES = """dhur-ka-dothom dothom-ellamir lytirim-grumium cygni-ijax wuae-wicklar wicklar-cazzabius azak-hoeddim ceyecarro-hoeddim
 kuma-ijaagin qad-vhi-ijaagin""".split()
-NO_LANES = "emim-maasym lytirim-dastamon cygni-myrum cygni-ross-alpha".split()
+NO_LANES = "emim-maasym lalande-maasym lytirim-dastamon cygni-myrum cygni-ross-alpha".split()
 for lane in NO_LANES:
     i_, j_ = pair(lane); seen.add((min(i_, j_), max(i_, j_)))
 for lane in LANES + EXTRA_LANES:
