@@ -93,21 +93,21 @@ BATTLES = [
     ('yildun', 2444.44, 'Dauntless', 'battle-of-yildun', 'Battle of Yildun', [
         (USR, 'human', 40, '120 hulls; 7 of the 8 Vindications, the Defiance with Grand Admiral Kvoravich among them; all 3,000 platforms; 180 transports'),
         (KH, 'fev', 20, 'About 9,000 tributary hulls')]),
-    ('sol', 2446.27, 5, None, 'Battle of Jupiter', [
+    ('sol', 2446.27, 5, 'battle-of-jupiter', 'Battle of Jupiter', [
         (USR, 'human', 40, '120 hulls; 2 Vindications; 1 Ciriban; the Bounty; 900 platforms; Callisto\'s fortress'),
         (KH, 'fev', 40, '80,000 tributary hulls; 200 hulks')]),
-    ('sol', 2446.47, 'pillai', None, 'Vesta', [
+    ('sol', 2446.47, 'pillai', 'belt-campaign-of-2446', 'Vesta', [
         (USR, 'human', 10, '30 hulls in the raid on Vesta\'s surrendered drivers')]),
-    ('sol', 2446.75, 4, None, 'Mars', [
-        (USR, 'human', 20, 'The Resolute, with Fleet Admiral Draganić and the Command\'s staff; the Serenity mutineers\' hulls')]),
-    ('sol', 2446.93, 3, None, 'Battle of Earth', [
+    ('sol', 2446.75, 4, 'assault-on-mars', 'Mars', [
+        (USR, 'human', 20, 'The Resolute, with Fleet Admiral Draganić, Vice Admiral Ferreira-Obi and the Command\'s staff; the Triumph mutineers\' hulls')]),
+    ('sol', 2446.93, 3, 'battle-of-earth', 'Battle of Earth', [
         (USR, 'human', 50, 'The Valiant, the last Vindication; the Steadfast, scuttled into the Khan\'s mass; 60 hulls; 8,000 hulls of the Reserve Swarm; 500 platforms; the Hangzhou\'s forward half'),
         (KH, 'fev', 30, 'The Returning, which fell to the Pacific; 12,000 tributary hulls')]),
-    ('alpha-centauri', 2447.80, 'Circumstance', None, 'Battle of Alpha Centauri', [
+    ('alpha-centauri', 2447.80, 'Circumstance', 'counterattack-of-2447-to-2448', 'Battle of Alpha Centauri', [
         (USR, 'human', 30, '90 hulls; the Retribution Landfall')]),
-    ('procyon', 2448.35, 'Landfall', None, 'Second Battle of Procyon', [
+    ('procyon', 2448.35, 'Landfall', 'counterattack-of-2447-to-2448', 'Second Battle of Procyon', [
         (USR, 'human', 30, '110 hulls; the Retribution Bounty')]),
-    ('talandra', 2449.47, 'Talandra', None, 'Second Battle of Talandra', [
+    ('talandra', 2449.47, 'Talandra', 'second-battle-of-talandra', 'Second Battle of Talandra', [
         (USR, 'human', 50, '220 hulls; 3 Retributions, the Circumstance and the Dauntless among them; 2 Ciribans'),
         (KH, 'fev', 30, 'The swarm of 40,000 tributary hulls')]),
     ('media', 2451.12, 'pillai', None, 'Media', [
