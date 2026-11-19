@@ -184,7 +184,6 @@ for sid in ('ladiom', 'swur'):
     SHEET_SECTOR.pop(sid, None); SHEET_CLAIM.pop(sid, None)
 SHEET_SECTOR['derellis'] = 'Geronth Sector'
 SHEET_SECTOR['brink'] = 'Sol Sector'      # so the sectors do not overlap
-SHEET_SECTOR['yildun'] = 'Saolea Sector'
 SHEET_SECTOR['hadriccus'] = 'Gagarin Sector'
 SHEET_SECTOR['zarqon'] = 'Geronth Sector'
 SHEET_SECTOR['trab'] = 'Binami Sector'
@@ -1092,7 +1091,7 @@ outside = lambda i: systems[i]['id'] not in RUBIN
 #    Ciriban to Haedus and Swur to Media at the centre, the core worlds to the Sectors, the
 #    Voor worlds from Exedor south to the Veil.
 LANES = """sol-procyon sol-alpha-centauri procyon-binami procyon-talandra talandra-nomotar nomotar-myrum
-talandra-binami binami-ijax ijax-ciriban binami-yildun yildun-saolea ciriban-izar izar-bashpit bashpit-ijax
+talandra-binami binami-ijax ijax-ciriban binami-yildun yildun-saolea brink-yildun ciriban-izar izar-bashpit bashpit-ijax
 ciriban-ajam ajam-stiridon ciriban-haedus haedus-kastaba kastaba-myrum haedus-faenov haedus-exedor
 exedor-faenov faenov-wuae wuae-cheleb faenov-hydrobius faenov-zom exedor-ximpok exedor-leesak leesak-swur
 ximpok-aethos ximpok-roschon roschon-batraq batraq-swur swur-media media-uthan uthan-hhabban hhabban-feonus
