@@ -715,13 +715,15 @@ FEATURES = {
     'sol': [
         {'name': 'Kitty Hawk Station', 'kind': 'station', 'at': 3, 'from': 2047},
         # six on Earth, two on Mars and three on Europa before the Solar War; four stood at its end
-        # (Singapore, Melas, and Quito and Nairobi re-spun in 2231 and 2232); Swarga re-spun 2241
-        {'name': 'Swarga tether', 'kind': 'tether', 'at': 3, 'lon': 73, 'from': 2078, 'gaps': [[2226, 2241]]},
-        {'name': 'Quito tether', 'kind': 'tether', 'at': 3, 'lon': -78, 'from': 2095, 'gaps': [[2226, 2231], [2446.7, 2470]]},
-        {'name': 'Singapore tether', 'kind': 'tether', 'at': 3, 'lon': 104, 'from': 2102, 'gaps': [[2446.7, 2470]]},
-        {'name': 'Fortaleza tether', 'kind': 'tether', 'at': 3, 'lon': -38, 'from': 2110, 'gaps': [[2226, 2300], [2446.7, 2470]]},
-        {'name': 'Nairobi tether', 'kind': 'tether', 'at': 3, 'lon': 37, 'from': 2130, 'gaps': [[2226, 2232]]},
-        {'name': 'Tarawa tether', 'kind': 'tether', 'at': 3, 'lon': 173, 'from': 2150, 'gaps': [[2226, 2300]]},
+        # (Singapore, Melas, and Quito and Nairobi re-spun in 2231 and 2232). The Swarga's second cable
+        # stood 2241 to 2244; the Unification Works Program re-spun the Swarga (2264), Fortaleza (2266)
+        # and Libreville (2270). Opening years from the book (Accords tethers 2172 to 2178).
+        {'name': 'Swarga tether', 'kind': 'tether', 'at': 3, 'lon': 73, 'from': 2078, 'gaps': [[2229.99, 2241], [2244, 2264]]},
+        {'name': 'Quito tether', 'kind': 'tether', 'at': 3, 'lon': -78, 'from': 2172, 'gaps': [[2229.99, 2232], [2446.7, 2470]]},
+        {'name': 'Nairobi tether', 'kind': 'tether', 'at': 3, 'lon': 37, 'from': 2174, 'gaps': [[2229.99, 2232]]},
+        {'name': 'Fortaleza tether', 'kind': 'tether', 'at': 3, 'lon': -38, 'from': 2175, 'gaps': [[2229.99, 2266], [2446.7, 2470]]},
+        {'name': 'Libreville tether', 'kind': 'tether', 'at': 3, 'lon': 9.5, 'from': 2176, 'gaps': [[2229.99, 2270]]},
+        {'name': 'Singapore tether', 'kind': 'tether', 'at': 3, 'lon': 104, 'from': 2178, 'gaps': [[2446.7, 2470]]},
         {'name': 'Xi Lunar Yards', 'kind': 'yard', 'at': [3, 0], 'from': 2290, 'gap': [2446.8, 2474]},
         {'name': 'Helios array', 'kind': 'mirrors', 'at': 4, 'pole': 1, 'from': 2088, 'build': 2096, 'to': 2446.7},
         {'name': 'Lumen array', 'kind': 'mirrors', 'at': 4, 'pole': -1, 'from': 2100, 'build': 2104, 'to': 2446.7},
@@ -729,11 +731,12 @@ FEATURES = {
         {'name': 'Mars mirror array', 'kind': 'mirrors', 'at': 4, 'pole': 0, 'from': 2465, 'build': 2485},
         {'name': 'Custos Station', 'kind': 'custos', 'at': 4, 'from': 2112, 'on': 2114},
         {'name': 'Melas tether', 'kind': 'tether', 'at': 4, 'lon': -71, 'from': 2160, 'gaps': [[2446.7, 2470]]},
-        # the Pavonis tether on Tharsis: lost in the Martian Revolution, re-spun, its anchor broken by Clades Mons in September 2276
-        {'name': 'Pavonis tether', 'kind': 'tether', 'at': 4, 'lon': -113.4, 'from': 2170, 'gaps': [[2225.9, 2240], [2276.7, 2300], [2446.7, 2470]]},
-        {'name': 'New Rhine tether', 'kind': 'tether', 'at': [5, 1], 'lon': -94, 'from': 2150, 'gaps': [[2250, 2270]]},
-        {'name': 'Da Gama tether', 'kind': 'tether', 'at': [5, 1], 'lon': -40, 'from': 2159, 'gaps': [[2250, 2272]]},
-        {'name': 'Tycho City tether', 'kind': 'tether', 'at': [5, 1], 'lon': -125, 'from': 2167, 'gaps': [[2250, 2275]]},
+        # the Pavonis tether on Tharsis: cut in the landings of 2246, re-spun 2272 to 2274, its anchor broken in September 2276
+        {'name': 'Pavonis tether', 'kind': 'tether', 'at': 4, 'lon': -113.4, 'from': 2170, 'gaps': [[2246.0, 2274], [2276.7, 2300], [2446.7, 2470]]},
+        # Europa's three, cut in the Jovian campaign; Da Gama 2262, Tycho City 2266, New Rhine 2276 (wiki: Tether re-spinning)
+        {'name': 'New Rhine tether', 'kind': 'tether', 'at': [5, 1], 'lon': -94, 'from': 2144, 'gaps': [[2250, 2276]]},
+        {'name': 'Da Gama tether', 'kind': 'tether', 'at': [5, 1], 'lon': -40, 'from': 2159, 'gaps': [[2250, 2262]]},
+        {'name': 'Tycho City tether', 'kind': 'tether', 'at': [5, 1], 'lon': -125, 'from': 2167, 'gaps': [[2249.5, 2266]]},
         {'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 5, 'from': 2446.25, 'to': 2446.6, 'n': 106},
         {'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 3, 'from': 2446.6, 'to': 2447.03, 'n': 73},
     ],
