@@ -678,6 +678,20 @@ for sid, pl, now in [('ashan-dur', 3, 'ochre'), ('thul-ashra', 2, 'colddesert'),
     body(sid, pl, 'ruins', now, 'Dead world with ruins of the Fevarian golden age')
 body('dhen-ossa', 4, 'shattered', 'obsidian', 'Shattered world; the Voor hold it to be the Fevarians\' lost homeworld')
 
+# Planets of note in the explorers' systems. The book gives Procyon two planets in the habitable
+# band and four gas giants (Moorthi's Book), and has the Tadasca colony ship orbiting a gas giant;
+# Barnard's Star is a flare star with nothing living. PLANET_NAMES' Procyon VII holds Procyon at
+# eight planets.
+def note_body(sid, pl, typ, note):
+    BODIES.setdefault(sid, []).append({'pl': pl, 'name': by[sid]['name'] + ' ' + ROMAN[pl], 'kind': 'noted', 'type': typ, 'note': note, 'invented': True})
+note_body('procyon', 8, 'Ice giant', "The outermost of Procyon's four giants")
+note_body('tadasca', 4, 'Gas giant', 'The Mardak Vol colony ship lies in a decaying orbit around it')
+note_body('barnards-star', 3, 'Irradiated rock', "Scoured by the star's flares")
+for sid, pl, n in [('ithren', 2, 'first'), ('ommen', 4, 'second'), ('nadir', 4, 'third'), ('varrow', 3, 'fourth'), ('teluvar', 3, 'fifth'),
+                   ('calders-reach', 3, 'sixth'), ('halloran', 2, 'seventh'), ('saskel', 3, 'eighth'), ('isolde', 3, 'ninth'),
+                   ('peregrine', 3, 'tenth'), ('lastlight', 2, 'eleventh')]:
+    note_body(sid, pl, 'Ruin world', 'Mardak Vol ruins; the ' + n + ' world the expedition of 2502 to 2505 landed on' + ('; the vault of the end' if n == 'fourth' else ''))
+
 # Terraforming. A world keeps its found biome until its remaking is complete. The book dates
 # Mars (the Marineris Tent lifted, 14 April 2182); the rest are estimated: worlds that were
 # already living take about 60 years, the Second Wave's century plans about 100, the Third
@@ -698,7 +712,7 @@ for w in worlds:
         w['terraformed'] = round(w['settled'] + 120, 1)
     w['terraformedEstimated'] = True
 # Names of planets that are not settled worlds themselves
-PLANET_NAMES = {'saolea': {2: 'Okeanos'}, 'ciriban': {3: 'Marigot', 5: 'Grand Anse'}, 'procyon': {2: 'Phoenicia'}}
+PLANET_NAMES = {'saolea': {2: 'Okeanos'}, 'ciriban': {3: 'Marigot', 5: 'Grand Anse'}, 'procyon': {2: 'Phoenicia', 7: 'Procyon VII'}}
 BURNED = [('procyon', 'Landfall', ym(2441, 11, 26)), ('yildun', 'Dauntless', ym(2444, 12, 3)),
           ('saolea', 'Theia', ym(2436, 9, 12)), ('veyer', 'Hualapai', ym(2437, 3)),
           ('nomotar', 'Nomotar', ym(2438, 8, 20)), ('talandra', 'Talandra', ym(2441, 5, 10)),
