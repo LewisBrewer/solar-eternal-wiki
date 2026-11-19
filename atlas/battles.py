@@ -60,7 +60,7 @@ BATTLES = [
     ('exedor', 2336.19, 'Hiverion', 'battle-of-exedor-2336', 'Battle of Exedor (2336)', [
         (UNE, 'human', 17, 'The battlecruiser Comet; the light cruiser Thorax; the frigate Celebes; the corvettes Churchill and Hood; 12 other escorts; 1,400 strike craft'),
         (VOOR, 'voor', 5, '5 hearths: the Avernus, Asphodel, Ember, Cinder and Pyre; the Hiverion holed along 2 kilometres')]),
-    ('leesak', 2337.45, 'pillai', 'siege-of-hiverion', 'Leesak', [
+    ('leesak', 2337.47, 'pillai', 'battle-of-leesak', 'Battle of Leesak', [
         (UNE, 'human', 6, 'The corvette Firefly; 5 escorts; 600 strike craft'),
         (VOOR, 'voor', 4, '4 hearths')]),
     ('exedor', 2338.34, 'Hiverion', 'siege-of-hiverion', 'Fall of the Krakre', [

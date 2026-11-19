@@ -277,11 +277,11 @@ for s in systems:
     elif r == 'fevarian': set_owner(s['id'], 1900, 'freehold')
 
 # The Ciriban Gulf War (Part Nine)
-for sid, y in [('myrum', ym(2333, 9, 12)), ('kastaba', ym(2333, 9, 12)), ('swur', ym(2333, 11)),
-               ('achernar', ym(2333, 12)), ('haedus', ym(2334, 9, 12)), ('leesak', ym(2337, 4)),
+for sid, y in [('myrum', ym(2333, 9, 12)), ('kastaba', ym(2335, 2, 3)), ('swur', ym(2335, 4, 20)),
+               ('achernar', ym(2333, 12)), ('haedus', ym(2334, 9, 12)), ('leesak', ym(2337, 6, 24)), ('ximpok', ym(2339, 8, 17)),
                ('exedor', ym(2338, 5, 3))]:
     set_owner(sid, y, 'human', 'occupied')
-for sid in ['swur', 'achernar', 'leesak', 'exedor']:
+for sid in ['swur', 'achernar', 'leesak', 'exedor', 'ximpok']:
     set_owner(sid, 2341.0, 'voor')
 for sid in ['myrum', 'kastaba', 'haedus']:
     set_owner(sid, 2341.0, 'human', 'Voor territory')
@@ -552,7 +552,7 @@ for r in sheet:
     worlds.append(d)
 for sid, w, y, sl, pl in [
         ('exedor', 'Hiverion', 2318.3, 'hiverion', (2, 0)), ('haedus', 'Indata Mog', 2318.3, 'indata-mog', (3, 0)),
-        ('aethos', 'Vur Duri', 2318.3, None, None), ('ximpok', 'Vi Simni', 2318.3, None, None),
+        ('aethos', 'Vur Duri', 2318.3, None, (2, 0)), ('ximpok', 'Vi Simni', 2318.3, None, None),
         ('binami', 'Binami II (Inari)', ym(2315, 6, 3), 'inari', (2, 0)),
         ('nomotar', 'Nomotar', ym(2320), 'nomotar', (3, 0)), ('feonus', "Vel's Rest", ym(2467), None, (4, 0)),
         ('talandra', 'Talandra', ym(2345), 'talandra', (2, 0))]:
@@ -716,7 +716,7 @@ BURNED = [('procyon', 'Landfall', ym(2441, 11, 26)), ('yildun', 'Dauntless', ym(
           ('saolea', 'Theia', ym(2436, 9, 12)), ('veyer', 'Hualapai', ym(2437, 3)),
           ('nomotar', 'Nomotar', ym(2438, 8, 20)), ('talandra', 'Talandra', ym(2441, 5, 10)),
           ('haedus', 'Indata Mog', ym(2428, 11, 6)), ('ijax', 'Ijax', ym(2433, 6)), ('myrum', 'Myrum', ym(2428, 7, 4)),
-          ('ciriban', 'Bounty', ym(2430, 5, 18))]
+          ('ciriban', 'Bounty', ym(2430, 5, 18)), ('aethos', 'Vur Duri', ym(2422, 6, 14))]
 
 
 # ------------------------------------------------------------------ system view features
@@ -880,8 +880,12 @@ EVENTS = [
     ev(ym(2334, 5, 14), 'Second Battle of Media', 'media', 'battle', 'second-battle-of-media'),
     ev(ym(2334, 9, 12), 'Fall of New Indata Mog', 'haedus', 'battle', 'fall-of-new-indata-mog'),
     ev(ym(2336, 3, 10), 'Battle of Exedor', 'exedor', 'battle', 'battle-of-exedor-2336'),
-    ev(ym(2337, 4), 'Leesak', 'leesak', 'battle', 'siege-of-hiverion'),
+    ev(ym(2335, 2, 3), 'Fall of Kastaba', 'kastaba', 'battle', 'fall-of-kastaba-and-swur'),
+    ev(ym(2335, 4, 5), 'Swur abandoned', 'swur', 'battle', 'fall-of-kastaba-and-swur'),
+    ev(ym(2337, 6, 22), 'Battle of Leesak', 'leesak', 'battle', 'battle-of-leesak'),
     ev(ym(2338, 5, 3), 'Fall of the Krakre', 'exedor', 'battle', 'siege-of-hiverion'),
+    ev(ym(2339, 8, 17), 'A hearth strikes at Ximpok', 'ximpok', 'battle', 'voolar-surrender'),
+    ev(ym(2340, 12, 21), 'Voolar Surrender', 'exedor', 'treaty', 'voolar-surrender'),
     ev(ym(2341, 1, 21), 'Treaty of Ximpok', 'ximpok', 'treaty', 'treaty-of-ximpok'),
     ev(ym(2341, 1, 1), 'Unified Solar Republic proclaimed', 'sol', 'polity', 'unified-solar-republic'),
     ev(ym(2388), 'Thurva named the Red Khan', 'dhen-ossa', 'polity'),
