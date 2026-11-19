@@ -74,17 +74,17 @@ BATTLES = [
         (VOOR, 'voor', 7, 'The seven hearths that held Exedor\'s edge, the Vi Simni last, with the Council\'s presiding member aboard')]),
     ('myrum', 2428.50, 'pillai', None, 'Fall of Myrum', [
         (USR, 'human', 30, '60 hulls; three starforts')]),
-    ('haedus', 2428.62, 'pillai', None, 'First Battle of Haedius', [
+    ('haedus', 2428.62, 'pillai', 'first-battle-of-haedius', 'First Battle of Haedius', [
         (USR, 'human', 60, '220 of 520 hulls; the Vindications Vindication, Retribution and Resolve; 2 Ciribans; 7 of the ring\'s 11 stations; 7,000 strike craft'),
         (KH, 'fev', 30, '2 captured hearths; 14,000 tributary hulls; 3,000 prowlers')]),
-    ('haedus', 2428.68, 'pillai', None, 'Second Battle of Haedius', [
+    ('haedus', 2428.68, 'pillai', 'second-battle-of-haedius', 'Second Battle of Haedius', [
         (USR, 'human', 12, 'Naval Station Paldron and its ring of stations')]),
-    ('ciriban', 2429.30, 'pillai', 'siege-of-bounty', 'Bijou Nan Syèl La and Bounty', [
+    ('ciriban', 2429.30, 'pillai', 'bijou-nan-syel-la', 'Bijou Nan Syèl La and Bounty', [
         (USR, 'human', 16, 'The Sector Council\'s relief convoy of 20 December 2429: 12 freighters and 4 frigates')]),
-    ('saolea', 2434.20, 'pillai', 'saolea', 'Battle of Saolea', [
+    ('saolea', 2434.20, 'pillai', 'battle-of-saolea', 'Battle of Saolea', [
         (USR, 'human', 40, '140 hulls; the Vindications Endurance and Perseverance; 1 Ciriban; 3 forts; 120 platforms'),
         (KH, 'fev', 25, '1 captured hearth destroyed and 1 taken (The Hearth That Waits); 11,000 tributary hulls')]),
-    ('talandra', 2441.35, 'pillai', 'talandra', 'First Battle of Talandra', [
+    ('talandra', 2441.35, 'pillai', 'first-battle-of-talandra', 'First Battle of Talandra', [
         (USR, 'human', 60, '250 of 320 hulls: 10 Vindications, the Constancy last; 6 Ciribans; 40 battleships; 50 Sovereigns; 12,000 strike craft'),
         (KH, 'fev', 30, 'The last captured hearths; 20,000 tributary hulls')]),
     ('procyon', 2441.87, 'Landfall', 'battle-of-procyon-2441', 'Battle of Procyon (2441)', [
