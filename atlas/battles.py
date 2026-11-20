@@ -101,7 +101,7 @@ BATTLES = [
     ('sol', 2446.75, 4, 'assault-on-mars', 'Mars', [
         (USR, 'human', 20, 'The Resolute, with Fleet Admiral Draganić, Vice Admiral Ferreira-Obi and the Command\'s staff; the Triumph mutineers\' hulls')]),
     ('sol', 2446.93, 3, 'battle-of-earth', 'Battle of Earth', [
-        (USR, 'human', 50, 'The Valiant, the last Vindication; the Steadfast, scuttled into the Khan\'s mass; 60 hulls; 8,000 hulls of the Reserve Swarm; 500 platforms; the Hangzhou\'s forward half'),
+        (USR, 'human', 50, 'The Valiant, the last Vindication; the Steadfast, scuttled into the Khan\'s mass; 60 hulls; 8,000 hulls of the Citizen Fleet; 500 platforms; the Hangzhou\'s forward half'),
         (KH, 'fev', 30, 'The Returning, which fell to the Pacific; 12,000 tributary hulls')]),
     ('alpha-centauri', 2447.80, 'Circumstance', 'counterattack-of-2447-to-2448', 'Battle of Alpha Centauri', [
         (USR, 'human', 30, '90 hulls; the Retribution Landfall')]),
@@ -109,7 +109,7 @@ BATTLES = [
         (USR, 'human', 30, '110 hulls; the Retribution Bounty')]),
     ('talandra', 2449.47, 'Talandra', 'second-battle-of-talandra', 'Second Battle of Talandra', [
         (USR, 'human', 50, '220 hulls; 3 Retributions, the Circumstance and the Dauntless among them; 2 Ciribans'),
-        (KH, 'fev', 30, 'The swarm of 40,000 tributary hulls')]),
+        (KH, 'fev', 30, 'The host of 40,000 tributary hulls')]),
     ('media', 2451.12, 'pillai', 'reclamation-of-the-sectors', 'Media', [
         (USR, 'human', 20, '60 hulls; the Retribution Hualapai')]),
     ('haedus', 2451.36, 'Indata Mog', 'third-battle-of-haedius', 'Third Battle of Haedius', [
