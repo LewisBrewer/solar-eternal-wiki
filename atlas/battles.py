@@ -110,21 +110,21 @@ BATTLES = [
     ('talandra', 2449.47, 'Talandra', 'second-battle-of-talandra', 'Second Battle of Talandra', [
         (USR, 'human', 50, '220 hulls; 3 Retributions, the Circumstance and the Dauntless among them; 2 Ciribans'),
         (KH, 'fev', 30, 'The swarm of 40,000 tributary hulls')]),
-    ('media', 2451.12, 'pillai', None, 'Media', [
+    ('media', 2451.12, 'pillai', 'reclamation-of-the-sectors', 'Media', [
         (USR, 'human', 20, '60 hulls; the Retribution Hualapai')]),
-    ('haedus', 2451.36, 'Indata Mog', None, 'Third Battle of Haedius', [
+    ('haedus', 2451.36, 'Indata Mog', 'third-battle-of-haedius', 'Third Battle of Haedius', [
         (USR, 'human', 16, '40 hulls; the Retribution Ijax')]),
     ('exedor', 2451.73, 'Hiverion', 'battle-of-exedor-2451', 'Battle of Exedor (2451)', [
         (USR, 'human', 25, '70 hulls; the Retributions Nomotar and Kastaba')]),
-    ('aethos', 2453.60, 'Vur Duri', None, 'D\'Ashan\'s counterattack', [
+    ('aethos', 2453.60, 'Vur Duri', 'reclamation-of-the-voor-worlds', 'D\'Ashan\'s counterattack', [
         (USR, 'human', 16, 'The 40 hulls left to guard Vur Duri\'s freed yards')]),
-    ('aethos', 2453.79, 'Vur Duri', None, 'Second Battle of Aethos', [
+    ('aethos', 2453.79, 'Vur Duri', 'second-battle-of-aethos', 'Second Battle of Aethos', [
         (USR, 'human', 20, '50 hulls; the Retribution Leesak')]),
-    ('fevallion', 2454.85, 'pillai', None, 'Battle of Fevallion', [
+    ('fevallion', 2454.85, 'pillai', 'northern-reaches-campaign', 'Battle of Fevallion', [
         (USR, 'human', 10, 'The Retribution Sedra, with 12,000 of her crew')]),
-    ('dwaimar', 2456.40, 'Dwaimar', None, 'The Dwaii freed', [
+    ('dwaimar', 2456.40, 'Dwaimar', 'the-hunt-2455-to-2458', 'The Dwaii freed', [
         (USR, 'human', 20, '60 hulls in the Dwaii campaign; the Retribution Chalna')]),
-    ('ossath', 2457.17, 'Ossath', None, 'Battle of Ossath', [
+    ('ossath', 2457.17, 'Ossath', 'battle-of-ossath', 'Battle of Ossath', [
         (USR, 'human', 30, '90 hulls; 2 Retributions')]),
 ]
 
