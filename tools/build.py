@@ -278,6 +278,43 @@ def text(el):
     return el.get_text(' ', strip=True) if isinstance(el, Tag) else str(el)
 
 
+def merge_split_tables(body):
+    """Docs made from markup sometimes hold a multi-column table as a one-row header table
+    followed by a two-column table whose second cells carry the other columns joined by ' | '.
+    Rejoin them into one table of the header's width."""
+    out = []
+    i = 0
+    while i < len(body):
+        name, el = body[i]
+        if name == 'table' and isinstance(el, Tag):
+            hrows = el.find_all('tr')
+            if len(hrows) == 1:
+                width = len(hrows[0].find_all(['td', 'th']))
+                j = i + 1
+                while j < len(body) and body[j][0] == 'p' and not text(body[j][1]).strip():
+                    j += 1
+                if width > 2 and j < len(body) and body[j][0] == 'table' and isinstance(body[j][1], Tag):
+                    drows = body[j][1].find_all('tr')
+                    ok = drows and all(len(r.find_all(['td', 'th'])) == 2 for r in drows)
+                    if ok and any(re.search(r'[ \xa0]\| ', r.find_all(['td', 'th'])[1].get_text()) for r in drows):
+                        tbl = el
+                        tb = hrows[0].parent
+                        for r in drows:
+                            c0, c1 = r.find_all(['td', 'th'])
+                            parts = re.split(r'[ \xa0]\|\s', c1.decode_contents())
+                            parts += [''] * (width - 1 - len(parts))
+                            if len(parts) > width - 1:
+                                parts = parts[:width - 2] + [' | '.join(parts[width - 2:])]
+                            new = BeautifulSoup('<tr><td>%s</td>%s</tr>' % (c0.decode_contents(), ''.join('<td>%s</td>' % x for x in parts)), 'html.parser').tr
+                            tb.append(new)
+                        out.append((name, tbl))
+                        i = j + 1
+                        continue
+        out.append((name, el))
+        i += 1
+    return out
+
+
 # ---------------------------------------------------------------- parsing an article
 
 def parse_article(path):
@@ -1004,7 +1041,7 @@ class Site:
 
     def render_body(self, art, prefix):
         out, toc, used_ids = [], [], set()
-        for name, el in art['body']:
+        for name, el in merge_split_tables(art['body']):
             if name in ('h2', 'h3', 'h4'):
                 t = text(el)
                 hid = slugify(t)
