@@ -66,7 +66,8 @@ for s in RAW:
     y = (s['y'] - sol['y']) / PX_PER_LY
     z = 0.0 if s['name'] == 'Sol' else round(rng.uniform(-3.5, 3.5), 2)
     systems.append({
-        'id': slug(s['name']), 'name': s['name'],
+        # The Thaali home system keeps its old internal id after the rename of 22 November 2026.
+        'id': 'maweer' if s['name'] == 'Thaali' else slug(s['name']), 'name': s['name'],
         'x': round(x, 2), 'y': round(-y, 2), 'z': z,   # map y grows downward; flip so north is +y
         'stars': max(1, min(3, len(s['pts']))),
         'region2235': s['region2235'],
