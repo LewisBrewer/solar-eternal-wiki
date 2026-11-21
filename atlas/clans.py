@@ -4,7 +4,7 @@ their hulks and stations. Every monolith has a home system, sails with the Khana
 its departure, and is destroyed in a battle the book describes, fails as a hulk in the Veil's
 wells, or survives with the successor khanates. A clan's hulks and stations never leave home.
 
-The book's figures drive the losses: 32 before 2428 (Maweer marches 20, Vur Duri 12), 100 by 2440,
+The book's figures drive the losses: 32 before 2428 (Thaali marches 20, Vur Duri 12), 100 by 2440,
 Talandra 33, Procyon 19, Sol 73, Alpha Centauri 18, Second Talandra 43, the Scouring 81, and in 2460
 twelve mobile monoliths and forty hulks. The total follows from them (about 465 monoliths in
 about 300 clans). Clan names other than the book's nine are invented."""
@@ -96,10 +96,10 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
     # ---------------------------------------------------------------- the losses, battle by battle
     m6 = [s['id'] for s in marches]; wm = [s['id'] for s in west_marches]; nm = [s['id'] for s in north_m]
     EVENTS = [  # (system, year, count, pool, label)
-        (nm[0] if nm else 'arausnyria', 2414.6, 4, 'north', 'the northern Maweer campaign'),
-        (nm[1] if len(nm) > 1 else 'thaaram', 2414.9, 3, 'north', 'the northern Maweer campaign'),
-        (nm[2] if len(nm) > 2 else 'aphris', 2415.3, 3, 'north', 'the northern Maweer campaign'),
-        (m6[0], 2413.6, 4, 'veil', 'the Maweer marches'), (m6[2], 2414.8, 3, 'veil', 'the Maweer marches'), (wm[0], 2413.7, 3, 'veil', 'the western marches'),
+        (nm[0] if nm else 'arausnyria', 2414.6, 4, 'north', 'the northern Thaali campaign'),
+        (nm[1] if len(nm) > 1 else 'thaaram', 2414.9, 3, 'north', 'the northern Thaali campaign'),
+        (nm[2] if len(nm) > 2 else 'aphris', 2415.3, 3, 'north', 'the northern Thaali campaign'),
+        (m6[0], 2413.6, 4, 'veil', 'the Thaali marches'), (m6[2], 2414.8, 3, 'veil', 'the Thaali marches'), (wm[0], 2413.7, 3, 'veil', 'the western marches'),
         ('aethos', 2422.45, 12, 'veil', 'Vur Duri'),
         ('myrum', 2428.5, 1, 'war', 'Myrum'), ('haedus', 2428.62, 41, 'war', 'First Haedius'),
         ('ciriban', 2429.3, 2, 'war', 'Bijou Nan Syèl La and Bounty'), ('ciriban', 2450.37, 4, 'war', "Bounty's orbit"), ('saolea', 2434.2, 28, 'war', 'Saolea'),
@@ -116,9 +116,9 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
         ('aethos', 2453.79, 2, 'war', 'Second Aethos'), ('omaggus', 2457.7, 1, 'war', 'Omaggus'),
         ('churassix', 2454.3, 2, 'home', 'the freeholds'), ('barban', 2454.45, 2, 'home', 'the freeholds'), ('matar', 2454.45, 2, 'home', 'the freeholds'),
         ('daarasta', 2454.6, 3, 'home', 'the freeholds'), ('fevallion', 2454.85, 5, 'home', 'Fevallion'), ('fevallion', 2454.851, 6, 'war', 'Fevallion'),
-        # the Maweer offensive of 2447 to 2449 broke 14 of the tributary garrisons' monoliths, march by march
-        (m6[5], 2447.5, 2, 'war', 'the Maweer offensive'), (m6[4], 2447.8, 2, 'war', 'the Maweer offensive'), (m6[3], 2448.1, 3, 'war', 'the Maweer offensive'),
-        (m6[2], 2448.4, 2, 'war', 'the Maweer offensive'), (m6[1], 2448.7, 2, 'war', 'the Maweer offensive'), (m6[0], 2449.2, 3, 'war', 'the Maweer offensive'),
+        # the Thaali offensive of 2447 to 2449 broke 14 of the tributary garrisons' monoliths, march by march
+        (m6[5], 2447.5, 2, 'war', 'the Thaali offensive'), (m6[4], 2447.8, 2, 'war', 'the Thaali offensive'), (m6[3], 2448.1, 3, 'war', 'the Thaali offensive'),
+        (m6[2], 2448.4, 2, 'war', 'the Thaali offensive'), (m6[1], 2448.7, 2, 'war', 'the Thaali offensive'), (m6[0], 2449.2, 3, 'war', 'the Thaali offensive'),
         # the Hunt: four of the five raiding monoliths in the marches' wells broken, Kaldreth last, 9 March 2456
         (m6[1], 2455.6, 1, 'war', 'the Hunt'), (m6[3], 2455.8, 1, 'war', 'the Hunt'), (m6[4], 2456.0, 1, 'war', 'the Hunt'), (m6[5], 2456.19, 1, 'war', 'Kaldreth'),
         ('hwen', 2456.2, 2, 'war', 'the Dwaii'), ('ellui', 2456.3, 2, 'war', 'the Dwaii'), ('dwaimar', 2456.4, 2, 'war', 'the Dwaii'),
@@ -129,7 +129,7 @@ def build(systems, by, FEATURES, marches, north_m, west_marches, FREEHOLDS, VEIL
     EVENTS = [((far_south if e[0] == 'far-south' else e[0]),) + e[1:] for e in EVENTS]
     for k, v in list(fixed.items()):
         if v[0] == 'far-south': fixed[k] = (far_south,) + v[1:]
-    # who is where: north monoliths stay home (18), go to the Maweer north (10) or join the war (12)
+    # who is where: north monoliths stay home (18), go to the Thaali north (10) or join the war (12)
     north = [m for m in mons if m['north']]
     rng.shuffle(north)
     for i, m in enumerate(north):

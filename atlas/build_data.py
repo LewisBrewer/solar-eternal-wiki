@@ -5,7 +5,7 @@ their ownership through time, settled worlds and dated events.
 Positions: the map is 7000 px wide at 35 px per light year. Sol is the origin.
 Heights above the plane are invented and kept small (seeded, so stable).
 Ownership is reconstructed from the Expanded Edition. Anything the book does not
-fix (claim years of minor systems, which Voor and Maweer systems the Khanate held)
+fix (claim years of minor systems, which Voor and Thaali systems the Khanate held)
 is derived by rule and flagged with "derived": true.
 """
 import json, math, random, re
@@ -28,7 +28,7 @@ POLITIES = {
     'une':      {'name': 'United Nations of Earth', 'color': '#5B9BE0', 'slug': 'united-nations-of-earth'},
     'usr':      {'name': 'Unified Solar Republic', 'color': '#5B9BE0', 'slug': 'unified-solar-republic'},
     'voor':     {'name': 'Voor Confederacy', 'color': '#3FB3A6', 'slug': 'voor-confederacy'},
-    'maweer':   {'name': 'Maweer Caretakers', 'color': '#62BF6E', 'slug': 'maweer'},
+    'maweer':   {'name': 'Long Garden', 'color': '#62BF6E', 'slug': 'thaali'},
     'freehold': {'name': 'Northern Fevarian Freeholds', 'color': '#A57BD6', 'slug': 'northern-fevarian-freeholds'},
     'fevclans': {'name': 'Southern Fevarian Freeholds', 'color': '#8E5E78', 'slug': 'southern-fevarian-freeholds'},
     'khanate':  {'name': 'Red Khanate', 'color': '#D2493E', 'slug': 'red-khanate'},
@@ -76,7 +76,7 @@ by = {s['id']: s for s in systems}
 # ------------------------------------------------------------------ beyond the 2235 map
 # The Veil (the Fevarians' own space), the Dwaii and the Ka-Dur lie south and south-west
 # of the reference map. The book fixes only their relations: the Veil south of the
-# Confederacy, its western edge on the Maweer's marches; the Dwaii and Ka-Dur on the
+# Confederacy, its western edge on the Thaali's marches; the Dwaii and Ka-Dur on the
 # Veil's far side, 60 to 100 ly from Haedius, the Dwaii reached first by the marches'
 # far road and the Ka-Dur furthest (the book's distances changed to 60 to 100 ly to fit). Positions and every name but Ossath are invented.
 EXTRA = {
@@ -86,7 +86,7 @@ EXTRA = {
              ('Varn Khet', -68, -70), ('Sel Tarik', -84, -101), ('Ushar\'s Well', -76, -66), ('Dhenmar', -62, -64)],
     'dwaii': [('Hwen', -106, -72), ('Ellui', -111, -78), ('Dwaimar', -103, -79)],
     # The Ka-Dur League lies west of the Dwaii, south of the Nythran Void. Ossath stands where
-    # the map once had "Sethen's March". The Ka-Dur reach the Maweer by going round the
+    # the map once had "Sethen's March". The Ka-Dur reach the Thaali by going round the
     # void's western edge, Dothom to Ellamir.
     'kadur': [('Ossath', -112, -58), ('Kadris', -117, -64), ('Tamuur', -123, -62),
               ('Dhur Ka', -129, -62), ('Sarrek', -120, -70), ('Imbal', -127, -69)],
@@ -233,7 +233,7 @@ for f in FREEHOLDS:
     by[f]['region2235'] = 'fevarian'
 for k, v in {'zosma': 'maweer', 'furud': 'usr', 'barnards-star': 'usr'}.items():
     by[k]['region2235'] = v
-# The Maweer reach west across the Nythran Void's northern rim to Ellamir and Saonus.
+# The Thaali reach west across the Nythran Void's northern rim to Ellamir and Saonus.
 WEST_M = ['ellamir', 'guhur', 'osellus', 'hocry', 'kastra', 'saonus', 'howoz', 'polaris', 'rovannic',
           'tethell', 'duhr', 'fir-mathrioz', 'halax', 'eriga', 'kazoo']
 for k in WEST_M:
@@ -309,11 +309,11 @@ for lst, y0 in ((south_v, 2415.0), (north_v, 2416.0)):
         y = VOOR_FIXED.get(s['id'], round(y0 + 11 * i / max(1, len(lst) - 1), 1))
         set_owner(s['id'], y, 'khanate', derived=s['id'] not in VOOR_FIXED)
 dhovar = [s['id'] for s in south_v[:3]]
-# The Maweer campaign, 2413 to 2417: the eleven marches on the Veil's approaches, and the
-# northern Maweer systems nearest the freeholds. The Maweer retake them 2447 to 2449.
+# The Thaali campaign, 2413 to 2417: the eleven marches on the Veil's approaches, and the
+# northern Thaali systems nearest the freeholds. The Thaali retake them 2447 to 2449.
 # The Khan came at them on two fronts: up from the Veil, and from the Ka-Dur round the
 # Nythran Void by Dothom to Ellamir. Six marches on the Veil's side and five in the west make
-# the book's eleven. The Maweer retake the southern six 2447 to 2449; the western five are
+# the book's eleven. The Thaali retake the southern six 2447 to 2449; the western five are
 # still the Khan's when he dies and become the Khanate of D'Sethen.
 maweer = [s for s in systems if s['region2235'] == 'maweer']
 core = ('maweer', 'fejantris')
@@ -323,7 +323,7 @@ north_m = [m for m in maweer if m['id'] not in core and m not in marches and m['
            and math.hypot(m['x'] - fx, m['y'] - fy) < 30]
 north_m.sort(key=lambda m: math.hypot(m['x'] - fx, m['y'] - fy))
 # The front moves march by march (Lewis, 18 November 2026): each march is besieged before it falls (shown as
-# contested), the Maweer retake them one by one from March 2447, and the Khanate's counterattacks take some back.
+# contested), the Thaali retake them one by one from March 2447, and the Khanate's counterattacks take some back.
 # (system order in each list: nearest the Veil or the freeholds first)
 def front(sid, siege, fall, note):
     set_owner(sid, siege, 'maweer', 'besieged', derived=True, vs='khanate')
@@ -337,7 +337,7 @@ WEST_FALL = [(2413.3, 2413.7), (2413.6, 2414.3), (2414.1, 2414.9), (2414.7, 2415
 for (sg, fl), s_ in zip(SOUTH_FALL, marches): front(s_['id'], sg, fl, 'the marches')
 for (sg, fl), s_ in zip(NORTH_FALL, north_m): front(s_['id'], sg, fl, 'northern conquest')
 for (sg, fl), s_ in zip(WEST_FALL, west_marches): front(s_['id'], sg, fl, 'the western marches')
-# the Maweer offensive, 2447 to 2449: the southern six from the far end inward, two lost again to counterattacks
+# the Thaali offensive, 2447 to 2449: the southern six from the far end inward, two lost again to counterattacks
 SOUTH_BACK = {5: (2447.17, 2447.5), 4: (2447.4, 2447.8), 3: (2447.7, 2448.1), 2: (2448.0, 2448.4), 1: (2448.3, 2448.7), 0: (2448.8, 2449.2)}
 for i, (a, b) in SOUTH_BACK.items(): retake(marches[i]['id'], a, b)
 for i, (lost, again, back) in {4: (2447.95, 2448.15, 2448.9), 2: (2448.55, 2448.7, 2449.3)}.items():
@@ -568,9 +568,9 @@ for sid, w, y, sl, pl in [
     if w == 'Talandra': d['biome'] = 'Dry temperate world'
     worlds.append(d)
 # ------------------------------------------------------------------ the other peoples' worlds
-# The book gives the Maweer "perhaps forty systems" of tended worlds, the Dwaii three worlds and
+# The book gives the Thaali "perhaps forty systems" of tended worlds, the Dwaii three worlds and
 # the Ka-Dur six systems, and names none of their worlds but Ossath. Everything here is invented
-# (Lewis's choices, 18 November 2026): Maweer core systems hold one to four tended worlds and the
+# (Lewis's choices, 18 November 2026): Thaali core systems hold one to four tended worlds and the
 # frontier one or two, some visibly engineered, some kept wild, the frontier ones still being
 # made; the Dwaii's are cold mountain worlds; the Ka-Dur's are varied round a sakura homeworld.
 # 'gen' tells the planet generator what to draw.
@@ -595,7 +595,7 @@ maweer_sys = [x for x in systems if x['region2235'] == 'maweer']
 march_ids = {sid for sid in own if any(e['p'] == 'khanate' for e in own[sid])}
 MAWEER_BURNED = 'ovastiuum'
 # Lewis's choices (18 November 2026): five garden arcologies, Thaaluun, the Fejantris world and three
-# spread through the core; every other Maweer world a forest world with two or three small ring-cities;
+# spread through the core; every other Thaali world a forest world with two or three small ring-cities;
 # two march worlds, one north and one west, still being made in 2510.
 note = lambda sid: ([e.get('note') or '' for e in own[sid] if e['p'] == 'khanate'] or [''])[0]
 core = sorted([x for x in maweer_sys if x['id'] not in march_ids], key=lambda x: x['id'])
@@ -616,7 +616,7 @@ for x in sorted(maweer_sys, key=lambda x: x['id']):
         home = x['id'] == 'maweer' and k == 0
         name = 'Thaaluun' if home else maweer_name()
         if home: MW_USED.add(name)
-        d = {'sys': x['id'], 'name': name, 'settled': 1800, 'native': True, 'pl': pl, 'moon': False, 'people': 'Maweer', 'invented': True}
+        d = {'sys': x['id'], 'name': name, 'settled': 1800, 'native': True, 'pl': pl, 'moon': False, 'people': 'Thaali', 'invented': True}
         forest = srng.choice(MW_FOREST); bare = srng.choice(MW_BARE)
         if x['id'] in ARC_SYS and k == 0:
             d['biome'] = 'Garden city-world' if x['id'] in ('maweer', 'fejantris') else 'Garden arcology'
@@ -893,10 +893,10 @@ EVENTS = [
     ev(ym(2408), 'The Dwaii fleet destroyed', 'hwen', 'battle'),
     ev(ym(2413), 'The Ka-Dur fall', 'ossath', 'battle'),
     ev(ym(2417, 5), 'Romston submits', 'romston', 'battle'),
-    # the Maweer front (wiki articles, 18 November 2026)
-    ev(ym(2413, 4), 'The Khan strikes the Maweer marches', 'zosma', 'battle', 'fall-of-the-maweer-marches'),
-    ev(ym(2417, 1), 'The Maweer seal their frontier', 'craxima', 'battle', 'fall-of-the-maweer-marches'),
-    ev(ym(2447, 3, 2), 'The Maweer offensive', 'craxima', 'battle', 'maweer-offensive'),
+    # the Thaali front (wiki articles, 18 November 2026)
+    ev(ym(2413, 4), 'The Khan strikes the Thaali marches', 'zosma', 'battle', 'fall-of-the-thaali-marches'),
+    ev(ym(2417, 1), 'The Thaali seal their frontier', 'craxima', 'battle', 'fall-of-the-thaali-marches'),
+    ev(ym(2447, 3, 2), 'The Thaali offensive', 'craxima', 'battle', 'thaali-offensive'),
     ev(ym(2456, 3, 9), 'Battle of Kaldreth', 'craxima', 'battle', 'battle-of-kaldreth'),
     ev(ym(2419, 9), 'Cazzabius burned', 'cazzabius', 'burning'),
     ev(ym(2422, 6, 14), 'Fall of Vur Duri', 'aethos', 'battle'),
@@ -984,7 +984,7 @@ def _at(sid, where):
     return w['pl'] if w else 'pillai'
 _mw = {'m': marches, 'w': west_marches, 'n': north_m}
 for key, y, title, lost, n in BT.MAWEER_BATTLES:
-    sl = 'fall-of-the-maweer-marches' if title.startswith(('Fall of', 'Siege of')) else slug(title)
+    sl = 'fall-of-the-thaali-marches' if title.startswith(('Fall of', 'Siege of')) else slug(title)
     BT.BATTLES.append((_mw[key[0]][int(key[1:])]['id'], y, 'pillai', sl, title, [(BT.MAWEER, 'maweer', n, lost)]))
 for sid, y, where, slug_, title, sides in BT.BATTLES:
     fs = FEATURES.setdefault(sid, [])
@@ -1014,8 +1014,8 @@ for sid, fs in FEATURES.items():
     for f in fs:
         if f['kind'] == 'wreck' and not f.get('sides'):
             f['title'] = 'Wrecks of ' + f['battle']
-            WSLUG = {'the Maweer marches': 'fall-of-the-maweer-marches', 'the western marches': 'fall-of-the-maweer-marches',
-                     'the northern Maweer campaign': 'fall-of-the-maweer-marches', 'the Maweer offensive': 'maweer-offensive', 'the Hunt': 'hunt-in-the-marches'}
+            WSLUG = {'the Thaali marches': 'fall-of-the-thaali-marches', 'the western marches': 'fall-of-the-thaali-marches',
+                     'the northern Thaali campaign': 'fall-of-the-thaali-marches', 'the Thaali offensive': 'thaali-offensive', 'the Hunt': 'hunt-in-the-marches'}
             if f['battle'] in WSLUG: f['slug'] = WSLUG[f['battle']]
             f['sides'] = [{'name': BT.KH, 'style': 'mono', 'n': f['n'], 'lost': '%d monolith%s' % (f['n'], 's' if f['n'] > 1 else '') +
                            (' (%s)' % ', '.join(f['named']) if f.get('named') else ''), 'clans': f['clans']}]
@@ -1027,7 +1027,7 @@ data = {
     },
     'polities': POLITIES,
     # Powers fade in when humanity learns of them: the Voor at contact in 1 October 2317's
-    # approach, the Maweer and (through the Voor) the Fevarians by 2320.
+    # approach, the Thaali and (through the Voor) the Fevarians by 2320.
     'contact': {'voor': 2317.75, 'maweer': 2320.5, 'freehold': 2320.5, 'fevclans': 2320.5, 'raidzone': 2320.5, 'dwaii': 2320.5, 'kadur': 2320.5, 'ossathi': 2457.0, 'veren': 2457.0, 'kaltam': 2456.3, 'duresh': 2457.0},
     'systems': [{**s, 'own': own[s['id']]} for s in systems],
     'worlds': worlds,
@@ -1213,5 +1213,5 @@ print('systems', len(systems), 'worlds', len(worlds), 'events', len(EVENTS), '->
 print('D\'Hovar worlds:', dhovar)
 print('marches:', [s['id'] for s in marches])
 print('north Voor:', [s['id'] for s in north_v])
-print('north Maweer:', [s['id'] for s in north_m])
+print('north Thaali:', [s['id'] for s in north_m])
 print('extent x', min(s['x'] for s in systems), max(s['x'] for s in systems), 'y', min(s['y'] for s in systems), max(s['y'] for s in systems))
