@@ -54,10 +54,8 @@ function ownerAt(s, t) {
   for (const e of s.own) { if (e.from <= t) cur = e; else break; }
   if (!cur || !cur.p) return null;
   const p = cur.p === 'human' ? humanName(t) : cur.p;
-  // a power stays hidden until humanity meets it (Lewis); only the deep past before 2050, known from later sources, shows it faintly
-  const recon = !!(CONTACT[p] && t < CONTACT[p]);
-  if (recon && t >= 2050) return null;
-  return { p, note: cur.note, derived: !!cur.derived, from: cur.from, vs: cur.vs, recon };
+  if (CONTACT[p] && t < CONTACT[p]) return null;   // hidden until humanity meets it (Lewis); its earlier history lives in the wiki
+  return { p, note: cur.note, derived: !!cur.derived, from: cur.from, vs: cur.vs };
 }
 // a world shows its found biome until its terraforming is complete
 const biomeAt = (w, t) => (w && w.becomes && w.terraformed && t >= w.terraformed ? w.becomes : w && w.biome);
@@ -188,7 +186,7 @@ function paintTerritory(t) {
       const pat = lg.createPattern(noise, 'repeat'); pat.setTransform(new DOMMatrix().scale(2.2)); lg.fillStyle = pat; lg.fillRect(0, 0, layer.width, layer.height);
       lg.globalCompositeOperation = 'source-in';
       lg.fillStyle = polColor(p); lg.fillRect(0, 0, layer.width, layer.height);
-      const fade = !CONTACT[p] ? 1 : t < 2050 ? 0.35 : Math.min(1, Math.max(0, (t - CONTACT[p]) / 3));   // faint in the deep past, hidden until contact, full three years after
+      const fade = CONTACT[p] ? Math.min(1, Math.max(0, (t - CONTACT[p]) / 3)) : 1;   // fade in over three years after contact
       g.globalAlpha = 0.62 * fade; g.drawImage(layer, 0, 0); g.globalAlpha = 1;
     }
     // a besieged or contested system: the attacker's colour in diagonal stripes over the holder's
@@ -542,7 +540,7 @@ function renderSelected() {
   else if (o) desc = 'Held by the ' + polName(o.p) + '. No settled world is charted here.';
   else desc = 'Unclaimed. Charted, but held by no known power.';
   if (burned.length) desc += ' ' + burned.map((b) => b.name).join(' and ') + ' burned in ' + Math.floor(burned[0].y) + '.';
-  const held = o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ' <span style="color:var(--muted)">(' + esc(o.note) + ')</span>' : '') + (o.derived ? '<sup class="drv" title="Date reconstructed, not stated in the book">†</sup>' : '') + (o.recon ? ' <span style="color:var(--muted)">(unknown to humanity until ' + Math.floor(CONTACT[o.p]) + ')</span>' : '') : 'Unclaimed';
+  const held = o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ' <span style="color:var(--muted)">(' + esc(o.note) + ')</span>' : '') + (o.derived ? '<sup class="drv" title="Date reconstructed, not stated in the book">†</sup>' : '') : 'Unclaimed';
   const evHtml = evs.length ? '<ul>' + evs.map((e) => '<li>' + (hasArticle(e.slug) ? '<a href="' + wikiHref(e.slug) + '">' + esc(e.label) + '</a>' : esc(e.label)) + ', ' + Math.floor(e.y) + '</li>').join('') + '</ul>' : '';
   const wHtml = ws.length ? '<ul>' + ws.map((w) => '<li>' + (hasArticle(w.slug) ? '<a href="' + wikiHref(w.slug) + '">' + esc(w.name) + '</a>' : esc(w.name)) + (w.native ? '' : ', ' + Math.floor(w.settled)) + '</li>').join('') + '</ul>' : '';
   $('#selected').innerHTML =
@@ -1005,7 +1003,7 @@ function renderSystemInfo() {
     ['Map position', s.x.toFixed(1) + ', ' + s.y.toFixed(1) + ', ' + s.z.toFixed(1) + ' ly<sup class="drv" title="Height above the plane is reconstructed">†</sup>'],
     ['Planets', String(sv.planets.length)],
   ]);
-  html += sec('Sovereignty', [['Held by', o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ', ' + esc(o.note) : '') + (o.recon ? ' <span style="color:var(--muted)">(unknown to humanity until ' + Math.floor(CONTACT[o.p]) + ')</span>' : '') : 'Unclaimed']]
+  html += sec('Sovereignty', [['Held by', o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ', ' + esc(o.note) : '') : 'Unclaimed']]
     .concat(hist.map((h) => [String(Math.floor(h.y)), esc(polName(h.p)) + (h.note ? ', ' + esc(h.note) : '') + (h.derived ? '<sup class="drv" title="Date reconstructed">†</sup>' : ''), h.y > t])));
   const clansHere = (data.clans || []).filter((c) => c.home === s.id);
   if (clansHere.length) {
@@ -1231,7 +1229,8 @@ function svFeatures(force) {
   S3.feat = [];
   const all = (data.features || {})[sv.sys.id] || [];
   all.forEach((f, i) => { f._i = i; });
-  const list = all.filter((f) => t >= f.from && !(f.to && t >= f.to) && !(f.gap && t >= f.gap[0] && t < f.gap[1]) && !(f.gaps || []).some((g) => t >= g[0] && t < g[1]));
+  const unmet = (() => { let c = null; for (const e of sv.sys.own) { if (e.from <= t) c = e; else break; } return !!(c && c.p && CONTACT[c.p] && t < CONTACT[c.p]); })();
+  const list = unmet ? [] : all.filter((f) => t >= f.from && !(f.to && t >= f.to) && !(f.gap && t >= f.gap[0] && t < f.gap[1]) && !(f.gaps || []).some((g) => t >= g[0] && t < g[1]));
   const R = svR(sv.planets[sv.planets.length - 1].a) * PILLAI;
   let pillaiK = 0;
   const bodyAt = (at) => {

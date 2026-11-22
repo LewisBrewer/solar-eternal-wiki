@@ -1236,11 +1236,24 @@ EVENTS.extend([
     _dev(2186.0, 'The second Thaali reception at Hiverion', 'exedor', 'polity', 'high-council-voor'),
 ])
 EVENTS.sort(key=lambda e: e['y'])
+# hidden on the Atlas until humanity meets them (Lewis, 22 November 2026): drop any event in a system held by a power
+# humanity had not yet met; that history lives in the wiki's articles. The deep owners above stay in the data.
+_CONTACT = {'voor': 2317.75, 'voorsix': 2317.75, 'maweer': 2320.5, 'freehold': 2320.5, 'fevclans': 2320.5, 'raidzone': 2320.5,
+            'dwaii': 2320.5, 'kadur': 2320.5, 'ossathi': 2457.0, 'veren': 2457.0, 'kaltam': 2456.3, 'duresh': 2457.0}
+def _owner(sid, y):
+    cur = None
+    for e in own.get(sid, []):
+        if e['from'] <= y: cur = e['p']
+        else: break
+    return cur
+_n0 = len(EVENTS)
+EVENTS[:] = [e for e in EVENTS if e['y'] >= 2050 and not (_owner(e['sys'], e['y']) in _CONTACT and e['y'] < _CONTACT[_owner(e['sys'], e['y'])])]
+print('pre-contact events dropped:', _n0 - len(EVENTS))
 
 data = {
     'meta': {
         'source': 'Traced from Lewis Brewer\'s reference map 2235.12.10; 1 unit = 1 light year; Sol at origin.',
-        'range': [DEEP, 2515], 'start': 2510,
+        'range': [2050, 2515], 'start': 2510,
     },
     'polities': POLITIES,
     # Powers fade in when humanity learns of them: the Voor at contact in 1 October 2317's
