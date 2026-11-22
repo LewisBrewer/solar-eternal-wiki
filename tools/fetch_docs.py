@@ -41,11 +41,11 @@ def main():
         if f.endswith('.html'):
             os.remove(os.path.join(OUT, f))
     kept = 0
-    for f in sorted(files, key=lambda f: f['name']):
-        if f['name'].startswith('_'):
-            continue            # "_old draft - X" and other parked docs
-        # Drive's export sometimes returns a passing 500; try a few times before giving up
-        for attempt in range(5):
+
+    def export(f, tries, wait):
+        """Drive's export sometimes returns a passing 500, and a 403 when the export rate limit is hit;
+        back off and try again before giving up"""
+        for attempt in range(tries):
             try:
                 req = drive.files().export_media(fileId=f['id'], mimeType='text/html')
                 buf = io.BytesIO()
@@ -53,13 +53,30 @@ def main():
                 done = False
                 while not done:
                     _, done = dl.next_chunk(num_retries=3)
-                break
+                return buf
             except Exception as e:
-                if attempt == 4:
-                    buf = None
-                    break
+                if attempt == tries - 1:
+                    return None
                 print('  retrying %s (%s)' % (f['name'], str(e)[:80]))
-                time.sleep(2 * (attempt + 1))
+                time.sleep(wait * (attempt + 1))
+
+    later = []
+    for f in sorted(files, key=lambda f: f['name']):
+        if f['name'].startswith('_'):
+            continue            # "_old draft - X" and other parked docs
+        buf = export(f, 4, 3)
+        if buf is None:
+            later.append(f)
+            continue
+        open(os.path.join(OUT, slug(f['name']) + '.html'), 'wb').write(buf.getvalue())
+        kept += 1
+        print('  %s' % f['name'])
+    # a second pass for the docs that failed, after the rate limit has had time to clear
+    if later:
+        print('Second pass for %d docs' % len(later))
+        time.sleep(60)
+    for f in later:
+        buf = export(f, 5, 20)
         if buf is None:
             # one stuck export ("too large to be exported" clears after any edit to the doc)
             # should not take the whole site down
@@ -67,7 +84,7 @@ def main():
             continue
         open(os.path.join(OUT, slug(f['name']) + '.html'), 'wb').write(buf.getvalue())
         kept += 1
-        print('  %s' % f['name'])
+        print('  %s (second pass)' % f['name'])
     print('Fetched %d docs from the Wiki folder' % kept)
     if kept == 0:
         sys.exit('No docs found. Is the folder shared with %s?' % info.get('client_email'))
