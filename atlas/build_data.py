@@ -553,7 +553,7 @@ for r in sheet:
     worlds.append(d)
 for sid, w, y, sl, pl in [
         ('exedor', 'Hiverion', 2318.3, 'hiverion', (2, 0)), ('haedus', 'Indata Mog', 2318.3, 'indata-mog', (3, 0)),
-        ('aethos', 'Vur Duri', 2318.3, None, (2, 0)), ('ximpok', 'Vi Simni', 2318.3, None, None),
+        ('aethos', 'Vur Duri', 2318.3, None, (2, 0)), ('ximpok', 'Vi Simni', 2318.3, None, (2, 0)),
         ('binami', 'Binami II (Inari)', ym(2315, 6, 3), 'inari', (2, 0)),
         ('nomotar', 'Nomotar', ym(2320), 'nomotar', (3, 0)), ('feonus', "Vel's Rest", ym(2467), None, (4, 0)),
         ('talandra', 'Talandra', ym(2345), 'talandra', (2, 0))]:
@@ -771,7 +771,8 @@ FEATURES = {
                {'name': 'Naval Station Paldron', 'kind': 'starfort', 'at': 'pillai', 'from': 2453},
                {'name': 'Monolith anchorage', 'kind': 'fleet', 'at': 3, 'from': 2428.6, 'to': 2451.4, 'n': 20},
                {'name': 'D\'Mareth hulk', 'kind': 'hulk', 'at': 'pillai', 'from': 2474}],
-    'exedor': [{'name': 'Hiverion yards', 'kind': 'yard', 'at': 2, 'from': 1500, 'to': 2427.6},
+    'exedor': [{'name': 'Hiverion hearth yards', 'kind': 'yard', 'at': 2, 'from': 1327, 'to': 2427.6, 'gap': [2341.05, 2416.2], 'slug': 'hearth-yards'},
+               {'name': 'Hiverion hearth yards (rebuilt)', 'kind': 'yard', 'at': 2, 'from': 2475, 'slug': 'hearth-yards'},
                {'name': 'Monolith anchorage', 'kind': 'fleet', 'at': 2, 'from': 2427.6, 'to': 2451.7, 'n': 30}],
     'talandra': [{'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 2, 'from': 2441.3, 'to': 2441.5, 'n': 210},
                  {'name': 'The Khan\'s fleet', 'kind': 'fleet', 'at': 2, 'from': 2449.4, 'to': 2449.47, 'n': 61}],
@@ -1056,6 +1057,79 @@ EVENTS.extend([
 ])
 for e in EVENTS:
     if e['label'] == 'The Thaali seal their frontier': e['slug'] = 'sealing-of-the-thaali-frontier'
+
+# ---- the Voor in the Atlas (Lewis, 22 November 2026): the hearth yards, the Legion's hearth groups by period (at home,
+# on the Gulf line, on the frontiers, in exile and restored), the lost world, the dead world of the Ommath, and the
+# Ximpok years and the restoration on the timeline. The Legion's grounds are globe sites (planets/places.py SITES).
+def _hy(sid, name, at, a, b=None, gap=None):
+    f = {'name': name, 'kind': 'yard', 'at': at, 'from': a, 'slug': 'hearth-yards'}
+    if b: f['to'] = b
+    if gap: f['gap'] = gap
+    FEATURES.setdefault(sid, []).append(f)
+_hy('ximpok', 'Vi Simni hearth yard', 2, 1350, ym(2339, 8, 14))
+_hy('ximpok', 'Vi Simni hearth yard (rebuilt)', 2, 2475)
+_hy('swur', 'Swur hearth yards', 2, 2326, ym(2335, 4, 20))
+_hy('swur', 'Swur hearth yards (rebuilt)', 2, 2475)
+_hy('kastaba', 'Kastaba yard', 2, 1745, ym(2335, 2, 3))
+_hy('haedus', 'Legion Gulf repair yards', 3, 1382, ym(2334, 9, 12))
+_hy('sol', 'Europa hearth yard (Voor licence)', [5, 1], 2451, 2475.5)
+VH = 'Voor Legion'
+def _hg(sid, name, a, b, n, strength, slug_='voor-legion'):
+    _navy(sid, name, VH, 'voor', a, b, n, strength, slug_)
+# at home: Exedor
+_hg('exedor', 'Home formations', 1900, 2335.2, 5, 'The First of the Fires and the interior formation\'s hearths, under the High Command at Hiverion', 'high-command-voor-legion')
+_hg('exedor', 'Defence of Exedor', 2335.2, 2336.2, 15, 'Fifteen hearths led by the First of the Fires, with the High Commander aboard', 'battle-of-exedor-2336')
+_hg('exedor', 'Defence of Exedor', 2336.2, 2338.34, 9, 'The hearths left after the Battle of Exedor, sortieing in pairs from under the shield', 'siege-of-hiverion')
+_hg('exedor', 'Hearths under the failing shield', 2338.34, 2341.05, 5, 'Five hearths under Hiverion\'s failing shield, without a High Command', 'voor-confederacy')
+_hg('exedor', 'Defence of Hiverion', 2425.0, 2427.62, 7, 'Seven hearths and 3 million Legionaries behind a shield rebuilt with Republic generators', 'frontier-generals')
+_hg('exedor', 'The restored Legion', 2460.0, 2476.0, 3, 'The restored Legion\'s home hearths at Hiverion', 'restored-voor-confederacy')
+_hg('exedor', 'The restored Legion', 2476.0, 2490.0, 5, 'The home hearths, with the first Aquilifers from the rebuilt yards', 'restored-voor-confederacy')
+_hg('exedor', 'The restored Legion', 2490.0, 2515, 8, 'The home hearths of a Legion of twenty under the Council', 'restored-voor-confederacy')
+# the Gulf line, 2324 to 2335
+_hg('haedus', 'Haedus group', 2324.0, 2327.0, 2, 'The Legion\'s Gulf formation at Haedus, moving into the Gulf from 2324', 'voor-legion')
+_hg('haedus', 'Haedus group', 2327.0, 2334.09, 5, 'Five hearths under General Volar Vex, led by the Keeper of the Threshold', 'battle-of-the-mog')
+_hg('swur', 'Swur group', 2330.0, 2334.38, 5, 'Five hearths under General Ahnar Varn', 'second-battle-of-media')
+_hg('swur', 'Swur group', 2334.38, 2335.26, 4, 'The four hearths that came back from Media without a General', 'fall-of-kastaba-and-swur')
+_hg('kastaba', 'Kastaba group', 2324.0, 2335.09, 2, 'The Legion\'s Gulf formation at Kastaba', 'fall-of-kastaba-and-swur')
+_hg('ximpok', 'Ximpok hearths', 2338.3, 2339.63, 3, 'Three hearths at Vi Simni with the Council; two destroyed and one struck in August 2339', 'voolar-surrender')
+_hg('aethos', 'Aethos hearths', 2337.5, 2341.05, 2, 'Two hearths blockaded at Aethos from October 2339', 'voor-confederacy')
+# the Veil frontier
+_hg('qad-vhi', 'Veil frontier hearths', 1900, 2335.2, 10, 'The Veil frontier\'s hearths under its two Generals, watching the clans beyond the Veil', 'frontier-generals')
+_hg('qad-vhi', 'The frontier\'s twenty', 2344.0, 2415.8, 20, 'The twenty hearths of the treaty cap under the frontier Generals, the Legion\'s unofficial High Command, at their seat at Qad Vhi', 'frontier-generals')
+_hg('qad-vhi', 'The frontier\'s twenty', 2415.8, 2416.4, 14, 'The fourteen hearths left after the first engagement with the Khan\'s monoliths', 'voor-campaign')
+_hg('aethos', 'Defence of Vur Duri', 2420.2, 2422.44, 21, 'Twenty-one hearths, nine old and twelve of the Tribune class, under General Seren Vaadh', 'fall-of-vur-duri')
+# exile and the restoration
+_hg('haedus', 'The last hearth', 2427.65, 2428.6, 1, 'The one hearth that reached Haedus with its field gone, escorting the last refugee convoy', 'voor-worlds-under-the-red-khanate')
+_hg('aethos', 'The Long Siege', 2455.4, 2460.0, 4, 'Four hearths and the Legion\'s ground forces with the Republic\'s Southern Command, siege by siege', 'reclamation-of-the-voor-worlds')
+_hg('omaggus', 'Veil\'s eastern approaches', 2466.5, 2476.0, 2, 'The Legion\'s hearths on the Veil\'s eastern approaches under the Fevarian Accords', 'fevarian-accords')
+_hg('omaggus', 'Veil\'s eastern approaches', 2476.0, 2490.0, 5, 'The Legion\'s hearths on the Veil\'s eastern approaches under the Fevarian Accords', 'fevarian-accords')
+_hg('omaggus', 'Veil\'s eastern approaches', 2490.0, 2515, 10, 'Half the Legion of 2510 on the Veil\'s eastern approaches, its Commander in the Accords\' Joint Command', 'fevarian-accords')
+# the lost world, the first colony and the dead world of the Ommath
+note_body('batraq', 4, 'Dead world', 'Durnhaal, the Voor world burned in the Fevarian wars; its name laid down. Seal-stones of about 400 clans recovered in 2470')
+note_body('ladiom', 2, 'Cold grassland world', 'Ladiom II, the first Voor colony beyond Exedor; burned in the Fevarian wars and resettled about 760 Voor years before contact')
+note_body('izar', 3, 'Ruin world', 'Izar III, the burned world of the Ommath, the Fevarians\' prey before the Voor; a protected site from 2470')
+for _sid, _pl in (('batraq', 4), ('ladiom', 2), ('izar', 3)):
+    BODIES[_sid][-1]['slug'] = {'batraq': 'durnhaal', 'ladiom': 'ladiom', 'izar': 'ommath'}[_sid]
+EVENTS.extend([
+    ev(ym(2344), 'The frontier Generals make Qad Vhi their seat', 'qad-vhi', 'polity', 'frontier-generals'),
+    ev(ym(2345, 12, 21), 'Military government of Hiverion ends', 'exedor', 'polity', 'voor-confederacy-under-the-treaty-of-ximpok'),
+    ev(ym(2385), 'Clan raids on the Veil worlds resume', 'qad-vhi', 'battle', 'frontier-generals'),
+    ev(ym(2391), 'The Council asks to lift the hearth cap', 'ximpok', 'polity', 'voor-confederacy-under-the-treaty-of-ximpok'),
+    ev(ym(2392), 'Two frontier hearths lost to a clan fleet', 'qad-vhi', 'battle', 'frontier-generals'),
+    ev(ym(2415, 10), 'The frontier hearths meet the Khan', 'qad-vhi', 'battle', 'voor-campaign'),
+    ev(ym(2416, 3, 14), 'Fifteen Tribune hearths laid down at Hiverion', 'exedor', 'polity', 'hearth-yards'),
+    ev(ym(2453, 12, 21), 'The Kindling relit', 'exedor', 'polity', 'voor-rites'),
+    ev(ym(2455), 'The Legion\'s sealed histories opened', 'exedor', 'polity', 'early-history-of-the-voor'),
+    ev(ym(2460), 'Legion service made voluntary', 'exedor', 'polity', 'legion-service'),
+    ev(ym(2462, 3, 4), 'Voor Reconstruction Agreement', 'exedor', 'treaty', 'restored-voor-confederacy'),
+    ev(ym(2464), 'Excavation of the Ommath world begins', 'izar', 'survey', 'ommath'),
+    ev(ym(2470), 'The Legion lands on Durnhaal', 'batraq', 'survey', 'durnhaal'),
+    ev(ym(2476), 'First Voor-grown hearths since 2420', 'swur', 'polity', 'hearth-yards'),
+])
+for e in EVENTS:
+    if e['label'] in ('Fall of Vur Duri',): e['slug'] = 'fall-of-vur-duri'
+    if e['label'] == 'Vi Simni submits': e['slug'] = 'voor-worlds-under-the-red-khanate'
+    if e['label'] == 'Fevarian Accords signed': e['slug'] = 'fevarian-accords'
 
 # every battle's wreckage, each side's losses, and the article it opens (atlas/battles.py)
 import battles as BT

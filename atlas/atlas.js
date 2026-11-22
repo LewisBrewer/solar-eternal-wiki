@@ -885,7 +885,7 @@ const clanLink = (id) => hasArticle(id) ? '<a href="' + wikiHref(id) + '">' + es
 const clanHead = (id, sz = 14) => '<img class="sw flagkey" src="assets/flags/clans/' + id + '.png" alt="" style="width:' + sz + 'px;height:' + sz + 'px">';
 function featInfo(f, t) {
   if (f.kind === 'navy') {
-    const rows = [['Side', esc(f.side)], ['Strength', esc(f.strength)], ['Here', fmtDate(f.from) + ' to ' + fmtDate(f.to)]];
+    const rows = [['Side', esc(f.side)], ['Strength', esc(f.strength)], ['Here', (f.from < RANGE[0] ? 'Since before ' + RANGE[0] : fmtDate(f.from)) + (f.to && f.to < RANGE[1] ? ' to ' + fmtDate(f.to) : ' onward')]];
     if (hasArticle(f.slug)) rows.push(['Article', '<a href="' + wikiHref(f.slug) + '">' + esc(typeof articles[f.slug] === 'string' ? articles[f.slug] : (articles[f.slug].title || f.slug)) + '</a>']);
     return '<div class="sv-feat"><span class="k">Fleet</span><h2>' + esc(f.name) + '</h2></div>' + sec('Fleet', rows);
   }
