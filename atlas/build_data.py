@@ -677,7 +677,11 @@ for sid, pl, now in [('kasht', 2, 'ironsand'), ('vharr', 3, 'basalt'), ('drek-hu
     body(sid, pl, 'stripped', now, 'Mined to the mantle by the clans for metal')
 for sid, pl, now in [('ashan-dur', 3, 'ochre'), ('thul-ashra', 2, 'colddesert'), ('fevallion', 3, 'ochre')]:
     body(sid, pl, 'ruins', now, 'Dead world with ruins of the Fevarian golden age')
-body('dhen-ossa', 4, 'shattered', 'obsidian', 'Shattered world; the Voor hold it to be the Fevarians\' lost homeworld')
+    BODIES[sid][-1]['slug'] = 'fevarian-golden-age'
+# the golden realm's throne world (Lewis, 22 November 2026: the homeworld is Fevra, far to the east, and
+# Dhen Ossa IV is the throne world the clans shattered about 99,740 years before the Expansion Era)
+body('dhen-ossa', 4, 'shattered', 'obsidian', 'Throne world of the Fevarian golden age, shattered by the clans at the realm\'s end; the Voor took it for the lost homeworld')
+BODIES['dhen-ossa'][-1]['slug'] = 'dhen-ossa'
 
 # Planets of note in the explorers' systems. The book gives Procyon two planets in the habitable
 # band and four gas giants (Moorthi's Book), and has the Tadasca colony ship orbiting a gas giant;
@@ -893,6 +897,15 @@ EVENTS = [
     ev(ym(2341, 1, 1), 'Unified Solar Republic proclaimed', 'sol', 'polity', 'unified-solar-republic'),
     ev(ym(2388), 'Thurva named the Red Khan', 'dhen-ossa', 'polity'),
     ev(ym(2405), 'Assembly of the Veil', 'dhen-ossa', 'polity'),
+    # the Fevarians in depth (Lewis, 22 November 2026)
+    ev(ym(2372), 'Ushar Vel begins to preach the Return', 'vesh-mar', 'polity', 'ushar-vel'),
+    ev(ym(2384, 6), "Thurva retakes the D'Rhen monolith", 'rhen-tal', 'battle', 'thurva'),
+    ev(ym(2405, 9), 'Death of Ushar Vel', 'dhen-ossa', 'polity', 'ushar-vel'),
+    ev(ym(2453, 10), "Thurva's heir proclaimed at Fevallion", 'fevallion', 'polity', 'khanate-of-the-word'),
+    ev(ym(2461, 5), 'Institute survey of the throne world', 'dhen-ossa', 'polity', 'dhen-ossa'),
+    ev(ym(2476, 3), "The Haedius hulk's rolls first read", 'haedus', 'polity', 'fevra'),
+    ev(ym(2498, 9), 'The Going-Out dated from the rolls', 'haedus', 'polity', 'fevarian-golden-age'),
+    ev(ym(2515, 1, 1), 'The Mardak Cluster report published', 'sol', 'polity', 'mardak-cluster'),
     ev(ym(2408), 'The Dwaii fleet destroyed', 'hwen', 'battle'),
     ev(ym(2413), 'The Ka-Dur fall', 'ossath', 'battle'),
     ev(ym(2417, 5), 'Romston submits', 'romston', 'battle'),
