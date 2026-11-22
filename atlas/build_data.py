@@ -1209,6 +1209,8 @@ for w in worlds:
     if w.get('native') and w['settled'] <= 1900: w['settled'] = DEEP
     if w['sys'] in ('exedor', 'ximpok', 'aethos') and w.get('native'): w['settled'] = DEEP
     if w['name'] == 'Indata Mog': w['settled'] = 1383
+    # humanity learned of the Voor worlds in 2318: they stay off the map from 2050 until then, as before
+    if w['sys'] in ('exedor', 'ximpok', 'aethos', 'haedus') and w.get('native'): w['known'] = 2318.3
 BURNED_EXTRA += [('izar', 'Izar III', 1000.5), ('ladiom', 'Ladiom II', 1108.4), ('batraq', 'Durnhaal', 1119.0)]
 def _dev(y, label, sys, kind, slug):
     assert sys in by, sys

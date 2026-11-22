@@ -54,13 +54,17 @@ function ownerAt(s, t) {
   for (const e of s.own) { if (e.from <= t) cur = e; else break; }
   if (!cur || !cur.p) return null;
   const p = cur.p === 'human' ? humanName(t) : cur.p;
-  // before humanity learned of a power, its holdings show faintly, as later sources reconstruct them
-  return { p, note: cur.note, derived: !!cur.derived, from: cur.from, vs: cur.vs, recon: !!(CONTACT[p] && t < CONTACT[p]) };
+  // a power stays hidden until humanity meets it (Lewis); only the deep past before 2050, known from later sources, shows it faintly
+  const recon = !!(CONTACT[p] && t < CONTACT[p]);
+  if (recon && t >= 2050) return null;
+  return { p, note: cur.note, derived: !!cur.derived, from: cur.from, vs: cur.vs, recon };
 }
 // a world shows its found biome until its terraforming is complete
 const biomeAt = (w, t) => (w && w.becomes && w.terraformed && t >= w.terraformed ? w.becomes : w && w.biome);
 const worldByName = (sid, name) => data.worlds.find((w) => w.sys === sid && w.name === name);
-const worldsAt = (sid, t) => data.worlds.filter((w) => w.sys === sid && w.settled <= t);
+// a world is shown from its settlement, except a world humanity had not yet heard of, which is hidden from 2050 until then
+const seenAt = (o, t) => o.settled === undefined || (o.settled <= t && !(o.known && t >= 2050 && t < o.known));
+const worldsAt = (sid, t) => data.worlds.filter((w) => w.sys === sid && seenAt(w, t));
 const burnedAt = (sid, t) => data.burned.filter((b) => b.sys === sid && b.y <= t && t < b.y + 30);
 const eraOf = (y) => (ERAS.find((e) => y >= e[0] && y < e[1]) || ERAS[ERAS.length - 1])[2];
 const captionOf = (y) => (data.captions.find((c) => y >= c.from && y < c.to) || data.captions[data.captions.length - 1]).text;
@@ -184,7 +188,7 @@ function paintTerritory(t) {
       const pat = lg.createPattern(noise, 'repeat'); pat.setTransform(new DOMMatrix().scale(2.2)); lg.fillStyle = pat; lg.fillRect(0, 0, layer.width, layer.height);
       lg.globalCompositeOperation = 'source-in';
       lg.fillStyle = polColor(p); lg.fillRect(0, 0, layer.width, layer.height);
-      const fade = CONTACT[p] ? Math.min(1, Math.max(0.35, (t - CONTACT[p]) / 3)) : 1;   // faint before contact, full three years after
+      const fade = !CONTACT[p] ? 1 : t < 2050 ? 0.35 : Math.min(1, Math.max(0, (t - CONTACT[p]) / 3));   // faint in the deep past, hidden until contact, full three years after
       g.globalAlpha = 0.62 * fade; g.drawImage(layer, 0, 0); g.globalAlpha = 1;
     }
     // a besieged or contested system: the attacker's colour in diagonal stripes over the holder's
@@ -797,14 +801,14 @@ function makePlanets(s) {
   const r = rngFor(s.id);
   if (s.id === 'sol') {
     const solW = data.worlds.filter((w) => w.sys === 'sol');
-    const moonsOf = (n) => solW.filter((w) => w.moon && w.pl === n).map((w) => ({ name: w.name, slug: w.slug, settled: w.settled, world: true, ph: r() * 6.28 }));
+    const moonsOf = (n) => solW.filter((w) => w.moon && w.pl === n).map((w) => ({ name: w.name, slug: w.slug, settled: w.settled, known: w.known, world: true, ph: r() * 6.28 }));
     return ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'].map((n, i) => {
       const w = solW.find((x) => x.name === n);
       const moons = moonsOf(i + 1);
       if (n === 'Saturn') moons.push({ name: 'Titan', settled: 2150, world: true, ph: r() * 6.28 });
       return { name: n, a: [0.39, 0.72, 1, 1.52, 5.2, 9.5, 19.2, 30][i], size: [3, 5, 5.5, 4, 11, 10, 7, 7][i],
         type: ['Rock', 'Cloud world', 'Homeworld of humanity', 'Terraformed world', 'Gas giant', 'Ringed gas giant', 'Ice giant', 'Ice giant'][i],
-        ring: i === 5, world: w ? n : null, slug: w && w.slug, settled: w ? w.settled : undefined, biome: w && w.biome, ph: r() * 6.28, moons, giant: i >= 4 };
+        ring: i === 5, world: w ? n : null, slug: w && w.slug, settled: w ? w.settled : undefined, known: w && w.known, biome: w && w.biome, ph: r() * 6.28, moons, giant: i >= 4 };
     });
   }
   const known = data.worlds.filter((w) => w.sys === s.id);
@@ -823,15 +827,15 @@ function makePlanets(s) {
   for (const w of known) {
     if (!w.pl) { free.push(w); continue; }
     const p = out[w.pl - 1];
-    if (w.moon) p.moons.push({ name: w.name, slug: w.slug, settled: w.settled, world: true, ph: r() * 6.28 });
-    else { p.world = w.name; p.slug = w.slug; p.settled = w.settled; p.biome = w.biome; }
+    if (w.moon) p.moons.push({ name: w.name, slug: w.slug, settled: w.settled, known: w.known, world: true, ph: r() * 6.28 });
+    else { p.world = w.name; p.slug = w.slug; p.settled = w.settled; p.known = w.known; p.biome = w.biome; }
   }
   for (const b of (data.bodies || {})[s.id] || []) {
     const p = out[b.pl - 1]; if (!p) continue;
     p.name = b.name; p.type = b.type; p.body = b;
   }
   const order = out.map((p, i) => i).filter((i) => !out[i].world && !out[i].body).sort((x, y) => Math.abs(x - hz - 0.5) - Math.abs(y - hz - 0.5));
-  free.forEach((w, k) => { const p = out[order[k]]; if (p) { p.world = w.name; p.slug = w.slug; p.settled = w.settled; p.biome = w.biome; } });
+  free.forEach((w, k) => { const p = out[order[k]]; if (p) { p.world = w.name; p.slug = w.slug; p.settled = w.settled; p.known = w.known; p.biome = w.biome; } });
   for (const p of out) {
     if (p.moons.length && !p.world && !/giant/.test(p.type)) p.type = 'Gas giant';
     if (p.world && /giant/.test(p.type)) p.type = 'Barren world';
@@ -930,7 +934,7 @@ function bodyFor(key) {
   const [pi, mi] = key.split('.').map(Number), p = sv.planets[pi];
   if (!p) return null;
   if (mi === undefined || Number.isNaN(mi)) {
-    const settled = p.world && (p.settled === undefined || p.settled <= year + 0.999);
+    const settled = p.world && seenAt(p, year + 0.999);
     return { key, kind: 'planet', p, pi, label: settled ? p.world : p.name, world: p.world, slug: p.slug, settled: p.settled, biome: p.biome, type: p.type };
   }
   const m = p.moons[mi]; if (!m) return null;
@@ -938,10 +942,10 @@ function bodyFor(key) {
   return { key, kind: 'moon', p, pi, m, label: m.name, world: m.world ? m.name : null, slug: m.slug, settled: m.settled, biome: wd.biome, type: 'Moon' };
 }
 function bodyInfo(b, t, o) {
-  const live = b.world && (b.settled === undefined || b.settled <= t);
+  const live = b.world && seenAt(b, t);
   const burned = live && burnedAt(sv.sys.id, t).find((x) => x.name === b.world);
   const rows = [];
-  const parentName = b.p.world && (b.p.settled === undefined || b.p.settled <= t) ? b.p.world : b.p.name;
+  const parentName = b.p.world && seenAt(b.p, t) ? b.p.world : b.p.name;
   rows.push(['Designation', esc(b.kind === 'moon' ? 'Moon of ' + parentName : sv.sys.name + ' ' + ROMAN[b.pi])]);
   const bw = b.world && worldByName(sv.sys.id, b.world);
   rows.push(['Type', esc(live && bw && biomeAt(bw, t) ? biomeAt(bw, t) : b.type)]);
