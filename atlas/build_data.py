@@ -977,6 +977,86 @@ for sid, fs in FEATURES.items():
         ws_ = sorted((w for w in worlds if w['sys'] == sid and w.get('pl') and w['settled'] < f['from']), key=lambda w: (not w.get('native'), w['settled']))
         if ws_: f['at'] = ws_[0]['pl']
 
+# ---- the Thaali in the Atlas (Lewis, 22 November 2026): the great fleet at the three crossings of the Voor frontier,
+# the Legion's frontier hearths opposite them, the Thaali fleets in the marches, the march hedges, yards and stations
+GF = 'Thaali great fleet'
+def _navy(sid, name, side, style, a, b, n, strength, slug_):
+    FEATURES.setdefault(sid, []).append({'name': name, 'kind': 'navy', 'side': side, 'style': style, 'at': 'pillai',
+                                         'from': a, 'to': b, 'n': n, 'strength': strength, 'slug': slug_})
+# (crossing, Voor system opposite, great ships drawn: peace, the watch of 2334 to 2340, 2341 to 2447, 2447 to 2449, from 2449)
+CROSSINGS = [('zom', 'faenov', 'the central crossing, opposite Faenov', (5, 10, 5, 2, 4), True),
+             ('tirim', 'wicklar', 'the crossing opposite Wicklar', (4, 7, 4, 1, 3), False),
+             ('cheleb', 'wuae', 'the crossing opposite Wuae', (4, 7, 4, 1, 3), False)]
+for sid, vsid, where, (p0, p1, p2, p3, p4), centre in CROSSINGS:
+    big = ' with the three ships of the Ocean Under the Ice class' if centre else ''
+    for a, b, n, txt in ((1900, 2334.5, p0, 'the frontier keepers\' body at ' + where + big),
+                         (2334.5, 2341.0, p1, 'the frontier watch: part of about twenty-four great ships at the crossings' + big),
+                         (2341.0, 2447.17, p2, 'the body at ' + where + ' through the sealed years' + big),
+                         (2447.17, 2449.6, p3, 'the body left at ' + where + ' while the great fleet fought in the marches'),
+                         (2449.6, 2515, p4, 'the body at ' + where + ' under the Accords' + (' with two of the three greatest ships' if centre else ''))):
+        _navy(sid, GF, 'Thaali', 'thaali', a, b, n + 6, '%d great ships of the Weight of the Sea class; %s' % (n, txt), 'great-fleet-thaali')
+    _navy(vsid, 'The Legion\'s frontier hearths', 'Voor Legion', 'voor', 2018, 2334.5, 4,
+          'Frontier hearths opposite the Thaali at ' + sid.title() + ', under one of the three frontier Generals', 'thaali-voor-frontier')
+    _navy(vsid, 'The Legion\'s frontier hearths', 'Voor Legion', 'voor', 2334.5, 2343.0, 7,
+          'Part of the twenty best hearths of the Legion, held on the Thaali frontier through the Ciriban Gulf Conflict; moved to the Veil frontier in the 2340s', 'thaali-voor-frontier')
+_navy('faenov', 'The Legion\'s frontier hearths', 'Voor Legion', 'voor', 2454.1, 2515, 2,
+      'The restored Legion\'s hearths on the Thaali frontier again', 'thaali-voor-frontier')
+# the southern frontier fleets with eleven great ships, falling back march by march (2413 to 2417)
+_lost_south = [11, 10, 8, 8, 7, 4]
+for (sg, fl), s_, g in zip(SOUTH_FALL, marches, _lost_south):
+    _navy(s_['id'], 'Thaali southern frontier fleet', 'Thaali', 'thaali', sg, fl, 14 + g,
+          'The southern reaches and %d great ships, holding the march under its hedge' % g, 'fall-of-the-thaali-marches')
+# the home fleets and the great fleet in the offensive (2447 to 2449), the march they took back in turn
+_gs = {5: 9, 4: 9, 3: 8, 2: 8, 1: 7, 0: 7}
+for i, (a, b) in SOUTH_BACK.items():
+    _navy(marches[i]['id'], 'Thaali home fleets', 'Thaali', 'thaali', a, b, 16 + _gs[i],
+          'The home fleets\' reaches led by %d great ships of the great fleet' % _gs[i], 'thaali-offensive')
+_navy('fejantris', 'Thaali fleets at Fejantris', 'Thaali', 'thaali', 2455.40, 2455.48, 24,
+      'About 400 hulls, eight great ships and the Sea Before the Land Was, met by the Retribution Fleet on 2 June 2455', 'nomotar-agreement')
+# the march hedges: whole over each march world until it fell, broken under the Khanate, rebuilt after the offensive
+def _first(sid, pred):
+    for e in sorted(own[sid], key=lambda e: e['from']):
+        if pred(e): return e['from']
+_hr = random.Random(4471)
+for s_ in marches + north_m + west_marches:
+    ws_ = sorted([w for w in worlds if w['sys'] == s_['id'] and w.get('pl') and not w.get('moon')], key=lambda w: w['pl'])
+    if not ws_: continue
+    pl = ws_[0]['pl']; fall = _first(s_['id'], lambda e: e['p'] == 'khanate')
+    back = None
+    if fall:
+        back = next((e['from'] for e in sorted(own[s_['id']], key=lambda e: e['from']) if e['from'] > fall and e['p'] == 'maweer' and not e.get('note')), None)
+    fs = FEATURES.setdefault(s_['id'], [])
+    h = {'name': 'March hedge', 'kind': 'hedge', 'at': pl, 'from': 1700, 'slug': 'thaali-march-fortifications'}
+    if fall: h['to'] = fall
+    fs.append(h)
+    if fall:
+        bh = {'name': 'March hedge (stripped)', 'kind': 'hedge', 'broken': True, 'at': pl, 'from': fall, 'slug': 'thaali-march-fortifications'}
+        if back:
+            done = round(min(2490.0, back + 3 + _hr.random() * 37), 1); bh['to'] = done
+            fs.append(bh)
+            fs.append({'name': 'March hedge (rebuilt)', 'kind': 'hedge', 'at': pl, 'from': done, 'slug': 'thaali-march-fortifications'})
+        else:
+            fs.append(bh)
+# the great yards and the stations of the opening
+FEATURES.setdefault('maweer', []).extend([
+    {'name': 'Great yards of Thaaluun', 'kind': 'yard', 'at': 3, 'from': 1900},
+    {'name': 'Great yards of Kouria', 'kind': 'yard', 'at': 4, 'from': 1900},
+    {'name': 'Reception station', 'kind': 'station', 'at': 3, 'from': ym(2471, 11)}])
+FEATURES.setdefault('fejantris', []).extend([
+    {'name': 'Great yards of Vaamith', 'kind': 'yard', 'at': 2, 'from': 1900},
+    {'name': 'Conference station', 'kind': 'station', 'at': 'pillai', 'from': ym(2459, 5)},
+    {'name': 'Republic trade mission', 'kind': 'station', 'at': 2, 'from': ym(2468, 5)}])
+FEATURES.setdefault('saonus', []).append({'name': 'Great yards of Haessaas', 'kind': 'yard', 'at': 2, 'from': 1900})
+EVENTS.extend([
+    ev(ym(2334, 7), 'The Thaali mass on the Voor frontier', 'zom', 'battle', 'thaali-voor-frontier'),
+    ev(ym(2416, 8), 'Orerom burned', 'ovastiuum', 'burning', 'burning-of-orerom'),
+    ev(ym(2455, 3, 14), 'Nomotar agreement', 'nomotar', 'treaty', 'nomotar-agreement'),
+    ev(ym(2468, 5), 'Republic trade mission at Fejantris', 'fejantris', 'polity', 'thaali-opening'),
+    ev(ym(2471, 11), 'Republic envoys received over Thaaluun', 'maweer', 'polity', 'thaali-opening'),
+])
+for e in EVENTS:
+    if e['label'] == 'The Thaali seal their frontier': e['slug'] = 'sealing-of-the-thaali-frontier'
+
 # every battle's wreckage, each side's losses, and the article it opens (atlas/battles.py)
 import battles as BT
 def _at(sid, where):

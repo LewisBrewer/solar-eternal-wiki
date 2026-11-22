@@ -149,15 +149,15 @@ FLEETS = [
 # figures are the Republic's estimates from the Thaali's charts and the Khanate's records.
 MAWEER = 'Long Garden'
 MAWEER_BATTLES = [
-    ('m0', 2413.6, 'Fall of Zosma', "The march's frontier squadron; its fortified orbitals", 14),
+    ('m0', 2413.6, 'Fall of Zosma', "The march's frontier squadron; its hedge; one great ship of the Weight of the Sea class", 16),
     ('w0', 2413.7, 'Fall of Ellamir', 'The western march fleet, met at Ellamir from the Dothom road', 12),
     ('n0', 2414.6, 'Fall of Fuye', 'The northern garrison and its stations', 8),
-    ('m2', 2414.8, 'Siege of Yirba', "The southern frontier fleet's second line", 16),
+    ('m2', 2414.8, 'Siege of Yirba', "The southern frontier fleet's second line; two great ships", 18),
     ('n2', 2415.3, 'Fall of Gamma Draconis', 'The northern garrison', 8),
-    ('m5', 2417.0, 'Fall of Craxima', "The last southern march's fleet, before the frontier was sealed", 18),
-    ('m5', 2447.5, 'Battle of Craxima', 'The first squadrons of the Thaali offensive', 10),
-    ('m3', 2448.1, 'Battle of Etheen', 'Two Thaali squadrons', 12),
+    ('m5', 2417.0, 'Fall of Craxima', "The last southern march's fleet, before the frontier was sealed; four great ships, the Tide Against the Wall among them; the heavy line ship Grey Water at the Reef's Foot", 22),
+    ('m5', 2447.5, 'Battle of Craxima', 'The first squadrons of the Thaali offensive; one great ship', 11),
+    ('m3', 2448.1, 'Battle of Etheen', 'Two Thaali squadrons; one great ship', 13),
     ('m4', 2448.15, 'Khanate counterattack at Hydrobius', 'The Thaali garrison of Hydrobius', 10),
-    ('m0', 2449.2, 'Battle of Zosma', "The Thaali offensive's last fight in the south", 10),
-    ('m5', 2456.19, 'Battle of Kaldreth', 'Thaali pickets that fixed the last raiding monolith in its well', 4),
+    ('m0', 2449.2, 'Battle of Zosma', "The Thaali offensive's last fight in the south; the great ship Pressure of the Deep Trench", 11),
+    ('m5', 2456.19, 'Battle of Kaldreth', 'Thaali pickets that fixed the last raiding monolith in its well; the great ship Black Water Below the Shelf', 5),
 ]

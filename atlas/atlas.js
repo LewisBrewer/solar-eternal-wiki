@@ -879,8 +879,8 @@ function clanStatus(c, t) {
   return '<img class="sw flagkey" src="assets/flags/clans/' + c.id + '.png" alt=""> ' + esc(parts.join('; ') || 'stations');
 }
 // Fevarian features the system view lets you pick, and the card each one opens in the panel
-const PICKABLE = new Set(['navy', 'fleet', 'clanfleet', 'clanhulk', 'clanbase', 'orbital', 'hulk', 'wreck']);
-const FEAT_KIND = { navy: 'Fleet', fleet: 'Monolith fleet', clanfleet: 'Clan anchorage', clanhulk: 'Clan hulks', clanbase: 'Clan hulks and stations', orbital: 'Fevarian orbital settlement', hulk: 'Hulk anchorage', wreck: 'Monolith wrecks' };
+const PICKABLE = new Set(['navy', 'fleet', 'clanfleet', 'clanhulk', 'clanbase', 'orbital', 'hulk', 'wreck', 'hedge']);
+const FEAT_KIND = { navy: 'Fleet', fleet: 'Monolith fleet', clanfleet: 'Clan anchorage', clanhulk: 'Clan hulks', clanbase: 'Clan hulks and stations', orbital: 'Fevarian orbital settlement', hulk: 'Hulk anchorage', wreck: 'Monolith wrecks', hedge: 'Thaali march hedge' };
 const clanLink = (id) => hasArticle(id) ? '<a href="' + wikiHref(id) + '">' + esc(clanName(id)) + '</a>' : esc(clanName(id));
 const clanHead = (id, sz = 14) => '<img class="sw flagkey" src="assets/flags/clans/' + id + '.png" alt="" style="width:' + sz + 'px;height:' + sz + 'px">';
 function featInfo(f, t) {
@@ -904,12 +904,14 @@ function featInfo(f, t) {
     rows.push(['Clan', clanHead(c.id) + ' ' + clanLink(c.id)]);
     rows.push(['This year', clanStatus(c, t)]);
   }
+  if (f.kind === 'hedge') rows.push(['State', f.broken ? 'Stripped of its generators by the Khanate' : 'A world field over the march world, raised by generator rings in three orbits']);
   if (f.n && f.kind !== 'clanbase') rows.push([f.kind === 'clanhulk' || f.kind === 'hulk' ? 'Hulks' : f.kind === 'orbital' ? 'Rings' : 'Monoliths', String(f.n)]);
   if (f.hearths) rows.push(['Captured hearths', String(f.hearths)]);
-  rows.push(['Here', (f.from < 1900 ? 'Since before the Khanate' : 'From ' + fmtDate(f.from)) + (f.to ? ' to ' + fmtDate(f.to) : '')]);
+  rows.push(['Here', (f.from < 1900 ? (f.kind === 'hedge' ? 'Kept for centuries' : 'Since before the Khanate') : 'From ' + fmtDate(f.from)) + (f.to ? ' to ' + fmtDate(f.to) : '')]);
   if (f.clans && f.clans.length) rows.push(['Clans', f.clans.map((id) => clanHead(id) + ' ' + clanLink(id)).join('<br>')]);
   if (c && hasArticle(c.id)) rows.push(['Article', '<a href="' + wikiHref(c.id) + '">' + esc(c.name) + '</a>']);
-  else if (hasArticle('fevarian-clans')) rows.push(['Article', '<a href="' + wikiHref('fevarian-clans') + '">Fevarian clans</a>']);
+  else if (f.slug && hasArticle(f.slug)) rows.push(['Article', '<a href="' + wikiHref(f.slug) + '">' + esc(typeof articles[f.slug] === 'string' ? articles[f.slug] : (articles[f.slug].title || f.slug)) + '</a>']);
+  else if (f.kind !== 'hedge' && hasArticle('fevarian-clans')) rows.push(['Article', '<a href="' + wikiHref('fevarian-clans') + '">Fevarian clans</a>']);
   return '<div class="sv-feat">' + head + '<h2>' + esc(f.name) + '</h2></div>' + sec('Feature', rows);
 }
 function sec(title, rows) {
@@ -1236,7 +1238,11 @@ function svFeatures(force) {
   const NAVY_MAT = {
     human: new THREE.MeshStandardMaterial({ color: 0xc9d2dc, roughness: 0.4, metalness: 0.6, emissive: 0x334455, emissiveIntensity: 0.6 }),
     conf: new THREE.MeshStandardMaterial({ color: 0xc0704e, roughness: 0.5, metalness: 0.5, emissive: 0x401a0e, emissiveIntensity: 0.7 }),
+    thaali: new THREE.MeshStandardMaterial({ color: 0x8fd4a8, roughness: 0.4, metalness: 0.4, emissive: 0x2f7a52, emissiveIntensity: 0.9 }),
+    voor: new THREE.MeshStandardMaterial({ color: 0x7a58a6, roughness: 0.6, metalness: 0.2, emissive: 0x2a1640, emissiveIntensity: 0.7 }),
   };
+  const hedgeM = new THREE.MeshStandardMaterial({ color: 0x9fe0b8, roughness: 0.4, metalness: 0.5, emissive: 0x2f7a52, emissiveIntensity: 0.9 });
+  const hedgeDeadM = new THREE.MeshStandardMaterial({ color: 0x4a4f4c, roughness: 0.9, metalness: 0.3 });
   const WRECK_MAT = {
     mono: new THREE.MeshStandardMaterial({ color: 0x2c2829, roughness: 0.95, metalness: 0.3 }),
     human: new THREE.MeshStandardMaterial({ color: 0x8d959e, roughness: 0.7, metalness: 0.5, emissive: 0x262b31, emissiveIntensity: 1 }),
@@ -1372,11 +1378,30 @@ function svFeatures(force) {
       // a human fleet: wedge-hulled ships in loose formation, off to one side of the world it holds
       const r = seeded('n' + f.name + f.from), span = host ? rad * 0.8 : 0.14;
       if (host) { const a = r() * 6.283, d = rad * 2.2; obj.position.set(Math.cos(a) * d, (r() - 0.5) * rad * 0.3, Math.sin(a) * d); }
+      else {
+        // a fleet at the jump limit holds a place on its edge; the Thaali and the Voor face each other across the crossing
+        const cr = seeded('navy:' + f.side), a = cr() * 6.283, rr = R * (0.9 + cr() * 0.2);
+        obj.position.set(Math.cos(a) * rr, (cr() - 0.5) * R * 0.1, Math.sin(a) * rr);
+      }
       const mat = NAVY_MAT[f.style] || NAVY_MAT.human, sz = host ? rad * 0.05 : 0.05;
+      const nbig = f.style === 'thaali' ? Math.max(1, (f.n || 6) - 6) : Math.max(2, (f.n || 6) / 6);
       for (let k = 0; k < Math.min(f.n || 6, 40); k++) {
-        const big = k < Math.max(2, (f.n || 6) / 6);
-        const hull = new THREE.Mesh(new THREE.ConeGeometry(0.16, big ? 1.1 : 0.6, 4), mat); hull.rotation.z = -Math.PI / 2;
-        const grp = new THREE.Group(); grp.add(hull); grp.scale.setScalar(sz * (big ? 1.4 : 1));
+        const big = k < nbig;
+        const grp = new THREE.Group();
+        if (f.style === 'thaali') {
+          // a Thaali hull: a chain of segments on its keel; the great ships long, on two keels
+          const segs = big ? 9 : 4, keels = big ? 2 : 1;
+          for (let q = 0; q < keels; q++) for (let j = 0; j < segs; j++) {
+            const sgm = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.07, 0.08), mat);
+            sgm.position.set((j - segs / 2) * 0.13, 0, (q - (keels - 1) / 2) * 0.1); grp.add(sgm);
+          }
+        } else if (f.style === 'voor') {
+          // a hearth: a long tapering grown hull
+          const hm = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.16, 1.9, 8), mat); hm.rotation.z = Math.PI / 2; grp.add(hm);
+        } else {
+          const hull = new THREE.Mesh(new THREE.ConeGeometry(0.16, big ? 1.1 : 0.6, 4), mat); hull.rotation.z = -Math.PI / 2; grp.add(hull);
+        }
+        grp.scale.setScalar(sz * (big ? 1.4 : 1));
         const a = r() * 6.283, d = span * Math.sqrt(r());
         grp.position.set(Math.cos(a) * d, (r() - 0.5) * span * 0.25, Math.sin(a) * d); grp.rotation.y = 0.4 + (r() - 0.5) * 0.3;
         obj.add(grp);
@@ -1392,6 +1417,21 @@ function svFeatures(force) {
         m.position.set(Math.cos(a) * d, (r() - 0.5) * 0.12, Math.sin(a) * d); m.rotation.set(r(), r() * 6, r());
         obj.add(m);
       }
+      anchor = obj;
+    } else if (f.kind === 'hedge') {
+      // a Thaali march hedge: generator stations in three orbits round the world, whole or stripped
+      const r = seeded(f.name + f.at + f.from);
+      for (let j = 0; j < 3; j++) {
+        const R0 = host ? rad * (1.3 + j * 0.22) : 0.14 + j * 0.05, n = 26 + j * 8, tilt = (j - 1) * 0.45;
+        const ring = new THREE.Group();
+        for (let k = 0; k < n; k++) {
+          if (f.broken && r() < 0.7) continue;
+          const st = new THREE.Mesh(new THREE.OctahedronGeometry(R0 * 0.02, 0), f.broken ? hedgeDeadM : hedgeM);
+          const a0 = k / n * 6.283; st.position.set(Math.cos(a0) * R0, 0, Math.sin(a0) * R0); ring.add(st);
+        }
+        ring.rotation.x = tilt; ring.rotation.z = j * 0.6; obj.add(ring);
+      }
+      obj.userData.span = host ? rad * 6 : 0.5;
       anchor = obj;
     } else if (f.kind === 'orbital') {
       // Fevarian orbital settlements: a broken dark ring of hulls lashed together, hulks moored along it, faint red lights
