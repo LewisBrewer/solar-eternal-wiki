@@ -28,6 +28,7 @@ POLITIES = {
     'une':      {'name': 'United Nations of Earth', 'color': '#5B9BE0', 'slug': 'united-nations-of-earth'},
     'usr':      {'name': 'Unified Solar Republic', 'color': '#5B9BE0', 'slug': 'unified-solar-republic'},
     'voor':     {'name': 'Voor Confederacy', 'color': '#3FB3A6', 'slug': 'voor-confederacy'},
+    'voorsix':  {'name': 'Voor worlds', 'color': '#3FB3A6', 'slug': 'early-history-of-the-voor'},
     'maweer':   {'name': 'Long Garden', 'color': '#62BF6E', 'slug': 'thaali'},
     'freehold': {'name': 'Northern Fevarian Freeholds', 'color': '#A57BD6', 'slug': 'northern-fevarian-freeholds'},
     'fevclans': {'name': 'Southern Fevarian Freeholds', 'color': '#8E5E78', 'slug': 'southern-fevarian-freeholds'},
@@ -950,6 +951,10 @@ EVENTS = [
 
 # ------------------------------------------------------------------ captions
 CAPTIONS = [
+    (1000, 1108, 'Six Voor worlds with six navies and no common cause. The Fevarian clans have already taken the Ommath of the inner Gulf.'),
+    (1108, 1438, 'The Fevarian wars. The clans burn two Voor worlds, and the four that survive found the Legion and drive the clans beyond the Veil.'),
+    (1438, 2018, 'The Voor Confederacy settles the Gulf and the systems beyond it. Its history before contact comes from the Legion\'s sealed histories.'),
+    (2018, 2050, 'The Voor meet the Thaali at Zom. Humanity has not yet settled beyond Earth.'),
     (2050, 2100, 'The Sun\'s planets are settled. Luna and Mars become the first worlds beyond Earth.'),
     (2100, 2220, 'Humanity spreads through the Sun\'s system. No ship has yet crossed to another star.'),
     (2220, 2255, 'The Solar War divides the Sun\'s worlds.'),
@@ -990,7 +995,7 @@ CROSSINGS = [('zom', 'faenov', 'the central crossing, opposite Faenov', (5, 10, 
              ('cheleb', 'wuae', 'the crossing opposite Wuae', (4, 7, 4, 1, 3), False)]
 for sid, vsid, where, (p0, p1, p2, p3, p4), centre in CROSSINGS:
     big = ' with the three ships of the Ocean Under the Ice class' if centre else ''
-    for a, b, n, txt in ((1900, 2334.5, p0, 'the frontier keepers\' body at ' + where + big),
+    for a, b, n, txt in ((2018, 2334.5, p0, 'the frontier keepers\' body at ' + where + big),
                          (2334.5, 2341.0, p1, 'the frontier watch: part of about twenty-four great ships at the crossings' + big),
                          (2341.0, 2447.17, p2, 'the body at ' + where + ' through the sealed years' + big),
                          (2447.17, 2449.6, p3, 'the body left at ' + where + ' while the great fleet fought in the marches'),
@@ -1077,7 +1082,7 @@ VH = 'Voor Legion'
 def _hg(sid, name, a, b, n, strength, slug_='voor-legion'):
     _navy(sid, name, VH, 'voor', a, b, n, strength, slug_)
 # at home: Exedor
-_hg('exedor', 'Home formations', 1900, 2335.2, 5, 'The First of the Fires and the interior formation\'s hearths, under the High Command at Hiverion', 'high-command-voor-legion')
+_hg('exedor', 'Home formations', 1328, 2335.2, 5, 'The First of the Fires and the interior formation\'s hearths, under the High Command at Hiverion', 'high-command-voor-legion')
 _hg('exedor', 'Defence of Exedor', 2335.2, 2336.2, 15, 'Fifteen hearths led by the First of the Fires, with the High Commander aboard', 'battle-of-exedor-2336')
 _hg('exedor', 'Defence of Exedor', 2336.2, 2338.34, 9, 'The hearths left after the Battle of Exedor, sortieing in pairs from under the shield', 'siege-of-hiverion')
 _hg('exedor', 'Hearths under the failing shield', 2338.34, 2341.05, 5, 'Five hearths under Hiverion\'s failing shield, without a High Command', 'voor-confederacy')
@@ -1094,7 +1099,7 @@ _hg('kastaba', 'Kastaba group', 2324.0, 2335.09, 2, 'The Legion\'s Gulf formatio
 _hg('ximpok', 'Ximpok hearths', 2338.3, 2339.63, 3, 'Three hearths at Vi Simni with the Council; two destroyed and one struck in August 2339', 'voolar-surrender')
 _hg('aethos', 'Aethos hearths', 2337.5, 2341.05, 2, 'Two hearths blockaded at Aethos from October 2339', 'voor-confederacy')
 # the Veil frontier
-_hg('qad-vhi', 'Veil frontier hearths', 1900, 2335.2, 10, 'The Veil frontier\'s hearths under its two Generals, watching the clans beyond the Veil', 'frontier-generals')
+_hg('qad-vhi', 'Veil frontier hearths', 1438, 2335.2, 10, 'The Veil frontier\'s hearths under its two Generals, watching the clans beyond the Veil', 'frontier-generals')
 _hg('qad-vhi', 'The frontier\'s twenty', 2344.0, 2415.8, 20, 'The twenty hearths of the treaty cap under the frontier Generals, the Legion\'s unofficial High Command, at their seat at Qad Vhi', 'frontier-generals')
 _hg('qad-vhi', 'The frontier\'s twenty', 2415.8, 2416.4, 14, 'The fourteen hearths left after the first engagement with the Khan\'s monoliths', 'voor-campaign')
 _hg('aethos', 'Defence of Vur Duri', 2420.2, 2422.44, 21, 'Twenty-one hearths, nine old and twelve of the Tribune class, under General Seren Vaadh', 'fall-of-vur-duri')
@@ -1175,15 +1180,70 @@ for sid, fs in FEATURES.items():
             f['sides'] = [{'name': BT.KH, 'style': 'mono', 'n': f['n'], 'lost': '%d monolith%s' % (f['n'], 's' if f['n'] > 1 else '') +
                            (' (%s)' % ', '.join(f['named']) if f.get('named') else ''), 'clans': f['clans']}]
 
+# ---- deep time (Lewis, 22 November 2026): the timeline reaches back to 1000, the century before the Fevarian wars.
+# Voor years before contact convert at 1.1 Earth years each from 2317.75. Every claim the sheet starts in 1900 reaches
+# back to 1000; the Voor systems follow the Voor's own history: the six worlds (the Voor worlds) to the founding of the
+# Confederacy in 1438, Ladiom's first colony and Durnhaal burned in the wars, then the expansion outward from Exedor.
+DEEP = 1000
+VOOR_DEEP = {'exedor': [(DEEP, 'voorsix')], 'ximpok': [(DEEP, 'voorsix')], 'aethos': [(DEEP, 'voorsix')], 'romston': [(DEEP, 'voorsix')],
+             'ladiom': [(DEEP, 'voorsix'), (1108.4, None), (1482, 'voor')], 'batraq': [(DEEP, 'voorsix'), (1119.0, None), (1438.5, 'voor')],
+             'haedus': [(1383, 'voorsix')], 'kastaba': [(1746, 'voor')], 'myrum': [(1790, 'voor')],
+             # the expansion reached the Thaali frontier about 273 Voor years before contact
+             'faenov': [(2008, 'voor')], 'wicklar': [(2010, 'voor')], 'wuae': [(2012, 'voor')]}
+_ex = by['exedor']; _vs = [s for s in systems if s['region2235'] == 'voor']
+_dist = {s['id']: math.dist((s['x'], s['y'], s['z']), (_ex['x'], _ex['y'], _ex['z'])) for s in _vs}
+_d0, _d1 = min(_dist.values()), max(_dist.values())
+for s in systems:
+    o = own[s['id']]
+    if s['region2235'] == 'voor':
+        if o and o[0]['from'] == 1900 and o[0]['p'] == 'voor': o.pop(0)
+        sched = VOOR_DEEP.get(s['id']) or [(round(1450 + (_dist[s['id']] - _d0) / (_d1 - _d0) * 560, 1), 'voor')]
+        if any(p == 'voorsix' for _, p in sched) and not any(y == 1438.5 and p == 'voor' for y, p in sched) and s['id'] != 'ladiom':
+            sched = sched + [(1438.5, 'voor')]
+        o[:0] = [{'from': y, 'p': p} for y, p in sched]
+    elif o and o[0]['from'] == 1900:
+        o[0]['from'] = DEEP
+    o.sort(key=lambda e: e['from'])
+# native worlds stand from the start; the Voor's own worlds from their settlement
+for w in worlds:
+    if w.get('native') and w['settled'] <= 1900: w['settled'] = DEEP
+    if w['sys'] in ('exedor', 'ximpok', 'aethos') and w.get('native'): w['settled'] = DEEP
+    if w['name'] == 'Indata Mog': w['settled'] = 1383
+BURNED_EXTRA += [('izar', 'Izar III', 1000.5), ('ladiom', 'Ladiom II', 1108.4), ('batraq', 'Durnhaal', 1119.0)]
+def _dev(y, label, sys, kind, slug):
+    assert sys in by, sys
+    return {'y': y, 'label': label, 'sys': sys, 'kind': kind, 'slug': slug}
+EVENTS.extend([
+    _dev(1000.5, 'The Fevarian clans take the Ommath', 'izar', 'burning', 'ommath'),
+    _dev(1020.0, 'A survey ship of Vi Simni finds the Ommath dead', 'izar', 'survey', 'ommath'),
+    _dev(1108.4, 'The clans burn Ladiom\'s first colony', 'ladiom', 'burning', 'ladiom'),
+    _dev(1108.6, 'The four worlds found the Legion', 'exedor', 'polity', 'fevarian-wars'),
+    _dev(1119.0, 'Durnhaal burned', 'batraq', 'burning', 'durnhaal'),
+    _dev(1328.0, 'The First of the Fires grown at Hiverion', 'exedor', 'polity', 'hearth-yards'),
+    _dev(1338.7, 'The nine-day hold at Ladiom', 'ladiom', 'battle', 'ladiom'),
+    _dev(1383.0, 'The Keeper of the Threshold founds Indata Mog', 'haedus', 'world', 'indata-mog'),
+    _dev(1432.2, 'The last clan fleet in the Gulf destroyed at Batraq', 'batraq', 'battle', 'fevarian-wars'),
+    _dev(1438.5, 'The Voor Confederacy founded', 'exedor', 'polity', 'early-history-of-the-voor'),
+    _dev(1482.0, 'Ladiom resettled', 'ladiom', 'world', 'ladiom'),
+    _dev(1746.0, 'Kastaba settled', 'kastaba', 'world', 'voor-expansion'),
+    _dev(1790.0, 'Myrum settled', 'myrum', 'world', 'voor-expansion'),
+    _dev(1856.0, 'General summons against the clans of the Veil', 'qad-vhi', 'battle', 'legion-service'),
+    _dev(2017.5, 'The Voor meet the Thaali at Zom', 'zom', 'survey', 'early-history-of-the-voor'),
+    _dev(2019.7, 'The first Thaali envoy received at Hiverion', 'exedor', 'polity', 'high-council-voor'),
+    _dev(2098.0, 'The last general summons before contact', 'qad-vhi', 'battle', 'legion-service'),
+    _dev(2186.0, 'The second Thaali reception at Hiverion', 'exedor', 'polity', 'high-council-voor'),
+])
+EVENTS.sort(key=lambda e: e['y'])
+
 data = {
     'meta': {
         'source': 'Traced from Lewis Brewer\'s reference map 2235.12.10; 1 unit = 1 light year; Sol at origin.',
-        'range': [2050, 2515], 'start': 2510,
+        'range': [DEEP, 2515], 'start': 2510,
     },
     'polities': POLITIES,
     # Powers fade in when humanity learns of them: the Voor at contact in 1 October 2317's
     # approach, the Thaali and (through the Voor) the Fevarians by 2320.
-    'contact': {'voor': 2317.75, 'maweer': 2320.5, 'freehold': 2320.5, 'fevclans': 2320.5, 'raidzone': 2320.5, 'dwaii': 2320.5, 'kadur': 2320.5, 'ossathi': 2457.0, 'veren': 2457.0, 'kaltam': 2456.3, 'duresh': 2457.0},
+    'contact': {'voor': 2317.75, 'voorsix': 2317.75, 'maweer': 2320.5, 'freehold': 2320.5, 'fevclans': 2320.5, 'raidzone': 2320.5, 'dwaii': 2320.5, 'kadur': 2320.5, 'ossathi': 2457.0, 'veren': 2457.0, 'kaltam': 2456.3, 'duresh': 2457.0},
     'systems': [{**s, 'own': own[s['id']]} for s in systems],
     'worlds': worlds,
     'planetNames': PLANET_NAMES,

@@ -7,6 +7,7 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 const ERAS = [
+  [900, 1108, 'The Six Worlds'], [1108, 1438, 'The Fevarian Wars'], [1438, 1945, 'The Voor Expansion'],
   [1945, 2220, 'The Early Solar Era'], [2220, 2255, 'The Solar War'], [2255, 2289, 'Unification'],
   [2289, 2318, 'The Expansion Era'], [2318, 2333, 'The Ring of Iron'], [2333, 2341, 'The Ciriban Gulf Conflict'],
   [2341, 2405, 'The First Republic'], [2405, 2441, 'The Fevarian Crisis'], [2441, 2449, 'The Darkest Decade'],
@@ -51,10 +52,10 @@ const CONTACT = data.contact || {};
 function ownerAt(s, t) {
   let cur = null;
   for (const e of s.own) { if (e.from <= t) cur = e; else break; }
-  if (!cur) return null;
+  if (!cur || !cur.p) return null;
   const p = cur.p === 'human' ? humanName(t) : cur.p;
-  if (CONTACT[p] && t < CONTACT[p]) return null;   // not yet known to humanity
-  return { p, note: cur.note, derived: !!cur.derived, from: cur.from, vs: cur.vs };
+  // before humanity learned of a power, its holdings show faintly, as later sources reconstruct them
+  return { p, note: cur.note, derived: !!cur.derived, from: cur.from, vs: cur.vs, recon: !!(CONTACT[p] && t < CONTACT[p]) };
 }
 // a world shows its found biome until its terraforming is complete
 const biomeAt = (w, t) => (w && w.becomes && w.terraformed && t >= w.terraformed ? w.becomes : w && w.biome);
@@ -67,7 +68,7 @@ const fmtDate = (y) => {
   const yr = Math.floor(y), f = y - yr, m = Math.min(11, Math.floor(f * 12 + 1e-6));
   return f < 0.001 ? String(yr) : MONTHS[m] + ' ' + yr;
 };
-const polName = (p) => (P[p] ? P[p].name : p);
+const polName = (p) => (!p ? 'Unclaimed' : P[p] ? P[p].name : p);
 const polColor = (p) => (P[p] ? P[p].color : '#888');
 
 // ------------------------------------------------------------------ three.js scene
@@ -183,7 +184,7 @@ function paintTerritory(t) {
       const pat = lg.createPattern(noise, 'repeat'); pat.setTransform(new DOMMatrix().scale(2.2)); lg.fillStyle = pat; lg.fillRect(0, 0, layer.width, layer.height);
       lg.globalCompositeOperation = 'source-in';
       lg.fillStyle = polColor(p); lg.fillRect(0, 0, layer.width, layer.height);
-      const fade = CONTACT[p] ? Math.min(1, Math.max(0, (t - CONTACT[p]) / 3)) : 1;   // fade in over three years after contact
+      const fade = CONTACT[p] ? Math.min(1, Math.max(0.35, (t - CONTACT[p]) / 3)) : 1;   // faint before contact, full three years after
       g.globalAlpha = 0.62 * fade; g.drawImage(layer, 0, 0); g.globalAlpha = 1;
     }
     // a besieged or contested system: the attacker's colour in diagonal stripes over the holder's
@@ -537,7 +538,7 @@ function renderSelected() {
   else if (o) desc = 'Held by the ' + polName(o.p) + '. No settled world is charted here.';
   else desc = 'Unclaimed. Charted, but held by no known power.';
   if (burned.length) desc += ' ' + burned.map((b) => b.name).join(' and ') + ' burned in ' + Math.floor(burned[0].y) + '.';
-  const held = o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ' <span style="color:var(--muted)">(' + esc(o.note) + ')</span>' : '') + (o.derived ? '<sup class="drv" title="Date reconstructed, not stated in the book">†</sup>' : '') : 'Unclaimed';
+  const held = o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ' <span style="color:var(--muted)">(' + esc(o.note) + ')</span>' : '') + (o.derived ? '<sup class="drv" title="Date reconstructed, not stated in the book">†</sup>' : '') + (o.recon ? ' <span style="color:var(--muted)">(unknown to humanity until ' + Math.floor(CONTACT[o.p]) + ')</span>' : '') : 'Unclaimed';
   const evHtml = evs.length ? '<ul>' + evs.map((e) => '<li>' + (hasArticle(e.slug) ? '<a href="' + wikiHref(e.slug) + '">' + esc(e.label) + '</a>' : esc(e.label)) + ', ' + Math.floor(e.y) + '</li>').join('') + '</ul>' : '';
   const wHtml = ws.length ? '<ul>' + ws.map((w) => '<li>' + (hasArticle(w.slug) ? '<a href="' + wikiHref(w.slug) + '">' + esc(w.name) + '</a>' : esc(w.name)) + (w.native ? '' : ', ' + Math.floor(w.settled)) + '</li>').join('') + '</ul>' : '';
   $('#selected').innerHTML =
@@ -663,33 +664,38 @@ const tlBox = $('#timeline'), tl = $('#tl'), tlg = tl.getContext('2d');
 let tlPos = year;               // fractional, follows drags
 let VISIBLE_YEARS = window.innerWidth < 700 ? 30 : 60;
 window.addEventListener('resize', () => { VISIBLE_YEARS = window.innerWidth < 700 ? 30 : 60; });
-const eventYears = new Set(data.events.map((e) => Math.floor(e.y)));
+// before 2040 the strip shows more years at once, up to ten times as many, so the deep past is quick to cross
+const spanAt = (p) => (p >= 2040 ? VISIBLE_YEARS : VISIBLE_YEARS * Math.min(10, 1 + (2040 - p) / 30));
+const tickStep = (span) => (span <= 90 ? 1 : span <= 200 ? 5 : span <= 400 ? 10 : 25);
+const EV_Y = data.events.map((e) => e.y);
 function drawTimeline() {
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   const w = tlBox.clientWidth, h = tlBox.clientHeight;
   if (tl.width !== Math.round(w * dpr) || tl.height !== Math.round(h * dpr)) { tl.width = Math.round(w * dpr); tl.height = Math.round(h * dpr); }
   tlg.setTransform(dpr, 0, 0, dpr, 0, 0);
   tlg.clearRect(0, 0, w, h);
-  const ppy = w / VISIBLE_YEARS, mid = w / 2, cyy = h / 2 - 4;
-  const y0 = Math.floor(tlPos - VISIBLE_YEARS / 2 - 1), y1 = Math.ceil(tlPos + VISIBLE_YEARS / 2 + 1);
+  const span = spanAt(tlPos), st = tickStep(span);
+  const ppy = w / span, mid = w / 2, cyy = h / 2 - 4;
+  const y0 = Math.floor((tlPos - span / 2 - 1) / st) * st, y1 = Math.ceil(tlPos + span / 2 + 1);
   tlg.font = "500 9px 'Jost', sans-serif"; tlg.textAlign = 'center'; tlg.textBaseline = 'alphabetic';
-  for (let y = y0; y <= y1; y++) {
+  for (let y = y0; y <= y1; y += st) {
     if (y < RANGE[0] || y > RANGE[1]) continue;
     const x = mid + (y - tlPos) * ppy;
     if (x < -2 || x > w + 2) continue;
     const d = Math.min(1, Math.abs(x - mid) / mid);
     const grow = 1 + 0.75 * Math.pow(1 - d, 2);
-    const decade = y % 10 === 0;
-    const isCur = y === year;
+    const decade = y % (10 * st) === 0;
+    const isCur = st === 1 ? y === year : false;
     let bh = (decade ? 22 : 13) * grow;
     if (isCur) bh = 34;
     const lw = isCur ? 3 : decade ? 1.4 : 1;
     const a = isCur ? 1 : (0.35 + 0.55 * (1 - d)) * (decade ? 1 : 0.8);
     tlg.fillStyle = 'rgba(255,255,255,' + a + ')';
     tlg.fillRect(Math.round(x - lw / 2), cyy - bh / 2, lw, bh);
-    if (eventYears.has(y) && !isCur) { tlg.fillStyle = 'rgba(242,193,78,' + (0.35 + 0.5 * (1 - d)) + ')'; tlg.fillRect(Math.round(x) - 1.5, cyy - bh / 2 - 6, 3, 3); }
+    if (!isCur && EV_Y.some((ey) => ey >= y && ey < y + st)) { tlg.fillStyle = 'rgba(242,193,78,' + (0.35 + 0.5 * (1 - d)) + ')'; tlg.fillRect(Math.round(x) - 1.5, cyy - bh / 2 - 6, 3, 3); }
     if (decade && !isCur && Math.abs(x - mid) > 34) { tlg.fillStyle = 'rgba(169,187,208,' + (0.25 + 0.5 * (1 - d)) + ')'; tlg.fillText(String(y), x, h - 6); }
   }
+  if (st > 1) { tlg.fillStyle = '#fff'; tlg.fillRect(Math.round(mid + (year - tlPos) * ppy - 1.5), cyy - 17, 3, 34); }
   // current year readout under the bold bar
   tlg.font = "600 11px 'Jost', sans-serif"; tlg.fillStyle = '#fff';
   if ('letterSpacing' in tlg) tlg.letterSpacing = '1.5px';
@@ -710,7 +716,7 @@ tlBox.addEventListener('pointerdown', (e) => {
 });
 tlBox.addEventListener('pointermove', (e) => {
   if (!drag) return;
-  const ppy = tlBox.clientWidth / VISIBLE_YEARS, now = performance.now();
+  const ppy = tlBox.clientWidth / spanAt(tlPos), now = performance.now();
   const dx = e.clientX - drag.lastX, dt = Math.max(1, now - drag.lastT);
   drag.v = 0.8 * (-dx / ppy / dt) + 0.2 * drag.v; drag.lastX = e.clientX; drag.lastT = now; drag.moved += Math.abs(dx);
   setPos(drag.pos - (e.clientX - drag.x) / ppy);
@@ -719,13 +725,13 @@ const endDrag = (e) => {
   if (!drag) return;
   tlBox.classList.remove('drag');
   if (drag.moved < 4) { // a click jumps to the year under the pointer
-    const r = tlBox.getBoundingClientRect(), ppy = r.width / VISIBLE_YEARS;
+    const r = tlBox.getBoundingClientRect(), ppy = r.width / spanAt(tlPos);
     glide = { target: Math.round(tlPos + (e.clientX - r.left - r.width / 2) / ppy) };
   } else glide = { v: drag.v };
   drag = null;
 };
 tlBox.addEventListener('pointerup', endDrag); tlBox.addEventListener('pointercancel', endDrag);
-tlBox.addEventListener('wheel', (e) => { e.preventDefault(); glide = null; setPos(tlPos + (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) / 40); clearTimeout(tlBox._t); tlBox._t = setTimeout(() => { glide = { target: Math.round(tlPos) }; }, 160); }, { passive: false });
+tlBox.addEventListener('wheel', (e) => { e.preventDefault(); glide = null; setPos(tlPos + (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) / 40 * spanAt(tlPos) / VISIBLE_YEARS); clearTimeout(tlBox._t); tlBox._t = setTimeout(() => { glide = { target: Math.round(tlPos) }; }, 160); }, { passive: false });
 tlBox.addEventListener('keydown', (e) => {
   const step = { ArrowLeft: -1, ArrowRight: 1, ArrowDown: -1, ArrowUp: 1, PageDown: -10, PageUp: 10 }[e.key];
   if (step) { e.preventDefault(); glide = { target: Math.round(tlPos) + step }; }
@@ -980,7 +986,7 @@ function bodyInfo(b, t, o) {
 function renderSystemInfo() {
   const s = sv.sys, t = year + 0.999, o = ownerAt(s, t), ws = worldsAt(s.id, t), reg = regionOf(s);
   const evs = data.events.filter((e) => e.sys === s.id);
-  const hist = ownHistory(s).filter((h) => h.y > 1950);
+  const hist = ownHistory(s).filter((h) => h.y > RANGE[0]);
   const dist = Math.hypot(s.x, s.y, s.z);
   let html = '<div class="hd"><span class="k">' + esc(o ? polName(o.p) : 'Unclaimed') + '</span><h1>' + esc(s.name) + '</h1><span>Star system' + (reg ? ' · ' + sectorFlag(reg) + secLink(reg) : '') + '</span></div>';
   const body = bodyFor(sv.pick);
@@ -995,7 +1001,7 @@ function renderSystemInfo() {
     ['Map position', s.x.toFixed(1) + ', ' + s.y.toFixed(1) + ', ' + s.z.toFixed(1) + ' ly<sup class="drv" title="Height above the plane is reconstructed">†</sup>'],
     ['Planets', String(sv.planets.length)],
   ]);
-  html += sec('Sovereignty', [['Held by', o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ', ' + esc(o.note) : '') : 'Unclaimed']]
+  html += sec('Sovereignty', [['Held by', o ? (P[o.p] && P[o.p].flag ? '<img class="sw flagkey" src="assets/flags/' + P[o.p].flag + '" alt="">' : '<span class="sw" style="background:' + polColor(o.p) + '"></span>') + esc(polName(o.p)) + (o.note ? ', ' + esc(o.note) : '') + (o.recon ? ' <span style="color:var(--muted)">(unknown to humanity until ' + Math.floor(CONTACT[o.p]) + ')</span>' : '') : 'Unclaimed']]
     .concat(hist.map((h) => [String(Math.floor(h.y)), esc(polName(h.p)) + (h.note ? ', ' + esc(h.note) : '') + (h.derived ? '<sup class="drv" title="Date reconstructed">†</sup>' : ''), h.y > t])));
   const clansHere = (data.clans || []).filter((c) => c.home === s.id);
   if (clansHere.length) {
