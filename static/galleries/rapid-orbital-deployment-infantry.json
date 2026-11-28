@@ -1,0 +1,35 @@
+{
+ "title": "Division patches",
+ "items": [
+  {
+   "src": "insignia/101st-rapid-orbital-deployment-division.png",
+   "title": "101st Division",
+   "sub": "Old Breed",
+   "inv": false
+  },
+  {
+   "src": "insignia/102nd-rapid-orbital-deployment-division.png",
+   "title": "102nd Division",
+   "sub": "Doorkeepers",
+   "inv": false
+  },
+  {
+   "src": "insignia/103rd-rapid-orbital-deployment-division.png",
+   "title": "103rd Division",
+   "sub": "Ake!",
+   "inv": false
+  },
+  {
+   "src": "insignia/104th-rapid-orbital-deployment-division.png",
+   "title": "104th Division",
+   "sub": "Lamplighters",
+   "inv": false
+  },
+  {
+   "src": "insignia/105th-rapid-orbital-deployment-division.png",
+   "title": "105th Division",
+   "sub": "Nomotar's Own",
+   "inv": false
+  }
+ ]
+}
