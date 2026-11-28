@@ -231,6 +231,7 @@ a:hover{text-decoration-color:var(--white)}
 .pm-wrap .pm-next{position:absolute;left:0;top:0;width:100%;height:100%}
 /* Fevarian hanging banners: tall in the infobox, square heads where a flag goes, a gallery for the clans */
 .infobox .ib-banner img{width:34%;margin:0 auto;border:0}
+.infobox .ib-flag.ib-insignia img{width:62%;margin:0 auto;border:0}
 .infobox .fl[src*="khanate"],.infobox .fl[src*="veil-clans"],.infobox .fl[src*="freeholds"],.infobox .fl[src*="eight-khans"]{width:14px;height:14px}
 .gallery .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:22px 16px;margin:18px 0 8px}
 .gallery figure{margin:0}

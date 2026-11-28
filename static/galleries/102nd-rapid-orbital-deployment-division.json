@@ -1,0 +1,17 @@
+{
+ "title": "Insignia",
+ "items": [
+  {
+   "src": "insignia/102nd-rapid-orbital-deployment-division.png",
+   "title": "Division patch",
+   "sub": "earned in the Solar War",
+   "inv": false
+  },
+  {
+   "src": "insignia/102nd-rapid-orbital-deployment-division-formation.png",
+   "title": "Formation patch",
+   "sub": "issued at Mahia, 2229",
+   "inv": false
+  }
+ ]
+}

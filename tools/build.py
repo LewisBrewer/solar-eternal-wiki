@@ -639,6 +639,10 @@ class Site:
                 out.append('<figure class="ib-flag ib-logo"><img src="%sassets/logos/%s.%s" alt="Logo of %s"></figure>' %
                            (self.root_for_infobox, art['slug'], ext, html.escape(art['title'])))
                 break
+        # a unit patch, kept in static/insignia/<slug>.png (the ROD divisions)
+        if os.path.exists(os.path.join(STATIC, 'insignia', '%s.png' % art['slug'])):
+            out.append('<figure class="ib-flag ib-insignia"><img src="%sassets/insignia/%s.png" alt="Patch of the %s"></figure>' %
+                       (self.root_for_infobox, art['slug'], html.escape(art['title'])))
         used = set(['type'])
         if art['part_of']:
             used.add('part of')
